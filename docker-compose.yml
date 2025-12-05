@@ -1,0 +1,27 @@
+# docker-compose.local.yml
+# Только для сборки образов
+
+services:
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ghcr.io/xytrax9/college-frontend:test
+
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ghcr.io/xytrax9/college-backend:test
+    
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ghcr.io/xytrax9/college-frontend:latest
+
+  backend-prod:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ghcr.io/xytrax9/college-backend:latest

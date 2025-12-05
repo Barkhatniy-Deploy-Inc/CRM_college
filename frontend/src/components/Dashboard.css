@@ -1,0 +1,108 @@
+/* Общий контейнер дашборда */
+.dashboard {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Шапка */
+.dashboard-header {
+  background-color: white;
+  padding: 30px 40px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: black;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Информация о пользователе */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.user-info span {
+  color: black;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+/* Кнопка выхода */
+.logout-btn {
+  padding: 12px 24px;
+  background-color: rgb(234, 188, 93);
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(234, 188, 93, 0.3);
+}
+
+.logout-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(234, 188, 93, 0.4);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+/* Основной контент */
+.dashboard-content {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 20px;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 24px;
+    width: 100%;
+  }
+
+  .user-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .user-info span {
+    font-size: 13px;
+    padding: 8px 15px;
+  }
+
+  .logout-btn {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+}
