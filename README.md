@@ -1,2 +1,1 @@
-# hahaton
 # CRM-college
