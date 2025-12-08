@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta, timezone
 import jwt
 from passlib.context import CryptContext
-from schedule.database.database import get_db
-from fastapi import Response
+from sqlalchemy.orm import Session
+from database.models import User
+from fastapi import Response, Depends
+from database.database import get_db
 import os
 import secrets
 
@@ -55,31 +57,21 @@ def set_auth_cookie(response: Response, token: str):
     )
 
 
-def create_user(email: str, password: str, full_name: str) -> int:
+def create_user(email: str, password: str, full_name: str, db: Session) -> int:
     """Создание нового пользователя"""
-    with get_db() as conn:
-        cursor = conn.cursor()
-        password_hash = hash_password(password)
-        cursor.execute(
-            "INSERT INTO users (email, password_hash, full_name) VALUES (?, ?, ?)",
-            (email, password_hash, full_name)
-        )
-        return cursor.lastrowid
+    password_hash = hash_password(password)
+    new_user = User(email=email, password_hash=password_hash, full_name=full_name)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user.id
 
 
-def get_user_by_email(email: str):
+def get_user_by_email(email: str, db: Session):
     """Получение пользователя по email"""
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, email, password_hash, full_name FROM users WHERE email = ?", (email,))
-        user = cursor.fetchone()
-        return dict(user) if user else None
+    return db.query(User).filter(User.email == email).first()
 
 
-def get_user_by_id(user_id: int):
+def get_user_by_id(user_id: int, db: Session):
     """Получение пользователя по ID"""
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, email, full_name FROM users WHERE id = ?", (user_id,))
-        user = cursor.fetchone()
-        return dict(user) if user else None
+    return db.query(User).filter(User.id == user_id).first()

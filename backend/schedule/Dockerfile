@@ -35,7 +35,7 @@ COPY --from=builder /app/wheels /wheels
 RUN pip install --no-cache /wheels/*
 
 # Копируем весь backend
-COPY . .
+COPY .. .
 
 # Создаём папку под SQLite с правами для appuser
 RUN mkdir -p /app/data && chown -R appuser:appuser /app /app/data

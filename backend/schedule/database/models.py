@@ -1,9 +1,10 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, Field
-from typing import Optional
-from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLAlchemyEnum
+from sqlalchemy.orm import relationship
+from .database import Base
 from enum import Enum
-
-# ========== ENUMS ==========
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import Optional
 
 class SlotStatus(str, Enum):
     SCHEDULED = "scheduled"
@@ -16,36 +17,79 @@ class ParticipantStatus(str, Enum):
     ATTENDED = "attended"
     ABSENT = "absent"
 
-# ========== BASE MODELS ==========
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    full_name = Column(String, nullable=False)
+    telegram_id = Column(String, nullable=True)
+    participants = relationship("Participant", back_populates="user")
 
-class Base(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class Auditorium(Base):
+    __tablename__ = "auditoriums"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    capacity = Column(Integer)
+    description = Column(String)
+    slots = relationship("ClassSlot", back_populates="auditorium")
 
-# ========== AUTH MODELS ==========
+class Course(Base):
+    __tablename__ = "courses"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String)
+    instructor = Column(String)
+    slots = relationship("ClassSlot", back_populates="course")
 
-class RegisterRequest(Base):
+class ClassSlot(Base):
+    __tablename__ = "class_slots"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    start_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime, nullable=False)
+    instructor = Column(String)
+    max_participants = Column(Integer)
+    status = Column(SQLAlchemyEnum(SlotStatus), default=SlotStatus.SCHEDULED)
+    course_id = Column(Integer, ForeignKey("courses.id"))
+    auditorium_id = Column(Integer, ForeignKey("auditoriums.id"))
+    course = relationship("Course", back_populates="slots")
+    auditorium = relationship("Auditorium", back_populates="slots")
+    participants = relationship("Participant", back_populates="slot")
+
+class Participant(Base):
+    __tablename__ = "participants"
+    id = Column(Integer, primary_key=True, index=True)
+    class_slot_id = Column(Integer, ForeignKey("class_slots.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    status = Column(SQLAlchemyEnum(ParticipantStatus), default=ParticipantStatus.REGISTERED)
+    slot = relationship("ClassSlot", back_populates="participants")
+    user = relationship("User", back_populates="participants")
+
+# Pydantic models for request and response
+class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     full_name: str
 
-class LoginRequest(Base):
+class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
-class UserResponse(Base):
+class UserResponse(BaseModel):
     id: int
     email: EmailStr
     full_name: str
     telegram_id: Optional[str] = None
+    class Config:
+        from_attributes = True
 
-class TokenResponse(Base):
+class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
 
-# ========== AUDITORIUM MODELS ==========
-
-class AuditoriumBase(Base):
+class AuditoriumBase(BaseModel):
     name: str
     capacity: Optional[int] = None
     description: Optional[str] = None
@@ -53,17 +97,17 @@ class AuditoriumBase(Base):
 class AuditoriumCreate(AuditoriumBase):
     pass
 
-class AuditoriumUpdate(Base):
+class AuditoriumUpdate(BaseModel):
     name: Optional[str] = None
     capacity: Optional[int] = None
     description: Optional[str] = None
 
 class AuditoriumResponse(AuditoriumBase):
     id: int
+    class Config:
+        from_attributes = True
 
-# ========== COURSE MODELS ==========
-
-class CourseBase(Base):
+class CourseBase(BaseModel):
     name: str
     description: Optional[str] = None
     instructor: Optional[str] = None
@@ -71,17 +115,17 @@ class CourseBase(Base):
 class CourseCreate(CourseBase):
     pass
 
-class CourseUpdate(Base):
+class CourseUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     instructor: Optional[str] = None
 
 class CourseResponse(CourseBase):
     id: int
+    class Config:
+        from_attributes = True
 
-# ========== SLOT MODELS ==========
-
-class ClassSlotBase(Base):
+class ClassSlotBase(BaseModel):
     title: str
     start_time: datetime
     end_time: datetime
@@ -93,7 +137,7 @@ class ClassSlotCreate(ClassSlotBase):
     course_id: int
     auditorium_id: Optional[int] = None
 
-class ClassSlotUpdate(Base):
+class ClassSlotUpdate(BaseModel):
     title: Optional[str] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
@@ -106,23 +150,25 @@ class ClassSlotResponse(ClassSlotBase):
     id: int
     course_id: int
     auditorium_id: Optional[int] = None
+    class Config:
+        from_attributes = True
 
-# ========== PARTICIPANT MODELS ==========
-
-class AddParticipantRequest(Base):
+class AddParticipantRequest(BaseModel):
     user_id: int
 
-class ParticipantBase(Base):
+class ParticipantBase(BaseModel):
     status: ParticipantStatus = ParticipantStatus.REGISTERED
 
 class ParticipantCreate(ParticipantBase):
     class_slot_id: int
     user_id: int
 
-class ParticipantUpdate(Base):
+class ParticipantUpdate(BaseModel):
     status: Optional[ParticipantStatus] = None
 
 class ParticipantResponse(ParticipantBase):
     id: int
     class_slot_id: int
     user_id: int
+    class Config:
+        from_attributes = True

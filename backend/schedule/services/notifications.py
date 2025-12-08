@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 import asyncio
 import telegram
-from schedule.database.database import get_db
+from database.database import get_db
 
 load_dotenv()
 

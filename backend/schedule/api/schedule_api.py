@@ -1,8 +1,9 @@
-from fastapi import UploadFile, File, HTTPException
+from fastapi import UploadFile, File, HTTPException, Depends
 from typing import List, Optional
-from pydantic import BaseModel
-from schedule.database.database import get_db
-from schedule.core.parser import parse_excel_schedule
+from sqlalchemy.orm import Session, joinedload
+from database.database import get_db
+from database.models import ClassSlot, Auditorium, Course
+from core.parser import parse_excel_schedule
 import os
 import tempfile
 
@@ -31,47 +32,31 @@ async def get_schedule_list(
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
         limit: int = 100,
-        offset: int = 0
+        offset: int = 0,
+        db: Session = Depends(get_db)
 ) -> List[dict]:
     """
     Получение списка занятий с подробной информацией.
     Включает названия курса и аудитории для полноты данных.
     """
-    with get_db() as conn:
-        cursor = conn.cursor()
-        # Расширяем запрос, чтобы получать названия курса и аудитории
-        query = """
-            SELECT
-                cs.id,
-                cs.title,
-                cs.start_time,
-                cs.end_time,
-                cs.auditorium_id,
-                cs.instructor as teacher_name, -- Алиас для консистентности с другими частями системы
-                cs.status,
-                a.name as auditorium_name,
-                c.name as course_name
-            FROM class_slots cs
-            LEFT JOIN auditoriums a ON cs.auditorium_id = a.id
-            LEFT JOIN courses c ON cs.course_id = c.id
-            WHERE 1=1
-        """
-        params = []
+    query = db.query(
+        ClassSlot.id,
+        ClassSlot.title,
+        ClassSlot.start_time,
+        ClassSlot.end_time,
+        ClassSlot.auditorium_id,
+        ClassSlot.instructor.label("teacher_name"),
+        ClassSlot.status,
+        Auditorium.name.label("auditorium_name"),
+        Course.name.label("course_name")
+    ).outerjoin(Auditorium, ClassSlot.auditorium_id == Auditorium.id).outerjoin(Course, ClassSlot.course_id == Course.id)
 
-        if date_from and date_to:
-            query += " AND date(cs.start_time) >= ? AND date(cs.start_time) <= ?"
-            params.extend([date_from, date_to])
-        elif date:
-            query += " AND date(cs.start_time) = ?"
-            params.append(date)
+    if date_from and date_to:
+        query = query.filter(ClassSlot.start_time.between(date_from, date_to))
+    elif date:
+        query = query.filter(ClassSlot.start_time.like(f"{date}%"))
 
-        # Лимит по умолчанию для запросов без диапазона дат
-        real_limit = 2000 if (date_from or date_to) else limit
-        query += " ORDER BY cs.start_time DESC LIMIT ? OFFSET ?"
-        params.extend([real_limit, offset])
-
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-
-        # Преобразуем строки из БД в словари
-        return [dict(row) for row in rows]
+    real_limit = 2000 if (date_from or date_to) else limit
+    slots = query.order_by(ClassSlot.start_time.desc()).limit(real_limit).offset(offset).all()
+    
+    return [slot._asdict() for slot in slots]

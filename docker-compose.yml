@@ -11,7 +11,7 @@ services:
   backend-test:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: backend/schedule/Dockerfile
     image: ghcr.io/xytrax9/college-backend:test
     
   frontend-prod:
@@ -23,5 +23,5 @@ services:
   backend-prod:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: backend/schedule/Dockerfile
     image: ghcr.io/xytrax9/college-backend:latest

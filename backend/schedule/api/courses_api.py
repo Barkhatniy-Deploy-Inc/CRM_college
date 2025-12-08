@@ -1,73 +1,53 @@
-from fastapi import HTTPException, status
-from schedule.database.database import get_db
-from schedule.database.models import CourseCreate, CourseUpdate, CourseResponse
+from fastapi import HTTPException, status, Depends
+from sqlalchemy.orm import Session
+from database.database import get_db
+from database.models import Course, CourseCreate, CourseUpdate, CourseResponse
 from typing import List, Optional
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-async def create_course(data: CourseCreate) -> CourseResponse:
+async def create_course(data: CourseCreate, db: Session = Depends(get_db)) -> CourseResponse:
     """Создание нового курса."""
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO courses (name, description, instructor) VALUES (?, ?, ?)",
-            (data.name, data.description, data.instructor)
-        )
-        new_id = cursor.lastrowid
-        return CourseResponse(id=new_id, **data.model_dump())
+    new_course = Course(**data.model_dump())
+    db.add(new_course)
+    db.commit()
+    db.refresh(new_course)
+    return new_course
 
 
-async def get_courses(name: Optional[str] = None, limit: int = 100, offset: int = 0) -> List[CourseResponse]:
+async def get_courses(name: Optional[str] = None, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)) -> List[CourseResponse]:
     """Получение списка курсов с фильтрацией."""
-    with get_db() as conn:
-        cursor = conn.cursor()
-        query = "SELECT * FROM courses WHERE 1=1"
-        params = []
-        if name:
-            query += " AND name LIKE ?"
-            params.append(f"%{name}%")
-        query += " ORDER BY name LIMIT ? OFFSET ?"
-        params.extend([limit, offset])
-        
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        return [CourseResponse.model_validate(dict(row)) for row in rows]
+    query = db.query(Course)
+    if name:
+        query = query.filter(Course.name.ilike(f"%{name}%"))
+    courses = query.offset(offset).limit(limit).all()
+    return courses
 
 
-async def get_course(course_id: int) -> CourseResponse:
+async def get_course(course_id: int, db: Session = Depends(get_db)) -> CourseResponse:
     """Получение одного курса по ID."""
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM courses WHERE id = ?", (course_id,))
-        row = cursor.fetchone()
-        if not row:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Курс не найден.")
-        return CourseResponse.model_validate(dict(row))
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Курс не найден.")
+    return course
 
 
-async def update_course(course_id: int, data: CourseUpdate) -> CourseResponse:
+async def update_course(course_id: int, data: CourseUpdate, db: Session = Depends(get_db)) -> CourseResponse:
     """Обновление курса."""
+    course = await get_course(course_id, db)
     update_data = data.model_dump(exclude_unset=True)
-    if not update_data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Нет данных для обновления.")
-    
-    with get_db() as conn:
-        cursor = conn.cursor()
-        query = f"UPDATE courses SET {', '.join([f'{key} = ?' for key in update_data])} WHERE id = ?"
-        params = list(update_data.values()) + [course_id]
-        cursor.execute(query, params)
-        if cursor.rowcount == 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Курс не найден.")
-        return await get_course(course_id)
+    for key, value in update_data.items():
+        setattr(course, key, value)
+    db.commit()
+    db.refresh(course)
+    return course
 
 
-async def delete_course(course_id: int) -> dict:
+async def delete_course(course_id: int, db: Session = Depends(get_db)) -> dict:
     """Удаление курса."""
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM courses WHERE id = ?", (course_id,))
-        if cursor.rowcount == 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Курс не найден.")
-        return {"message": "Курс успешно удален."}
+    course = await get_course(course_id, db)
+    db.delete(course)
+    db.commit()
+    return {"message": "Курс успешно удален."}
