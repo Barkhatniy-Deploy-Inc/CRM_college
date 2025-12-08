@@ -47,7 +47,7 @@ export default function Register({ apiUrl, onSuccess, onSwitchToLogin }) {
     setErrors({});
 
     try {
-      const response = await axios.post(`${apiUrl}/api/auth/register`, {
+      const response = await axios.post(`${apiUrl}/auth/register`, {
         full_name: fullName.trim(),
         email: email.trim(),
         password: password,

@@ -46,7 +46,7 @@ export default function ScheduleCalendar({ apiUrl, onEdit, onCreateNew }) {
         const targetDate = new Date(weekStart.getTime() + selectedDay * 24 * 60 * 60 * 1000);
         const dateStr = targetDate.toISOString().slice(0, 10);
 
-        const response = await axios.get(`${apiUrl}/api/schedule/lessons`, {
+        const response = await axios.get(`${apiUrl}/schedule/lessons`, {
           headers: { Authorization: `Bearer ${token}` },
           params: {
             date: dateStr,

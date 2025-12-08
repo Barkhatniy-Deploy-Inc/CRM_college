@@ -37,7 +37,7 @@ export default function Login({ apiUrl, onSuccess, onSwitchToRegister }) {
     setErrors({});
 
     try {
-      const response = await axios.post(`${apiUrl}/api/auth/login`, {
+      const response = await axios.post(`${apiUrl}/auth/login`, {
         email: email.trim(),
         password: password,
       });
