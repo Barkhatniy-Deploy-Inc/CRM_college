@@ -1,0 +1,28 @@
+# docker-compose.dev.yml
+# Конфигурация для разработки
+
+version: '3.8'
+
+services:
+  # Database for development
+  db-dev:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=schedule_db_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=dev_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis for development
+  redis-dev:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres_dev_data:

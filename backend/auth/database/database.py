@@ -23,7 +23,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-def init_db():
-    # Эта команда создаст все таблицы, определенные в models.py
-    Base.metadata.create_all(bind=engine)

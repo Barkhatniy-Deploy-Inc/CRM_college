@@ -13,7 +13,7 @@ class Settings:
     # Database
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: int = int(os.getenv("DB_PORT", "5432"))
-    DB_NAME: str = os.getenv("DB_NAME", "schedule_db")
+    DB_NAME: str = os.getenv("DB_NAME", "auth_db")
     DB_USER: str = os.getenv("DB_USER", "postgres")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "")
     
@@ -29,9 +29,9 @@ class Settings:
     # CORS
     ALLOWED_ORIGINS: List[str] = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
     
-    # External services
-    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
-    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
+    # Services URLs
+    SCHEDULE_SERVICE_URL: str = os.getenv("SCHEDULE_SERVICE_URL", "http://localhost:8000")
+    TECHCARD_SERVICE_URL: str = os.getenv("TECHCARD_SERVICE_URL", "http://localhost:8001")
     
     @property
     def database_url(self) -> str:

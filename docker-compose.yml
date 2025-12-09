@@ -1,27 +1,119 @@
-# docker-compose.local.yml
-# Только для сборки образов
+# docker-compose.yml
+# Конфигурация для разработки и production
+
+version: '3.8'
 
 services:
-  frontend-test:
+  # Auth Service
+  backend-auth:
     build:
-      context: ./frontend
+      context: ./backend/auth
       dockerfile: Dockerfile
-    image: ghcr.io/xytrax9/college-frontend:test
+    image: ghcr.io/xytrax9/college-backend-auth:latest
+    environment:
+      - ENVIRONMENT=production
+      - DB_HOST=${DB_HOST:-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${AUTH_DB_NAME:-auth_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "8002:8002"
+    depends_on:
+      - db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8002/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  backend-test:
+  # Schedule Backend Service
+  backend-schedule:
     build:
-      context: ./backend
-      dockerfile: backend/schedule/Dockerfile
-    image: ghcr.io/xytrax9/college-backend:test
-    
-  frontend-prod:
+      context: ./backend/schedule
+      dockerfile: Dockerfile
+    image: ghcr.io/xytrax9/college-backend-schedule:latest
+    environment:
+      - ENVIRONMENT=production
+      - DB_HOST=${DB_HOST:-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-schedule_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - AUTH_SERVICE_URL=http://backend-auth:8002
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - backend-auth
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Techcard Backend Service  
+  backend-techcard:
+    build:
+      context: ./backend/techcard
+      dockerfile: Dockerfile
+    image: ghcr.io/xytrax9/college-backend-techcard:latest
+    environment:
+      - ENVIRONMENT=production
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "8001:8000"
+    restart: unless-stopped
+
+  # Frontend Service
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     image: ghcr.io/xytrax9/college-frontend:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - backend-auth
+      - backend-schedule
+      - backend-techcard
+    restart: unless-stopped
 
-  backend-prod:
-    build:
-      context: ./backend
-      dockerfile: backend/schedule/Dockerfile
-    image: ghcr.io/xytrax9/college-backend:latest
+  # Database Service
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${DB_NAME:-schedule_db}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
