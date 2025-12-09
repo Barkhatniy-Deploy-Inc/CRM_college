@@ -16,7 +16,7 @@ load_dotenv()
 
 from database.models import *
 from database.database import init_db, get_db
-from middleware.auth_middleware import get_current_user_from_auth_service_from_auth_service
+from middleware.auth_middleware import get_current_user_from_auth_service
 from api.courses_api import get_courses, create_course, get_course, update_course, delete_course
 from api.slots_api import create_class_slot, get_class_slot, update_class_slot, delete_class_slot
 from api.participants_api import get_course_participants, add_participant_to_course, remove_participant_from_course
