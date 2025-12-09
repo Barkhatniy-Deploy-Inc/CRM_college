@@ -1,12 +1,11 @@
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from database.database import get_db
 from database.models import Auditorium, AuditoriumCreate, AuditoriumUpdate, AuditoriumResponse, ClassSlot
 from typing import List, Optional
 from sqlalchemy.exc import IntegrityError
 
 
-async def create_auditorium(auditorium: AuditoriumCreate, db: Session = Depends(get_db)) -> AuditoriumResponse:
+async def create_auditorium(auditorium: AuditoriumCreate, db: Session) -> AuditoriumResponse:
     """Создание новой аудитории и сохранение в БД."""
     try:
         new_auditorium = Auditorium(**auditorium.model_dump())
@@ -22,7 +21,7 @@ async def create_auditorium(auditorium: AuditoriumCreate, db: Session = Depends(
         )
 
 
-async def get_auditoriums(search: Optional[str] = None, limit: int = 100, db: Session = Depends(get_db)) -> List[AuditoriumResponse]:
+async def get_auditoriums(db: Session, search: Optional[str] = None, limit: int = 100) -> List[AuditoriumResponse]:
     """Получение списка аудиторий с поиском."""
     query = db.query(Auditorium)
     if search:
@@ -31,7 +30,7 @@ async def get_auditoriums(search: Optional[str] = None, limit: int = 100, db: Se
     return auditoriums
 
 
-async def get_auditorium(auditorium_id: int, db: Session = Depends(get_db)) -> AuditoriumResponse:
+async def get_auditorium(auditorium_id: int, db: Session) -> AuditoriumResponse:
     """Получение одной аудитории по ID."""
     auditorium = db.query(Auditorium).filter(Auditorium.id == auditorium_id).first()
     if not auditorium:
@@ -39,7 +38,7 @@ async def get_auditorium(auditorium_id: int, db: Session = Depends(get_db)) -> A
     return auditorium
 
 
-async def update_auditorium(auditorium_id: int, auditorium_update: AuditoriumUpdate, db: Session = Depends(get_db)) -> AuditoriumResponse:
+async def update_auditorium(auditorium_id: int, auditorium_update: AuditoriumUpdate, db: Session) -> AuditoriumResponse:
     """Обновление данных аудитории."""
     auditorium = await get_auditorium(auditorium_id, db)
     update_data = auditorium_update.model_dump(exclude_unset=True)
@@ -57,7 +56,7 @@ async def update_auditorium(auditorium_id: int, auditorium_update: AuditoriumUpd
     return auditorium
 
 
-async def delete_auditorium(auditorium_id: int, db: Session = Depends(get_db)) -> dict:
+async def delete_auditorium(auditorium_id: int, db: Session) -> dict:
     """Удаление аудитории."""
     auditorium = await get_auditorium(auditorium_id, db)
     if db.query(ClassSlot).filter(ClassSlot.auditorium_id == auditorium_id).first():

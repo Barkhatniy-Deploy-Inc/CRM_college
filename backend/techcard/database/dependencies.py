@@ -2,28 +2,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 
-# ========== ПОДКЛЮЧЕНИЕ К PostgreSQL БД ТЕХКАРТ ==========
+# Получаем абсолютный путь к папке database
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE_DIR = os.path.join(BASE_DIR, 'database')
 
-# Получаем параметры подключения из переменных окружения
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("TECHCARD_DB_NAME")  # Используем TECHCARD_DB_NAME
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-
-# Создаем URL подключения к PostgreSQL
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
-# Создаем движок для PostgreSQL
-engine_techcard = create_engine(
-    DATABASE_URL,
-    echo=False,  # Отключаем логирование SQL в production
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,
-    pool_recycle=3600
-)
-
+# ========== ПОДКЛЮЧЕНИЕ К БД ТЕХКАРТ (techcards.db) ==========
+techcard_db_path = os.path.join(DATABASE_DIR, 'techcards.db')
+engine_techcard = create_engine(f'sqlite:///{techcard_db_path}', echo=True)
 SessionTechCardDB = sessionmaker(bind=engine_techcard)
 
 

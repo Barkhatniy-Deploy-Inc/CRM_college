@@ -1,7 +1,6 @@
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from database.database import get_db
-from database.models import ClassSlot, ClassSlotCreate, ClassSlotUpdate, ClassSlotResponse, SlotStatus, Course, Auditorium
+from database.models import ClassSlot, ClassSlotCreate, ClassSlotUpdate, ClassSlotResponse, SlotStatus, Group, Auditorium
 from typing import Optional, List, Dict
 import logging
 from datetime import datetime
@@ -21,10 +20,10 @@ async def is_auditorium_available(auditorium_id: int, start_time: datetime, end_
     return query.first() is None
 
 
-async def create_class_slot(data: ClassSlotCreate, db: Session = Depends(get_db)) -> ClassSlotResponse:
+async def create_class_slot(data: ClassSlotCreate, db: Session) -> ClassSlotResponse:
     """Создание нового урока с проверкой доступности аудитории."""
-    if not db.query(Course).filter(Course.id == data.course_id).first():
-        raise HTTPException(status_code=404, detail=f"Курс с ID {data.course_id} не найден")
+    if not db.query(Group).filter(Group.id == data.group_id).first():
+        raise HTTPException(status_code=404, detail=f"Группа с ID {data.group_id} не найдена")
 
     if data.auditorium_id:
         if not await is_auditorium_available(data.auditorium_id, data.start_time, data.end_time, db):
@@ -40,7 +39,7 @@ async def create_class_slot(data: ClassSlotCreate, db: Session = Depends(get_db)
     return new_slot
 
 
-async def get_class_slot(slot_id: int, db: Session = Depends(get_db)) -> ClassSlotResponse:
+async def get_class_slot(slot_id: int, db: Session) -> ClassSlotResponse:
     """Получение урока по ID."""
     slot = db.query(ClassSlot).filter(ClassSlot.id == slot_id).first()
     if not slot:
@@ -48,7 +47,7 @@ async def get_class_slot(slot_id: int, db: Session = Depends(get_db)) -> ClassSl
     return slot
 
 
-async def update_class_slot(slot_id: int, data: ClassSlotUpdate, db: Session = Depends(get_db)) -> ClassSlotResponse:
+async def update_class_slot(slot_id: int, data: ClassSlotUpdate, db: Session) -> ClassSlotResponse:
     """Обновление урока с проверкой доступности аудитории."""
     slot = await get_class_slot(slot_id, db)
     update_data = data.model_dump(exclude_unset=True)
@@ -69,7 +68,7 @@ async def update_class_slot(slot_id: int, data: ClassSlotUpdate, db: Session = D
     return slot
 
 
-async def delete_class_slot(slot_id: int, db: Session = Depends(get_db)) -> Dict[str, str]:
+async def delete_class_slot(slot_id: int, db: Session) -> Dict[str, str]:
     """Удаление урока."""
     slot = await get_class_slot(slot_id, db)
     db.delete(slot)

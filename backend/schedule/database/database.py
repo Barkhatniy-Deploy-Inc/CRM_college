@@ -1,19 +1,32 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from core.config import settings
+import os
+from dotenv import load_dotenv
 
-# Validate required settings on import
-settings.validate_required_settings()
+load_dotenv()
 
-# Create engine with secure configuration
-engine = create_engine(
-    settings.database_url,
-    echo=settings.DEBUG,  # Only show SQL queries in debug mode
-    pool_pre_ping=True,   # Verify connections before use
-    pool_recycle=300,     # Recycle connections every 5 minutes
-)
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
 
+# --- ВРЕМЕННАЯ ОТЛАДКА ---
+print("--- DEBUG: DATABASE CONNECTION ---")
+print(f"USER: {DB_USER}")
+print(f"PASSWORD: {'*' * len(DB_PASSWORD) if DB_PASSWORD else 'NOT FOUND'}")
+print(f"HOST: {DB_HOST}")
+print(f"PORT: {DB_PORT}")
+print(f"NAME: {DB_NAME}")
+print("---------------------------------")
+# ---------------------------
+
+# Используем новый драйвер psycopg (вместо psycopg2)
+DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# Добавляем echo=True, чтобы видеть все SQL-запросы в консоли
+engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

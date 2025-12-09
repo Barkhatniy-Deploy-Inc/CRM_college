@@ -34,13 +34,13 @@ class Auditorium(Base):
     description = Column(String)
     slots = relationship("ClassSlot", back_populates="auditorium")
 
-class Course(Base):
-    __tablename__ = "courses"
+class Group(Base):
+    __tablename__ = "groups"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     description = Column(String)
-    instructor = Column(String)
-    slots = relationship("ClassSlot", back_populates="course")
+    instructor = Column(String) # Куратор
+    slots = relationship("ClassSlot", back_populates="group")
 
 class ClassSlot(Base):
     __tablename__ = "class_slots"
@@ -48,12 +48,12 @@ class ClassSlot(Base):
     title = Column(String, nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
-    instructor = Column(String)
+    instructor = Column(String) # Преподаватель
     max_participants = Column(Integer)
     status = Column(SQLAlchemyEnum(SlotStatus), default=SlotStatus.SCHEDULED)
-    course_id = Column(Integer, ForeignKey("courses.id"))
+    group_id = Column(Integer, ForeignKey("groups.id"))
     auditorium_id = Column(Integer, ForeignKey("auditoriums.id"))
-    course = relationship("Course", back_populates="slots")
+    group = relationship("Group", back_populates="slots")
     auditorium = relationship("Auditorium", back_populates="slots")
     participants = relationship("Participant", back_populates="slot")
 
@@ -107,20 +107,20 @@ class AuditoriumResponse(AuditoriumBase):
     class Config:
         from_attributes = True
 
-class CourseBase(BaseModel):
+class GroupBase(BaseModel):
     name: str
     description: Optional[str] = None
     instructor: Optional[str] = None
 
-class CourseCreate(CourseBase):
+class GroupCreate(GroupBase):
     pass
 
-class CourseUpdate(BaseModel):
+class GroupUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     instructor: Optional[str] = None
 
-class CourseResponse(CourseBase):
+class GroupResponse(GroupBase):
     id: int
     class Config:
         from_attributes = True
@@ -134,7 +134,7 @@ class ClassSlotBase(BaseModel):
     status: SlotStatus = SlotStatus.SCHEDULED
 
 class ClassSlotCreate(ClassSlotBase):
-    course_id: int
+    group_id: int
     auditorium_id: Optional[int] = None
 
 class ClassSlotUpdate(BaseModel):
@@ -148,7 +148,7 @@ class ClassSlotUpdate(BaseModel):
 
 class ClassSlotResponse(ClassSlotBase):
     id: int
-    course_id: int
+    group_id: int
     auditorium_id: Optional[int] = None
     class Config:
         from_attributes = True

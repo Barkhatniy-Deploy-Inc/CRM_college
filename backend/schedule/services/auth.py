@@ -3,19 +3,18 @@ import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from database.models import User
-from fastapi import Response, HTTPException
+from fastapi import Response, Depends
 from database.database import get_db
-from core.config import settings
-import logging
+import os
+import secrets
 
-logger = logging.getLogger(__name__)
+# Настройки безопасности из .env
+SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24 * 7))
 
-# Контекст для хеширования паролей с улучшенными настройками безопасности
-pwd_context = CryptContext(
-    schemes=["bcrypt"], 
-    deprecated="auto",
-    bcrypt__rounds=12  # Увеличиваем количество раундов для большей безопасности
-)
+# Контекст для хеширования паролей
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -29,74 +28,32 @@ def hash_password(password: str) -> str:
 
 
 def create_access_token(data: dict) -> str:
-    """Создание JWT токена с улучшенной безопасностью"""
-    if not settings.SECRET_KEY:
-        raise ValueError("SECRET_KEY must be set")
-    
+    """Создание JWT токена"""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRE_MINUTES)
-    to_encode.update({
-        "exp": expire,
-        "iat": datetime.now(timezone.utc),  # Время создания токена
-        "iss": "crm-college-api"  # Издатель токена
-    })
-    
-    try:
-        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
-    except Exception as e:
-        logger.error(f"Error creating access token: {e}")
-        raise HTTPException(status_code=500, detail="Could not create access token")
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_token(token: str) -> dict:
-    """Декодирование JWT токена с улучшенной валидацией"""
-    if not token or not isinstance(token, str):
-        logger.warning("Invalid token format provided")
-        return None
-    
+    """Декодирование JWT токена"""
     try:
-        # Проверяем токен с дополнительными опциями безопасности
-        payload = jwt.decode(
-            token, 
-            settings.SECRET_KEY, 
-            algorithms=[settings.JWT_ALGORITHM],
-            options={
-                "verify_signature": True,
-                "verify_exp": True,
-                "verify_iat": True,
-                "require": ["exp", "iat", "user_id"]
-            }
-        )
-        
-        # Дополнительная проверка издателя
-        if payload.get("iss") != "crm-college-api":
-            logger.warning("Token issuer mismatch")
-            return None
-            
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-        
-    except jwt.ExpiredSignatureError:
-        logger.warning("Token has expired")
-        return None
-    except jwt.InvalidTokenError as e:
-        logger.warning(f"Invalid token: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error decoding token: {e}")
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None
 
 
 def set_auth_cookie(response: Response, token: str):
-    """Установка cookie с токеном с улучшенными настройками безопасности"""
+    """Установка cookie с токеном"""
     response.set_cookie(
         key="access_token",
         value=token,
-        httponly=True,  # Защита от XSS
-        max_age=settings.JWT_EXPIRE_MINUTES * 60,
-        samesite="strict" if settings.ENVIRONMENT == "production" else "lax",
-        secure=settings.ENVIRONMENT == "production",  # HTTPS только в production
-        path="/",
-        domain=None  # Не устанавливаем domain для безопасности
+        httponly=True,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        samesite="lax",
+        secure=os.getenv("ENVIRONMENT") == "production",
+        path="/"
     )
 
 

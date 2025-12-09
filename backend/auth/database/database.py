@@ -1,19 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from core.config import settings
+import os
 
-# Validate required settings on import
-settings.validate_required_settings()
+# Определяем директорию, где будет храниться файл БД
+DATABASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_FILE = os.path.join(DATABASE_DIR, "auth.db")
 
-# Create engine with secure configuration
-engine = create_engine(
-    settings.database_url,
-    echo=settings.DEBUG,  # Only show SQL queries in debug mode
-    pool_pre_ping=True,   # Verify connections before use
-    pool_recycle=300,     # Recycle connections every 5 minutes
-)
+# Строка подключения для SQLite
+DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 
+# echo=True оставим для отладки
+engine = create_engine(DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -23,3 +21,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def init_db():
+    # Эта команда создаст файл auth.db и все таблицы в нем
+    Base.metadata.create_all(bind=engine)

@@ -1,16 +1,29 @@
-from fastapi import UploadFile, File, HTTPException, Depends
+from fastapi import UploadFile, File, HTTPException
 from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
-from database.database import get_db
-from database.models import ClassSlot, Auditorium, Course
-from core.parser import parse_excel_schedule
+from database.models import ClassSlot, Auditorium, Group
+from services.schedule_importer import ScheduleImporter
 import os
 import tempfile
+import logging
 
-async def upload_schedule(file: UploadFile = File(...)):
-    """Загрузка расписания из Excel файла"""
+logger = logging.getLogger(__name__)
+
+async def upload_schedule(db: Session, file: UploadFile = File(...)):
+    """
+    Загрузка расписания из Excel файла с сохранением в БД.
+    
+    Процесс:
+    1. Проверяет формат файла
+    2. Сохраняет временный файл
+    3. Парсит файл и сохраняет данные в БД
+    4. Возвращает статистику импорта
+    """
     if not file.filename.endswith(('.xlsx', '.xls')):
-        raise HTTPException(status_code=400, detail="File must be Excel (.xlsx or .xls)")
+        raise HTTPException(
+            status_code=400, 
+            detail="File must be Excel (.xlsx or .xls)"
+        )
 
     with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
         content = await file.read()
@@ -18,26 +31,49 @@ async def upload_schedule(file: UploadFile = File(...)):
         temp_path = temp_file.name
 
     try:
-        entries = parse_excel_schedule(temp_path)
-        # Логика сохранения в БД была бы здесь
+        # Используем ScheduleImporter для сохранения в БД
+        importer = ScheduleImporter(db)
+        result = importer.import_schedule(temp_path)
+        
+        if result['status'] == 'error':
+            raise HTTPException(
+                status_code=400,
+                detail=result['message']
+            )
+        
         return {
-            "message": "Schedule uploaded successfully",
-            "entries_count": len(entries)
+            "status": "success",
+            "message": result['message'],
+            "groups_created": result['groups_created'],
+            "groups_updated": result['groups_updated'],
+            "auditoriums_created": result['auditoriums_created'],
+            "slots_created": result['slots_created'],
+            "slots_updated": result['slots_updated'],
+            "errors": result['errors']
         }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Ошибка при загрузке расписания: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing schedule file: {str(e)}"
+        )
     finally:
-        os.unlink(temp_path)
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
 
 async def get_schedule_list(
+        db: Session,
         date: Optional[str] = None,
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
         limit: int = 100,
-        offset: int = 0,
-        db: Session = Depends(get_db)
+        offset: int = 0
 ) -> List[dict]:
     """
     Получение списка занятий с подробной информацией.
-    Включает названия курса и аудитории для полноты данных.
+    Включает названия группы и аудитории для полноты данных.
     """
     query = db.query(
         ClassSlot.id,
@@ -48,8 +84,8 @@ async def get_schedule_list(
         ClassSlot.instructor.label("teacher_name"),
         ClassSlot.status,
         Auditorium.name.label("auditorium_name"),
-        Course.name.label("course_name")
-    ).outerjoin(Auditorium, ClassSlot.auditorium_id == Auditorium.id).outerjoin(Course, ClassSlot.course_id == Course.id)
+        Group.name.label("group_name")
+    ).outerjoin(Auditorium, ClassSlot.auditorium_id == Auditorium.id).outerjoin(Group, ClassSlot.group_id == Group.id)
 
     if date_from and date_to:
         query = query.filter(ClassSlot.start_time.between(date_from, date_to))
