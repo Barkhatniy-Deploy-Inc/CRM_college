@@ -1,0 +1,660 @@
+{
+  "info": {
+    "name": "CRM College API",
+    "description": "API коллекция для тестирования сервисов CRM_college",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "auth_url",
+      "value": "http://localhost:8002",
+      "type": "string"
+    },
+    {
+      "key": "schedule_url", 
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "techcard_url",
+      "value": "http://localhost:8001", 
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_email",
+      "value": "test@example.com",
+      "type": "string"
+    },
+    {
+      "key": "test_password",
+      "value": "testpassword123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Auth Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/health",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Schedule Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{schedule_url}}/api/health",
+              "host": ["{{schedule_url}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Techcard Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{techcard_url}}/api/health",
+              "host": ["{{techcard_url}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.access_token) {",
+                  "        pm.collectionVariables.set('auth_token', response.access_token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\",\n  \"full_name\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/register",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.access_token) {",
+                  "        pm.collectionVariables.set('auth_token', response.access_token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/auth/me",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_url}}/api/auth/validate",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "validate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/auth/logout",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Schedule Service",
+      "item": [
+        {
+          "name": "Courses",
+          "item": [
+            {
+              "name": "Get All Courses",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Search Courses",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses?name=Python&limit=5",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses"],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "Python"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Course",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Основы Python\",\n  \"description\": \"Изучение основ программирования на Python\",\n  \"duration_hours\": 40\n}"
+                },
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Course by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses/1",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Course",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Продвинутый Python\",\n  \"description\": \"Углубленное изучение Python\"\n}"
+                },
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses/1",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Course",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses/1",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Schedule",
+          "item": [
+            {
+              "name": "Get Schedule",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/schedule",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "schedule"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Schedule by Date",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/schedule?date=2024-01-15",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "schedule"],
+                  "query": [
+                    {
+                      "key": "date",
+                      "value": "2024-01-15"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Schedule by Date Range",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/schedule?date_from=2024-01-01&date_to=2024-01-31",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "schedule"],
+                  "query": [
+                    {
+                      "key": "date_from",
+                      "value": "2024-01-01"
+                    },
+                    {
+                      "key": "date_to",
+                      "value": "2024-01-31"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Lesson",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"course_id\": 1,\n  \"auditorium_id\": 1,\n  \"teacher_id\": 1,\n  \"start_time\": \"2024-01-15T10:00:00\",\n  \"end_time\": \"2024-01-15T11:30:00\",\n  \"topic\": \"Введение в Python\"\n}"
+                },
+                "url": {
+                  "raw": "{{schedule_url}}/api/schedule",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "schedule"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Auditoriums",
+          "item": [
+            {
+              "name": "Get All Auditoriums",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/auditoriums",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "auditoriums"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Auditorium",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Аудитория 101\",\n  \"capacity\": 30,\n  \"equipment\": [\"проектор\", \"компьютер\", \"доска\"]\n}"
+                },
+                "url": {
+                  "raw": "{{schedule_url}}/api/auditoriums",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "auditoriums"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Participants",
+          "item": [
+            {
+              "name": "Get Course Participants",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses/1/participants",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses", "1", "participants"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Participant to Course",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_id\": 2\n}"
+                },
+                "url": {
+                  "raw": "{{schedule_url}}/api/courses/1/participants",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "courses", "1", "participants"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Calendar",
+          "item": [
+            {
+              "name": "Get User Calendar",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{schedule_url}}/api/calendar/me.ics",
+                  "host": ["{{schedule_url}}"],
+                  "path": ["api", "calendar", "me.ics"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Techcard Service",
+      "item": [
+        {
+          "name": "Root Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{techcard_url}}/",
+              "host": ["{{techcard_url}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Techcards",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{techcard_url}}/api/techcards",
+              "host": ["{{techcard_url}}"],
+              "path": ["api", "techcards"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Techcard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tema\": \"Основы алгоритмов\",\n  \"group_id\": 1,\n  \"lesson_id\": 1,\n  \"teacher_id\": 1,\n  \"content\": \"Изучение базовых алгоритмов сортировки\"\n}"
+            },
+            "url": {
+              "raw": "{{techcard_url}}/api/techcards",
+              "host": ["{{techcard_url}}"],
+              "path": ["api", "techcards"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
