@@ -1,14 +1,18 @@
 import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database.models_techcard import BaseTechCard
 from database.dependencies import engine_techcard
 from routers.techcard_router import router as techcard_router
 
+# Загружаем переменные окружения из .env файла
+load_dotenv()
+
 # Создаём приложение FastAPI
 app = FastAPI(
-    title="Генератор технологических карт",
-    version="1.0.0",
+    title=os.getenv("APP_NAME", "Генератор технологических карт"),
+    version=os.getenv("APP_VERSION", "1.0.0"),
     description="API для создания и управления технологическими картами"
 )
 
