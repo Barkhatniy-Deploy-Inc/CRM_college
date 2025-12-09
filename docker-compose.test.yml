@@ -1,9 +1,28 @@
-# docker-compose.yml
-# Конфигурация для разработки и production
+# docker-compose.test.yml
+# Конфигурация для локального тестирования с PostgreSQL
 
 version: '3.8'
 
 services:
+  # Local PostgreSQL for testing
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=schedule_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=testpassword
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./init_auth_db.sql:/docker-entrypoint-initdb.d/01-init-auth-db.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Auth Service
   backend-auth:
     build:
@@ -11,17 +30,18 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/xytrax9/college-backend-auth:latest
     environment:
-      - ENVIRONMENT=production
-      - DB_HOST=${DB_HOST:-db}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_NAME=${AUTH_DB_NAME:-auth_db}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - SECRET_KEY=${SECRET_KEY}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - ENVIRONMENT=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=auth_db
+      - DB_USER=postgres
+      - DB_PASSWORD=testpassword
+      - SECRET_KEY=test-secret-key-for-development-only-change-in-production
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost,http://localhost:80
     ports:
       - "8002:8002"
-    # External PostgreSQL - no local dependency
+    depends_on:
+      - db
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8002/api/health')"]
@@ -36,18 +56,19 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/xytrax9/college-backend-schedule:latest
     environment:
-      - ENVIRONMENT=production
-      - DB_HOST=${DB_HOST:-db}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_NAME=${DB_NAME:-schedule_db}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - SECRET_KEY=${SECRET_KEY}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - ENVIRONMENT=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=schedule_db
+      - DB_USER=postgres
+      - DB_PASSWORD=testpassword
+      - SECRET_KEY=test-secret-key-for-development-only-change-in-production
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost,http://localhost:80
       - AUTH_SERVICE_URL=http://backend-auth:8002
     ports:
       - "8000:8000"
     depends_on:
+      - db
       - backend-auth
     restart: unless-stopped
     healthcheck:
@@ -63,15 +84,17 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/xytrax9/college-backend-techcard:latest
     environment:
-      - ENVIRONMENT=production
-      - DB_HOST=${DB_HOST:-db}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_NAME=${TECHCARD_DB_NAME:-techcard_db}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - ENVIRONMENT=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=techcard_db
+      - DB_USER=postgres
+      - DB_PASSWORD=testpassword
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost,http://localhost:80
     ports:
       - "8001:8000"
+    depends_on:
+      - db
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
@@ -93,9 +116,6 @@ services:
       - backend-techcard
     restart: unless-stopped
 
-  # Database Service - External PostgreSQL server
-  # Removed local PostgreSQL container - using external server
-
   # Redis for caching (optional)
   redis:
     image: redis:7-alpine
@@ -104,7 +124,8 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:
-      - redis_data:/data
+      - redis_test_data:/data
 
 volumes:
-  redis_data:
+  postgres_test_data:
+  redis_test_data:
