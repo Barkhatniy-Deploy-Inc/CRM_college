@@ -7,7 +7,7 @@ import os
 # Получаем параметры подключения из переменных окружения
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME", "techcard_db")
+DB_NAME = os.getenv("TECHCARD_DB_NAME", "techcard_db")  # Используем TECHCARD_DB_NAME
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 
