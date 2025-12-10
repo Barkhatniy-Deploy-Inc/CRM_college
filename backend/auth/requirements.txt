@@ -2,7 +2,10 @@ fastapi==0.115.0
 uvicorn==0.32.0
 pydantic>=2.5.0
 pydantic[email]>=2.5.0
+pydantic-settings>=2.0.0
 PyJWT==2.8.0
 python-dotenv==1.0.0
 passlib[bcrypt]==1.7.4
 SQLAlchemy==2.0.31
+psycopg[binary]~=3.1
+python-multipart==0.0.12
