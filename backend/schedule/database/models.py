@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLAlchemyEnum
+from sqlalchemy import Column, Integer, String, DateTime, Date, Time, ForeignKey
 from sqlalchemy.orm import relationship
 from .database import Base
 from enum import Enum
@@ -6,169 +6,137 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
-class SlotStatus(str, Enum):
-    SCHEDULED = "scheduled"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
 
-class ParticipantStatus(str, Enum):
-    REGISTERED = "registered"
-    ATTENDED = "attended"
-    ABSENT = "absent"
-
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    password_hash = Column(String, nullable=False)
-    full_name = Column(String, nullable=False)
-    telegram_id = Column(String, nullable=True)
-    participants = relationship("Participant", back_populates="user")
-
-class Auditorium(Base):
-    __tablename__ = "auditoriums"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, nullable=False)
-    capacity = Column(Integer)
-    description = Column(String)
-    slots = relationship("ClassSlot", back_populates="auditorium")
-
-class Group(Base):
-    __tablename__ = "groups"
+class ScheduleTeacher(Base):
+    __tablename__ = "schedule_teachers"
+    
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    description = Column(String)
-    instructor = Column(String) # Куратор
-    slots = relationship("ClassSlot", back_populates="group")
 
-class ClassSlot(Base):
-    __tablename__ = "class_slots"
+
+class ScheduleAuditorium(Base):
+    __tablename__ = "schedule_auditoriums"
+    
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
-    instructor = Column(String) # Преподаватель
-    max_participants = Column(Integer)
-    status = Column(SQLAlchemyEnum(SlotStatus), default=SlotStatus.SCHEDULED)
-    group_id = Column(Integer, ForeignKey("groups.id"))
-    auditorium_id = Column(Integer, ForeignKey("auditoriums.id"))
-    group = relationship("Group", back_populates="slots")
-    auditorium = relationship("Auditorium", back_populates="slots")
-    participants = relationship("Participant", back_populates="slot")
+    name = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
 
-class Participant(Base):
-    __tablename__ = "participants"
+
+class ScheduleGroup(Base):
+    __tablename__ = "schedule_groups"
+    
     id = Column(Integer, primary_key=True, index=True)
-    class_slot_id = Column(Integer, ForeignKey("class_slots.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
-    status = Column(SQLAlchemyEnum(ParticipantStatus), default=ParticipantStatus.REGISTERED)
-    slot = relationship("ClassSlot", back_populates="participants")
-    user = relationship("User", back_populates="participants")
+    name = Column(String, nullable=False)
+    course = Column(Integer)
 
-# Pydantic models for request and response
-class RegisterRequest(BaseModel):
-    email: EmailStr
-    password: str
-    full_name: str
 
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+class ScheduleSubject(Base):
+    __tablename__ = "schedule_subjects"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    teacher_id = Column(Integer, ForeignKey("schedule_teachers.id"))
 
-class UserResponse(BaseModel):
-    id: int
-    email: EmailStr
-    full_name: str
-    telegram_id: Optional[str] = None
-    class Config:
-        from_attributes = True
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: UserResponse
+class ScheduleLesson(Base):
+    __tablename__ = "schedule_lessons"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(Date, nullable=False)
+    time_start = Column(Time, nullable=False)
+    time_end = Column(Time, nullable=False)
+    lesson_number = Column(Integer)
+    group_id = Column(Integer, ForeignKey("schedule_groups.id"))
+    subgroup = Column(Integer)
+    subject_id = Column(Integer, ForeignKey("schedule_subjects.id"))
+    teacher_id = Column(Integer, ForeignKey("schedule_teachers.id"))
+    auditorium_id = Column(Integer, ForeignKey("schedule_auditoriums.id"))
+    activity_type = Column(String)
+    comment = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    
+    # Связи
+    group = relationship("ScheduleGroup")
+    teacher = relationship("ScheduleTeacher")
+    subject = relationship("ScheduleSubject")
+    auditorium = relationship("ScheduleAuditorium")
 
-class AuditoriumBase(BaseModel):
+
+# Pydantic модели для API
+class ScheduleTeacherBase(BaseModel):
     name: str
-    capacity: Optional[int] = None
-    description: Optional[str] = None
 
-class AuditoriumCreate(AuditoriumBase):
+class ScheduleTeacherCreate(ScheduleTeacherBase):
     pass
 
-class AuditoriumUpdate(BaseModel):
-    name: Optional[str] = None
-    capacity: Optional[int] = None
-    description: Optional[str] = None
-
-class AuditoriumResponse(AuditoriumBase):
+class ScheduleTeacherResponse(ScheduleTeacherBase):
     id: int
+    
     class Config:
         from_attributes = True
 
-class GroupBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    instructor: Optional[str] = None
 
-class GroupCreate(GroupBase):
+class ScheduleAuditoriumBase(BaseModel):
+    name: str
+    is_active: bool = True
+
+class ScheduleAuditoriumCreate(ScheduleAuditoriumBase):
     pass
 
-class GroupUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    instructor: Optional[str] = None
-
-class GroupResponse(GroupBase):
+class ScheduleAuditoriumResponse(ScheduleAuditoriumBase):
     id: int
+    
     class Config:
         from_attributes = True
 
-class ClassSlotBase(BaseModel):
-    title: str
-    start_time: datetime
-    end_time: datetime
-    instructor: Optional[str] = None
-    max_participants: Optional[int] = None
-    status: SlotStatus = SlotStatus.SCHEDULED
 
-class ClassSlotCreate(ClassSlotBase):
-    group_id: int
-    auditorium_id: Optional[int] = None
+class ScheduleGroupBase(BaseModel):
+    name: str
+    course: Optional[int] = None
 
-class ClassSlotUpdate(BaseModel):
-    title: Optional[str] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    auditorium_id: Optional[int] = None
-    instructor: Optional[str] = None
-    max_participants: Optional[int] = None
-    status: Optional[SlotStatus] = None
+class ScheduleGroupCreate(ScheduleGroupBase):
+    pass
 
-class ClassSlotResponse(ClassSlotBase):
+class ScheduleGroupResponse(ScheduleGroupBase):
     id: int
-    group_id: int
-    auditorium_id: Optional[int] = None
+    
     class Config:
         from_attributes = True
 
-class AddParticipantRequest(BaseModel):
-    user_id: int
 
-class ParticipantBase(BaseModel):
-    status: ParticipantStatus = ParticipantStatus.REGISTERED
+class ScheduleSubjectBase(BaseModel):
+    name: str
+    teacher_id: int
 
-class ParticipantCreate(ParticipantBase):
-    class_slot_id: int
-    user_id: int
+class ScheduleSubjectCreate(ScheduleSubjectBase):
+    pass
 
-class ParticipantUpdate(BaseModel):
-    status: Optional[ParticipantStatus] = None
-
-class ParticipantResponse(ParticipantBase):
+class ScheduleSubjectResponse(ScheduleSubjectBase):
     id: int
-    class_slot_id: int
-    user_id: int
+    
+    class Config:
+        from_attributes = True
+
+
+class ScheduleLessonBase(BaseModel):
+    date: datetime
+    time_start: datetime
+    time_end: datetime
+    lesson_number: Optional[int] = None
+    group_id: int
+    subgroup: Optional[int] = None
+    subject_id: int
+    teacher_id: int
+    auditorium_id: int
+    activity_type: Optional[str] = None
+    comment: Optional[str] = None
+
+class ScheduleLessonCreate(ScheduleLessonBase):
+    pass
+
+class ScheduleLessonResponse(ScheduleLessonBase):
+    id: int
+    created_at: datetime
+    
     class Config:
         from_attributes = True
