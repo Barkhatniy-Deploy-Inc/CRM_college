@@ -77,3 +77,10 @@ yarn-error.log*
 *.tmp
 *.temp
 .cache/
+.cursor/commands/ruds-vuil.md
+.cursor/rules/ruds-vuil.mdc
+.mcpower/app_uid
+/.cursor/
+/.mcpower/
+/.serena/
+/.serena/

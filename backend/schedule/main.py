@@ -21,13 +21,17 @@ from api.groups_api import get_groups, create_group, get_group, update_group, de
 from api.slots_api import create_class_slot, get_class_slot, update_class_slot, delete_class_slot
 from api.participants_api import get_group_participants, add_participant_to_group, remove_participant_from_group
 from api.schedule_api import get_schedule_list, upload_schedule
+from api.export_api import export_schedule_xlsx, export_schedule_pdf
 from api.auditoriums_api import create_auditorium, get_auditoriums, get_auditorium, update_auditorium, delete_auditorium
 from services.notifications import subscribe_telegram_notification, NOTIFICATIONS_ENABLED
 from core.config import LogConfig
 from services.calendar_service import generate_calendar_for_user
 from services.websocket_manager import manager
+from core.logging_config import setup_logging, get_logger
 
-@asynccontextmanager
+# Инициализируем логирование
+setup_logging()
+logger = get_logger("main")@asynccontextmanager
 async def lifespan(app: FastAPI):
     LogConfig.configure_logging()
     logger = logging.getLogger(__name__)
@@ -136,6 +140,30 @@ async def upload_schedule_ep(file: UploadFile = File(...), u: User = Depends(get
     result = await upload_schedule(db, file)
     await manager.broadcast(json.dumps({"type": "schedule_uploaded", "data": result}))
     return result
+
+@app.get("/api/schedule/export/xlsx", tags=["📥 Экспорт расписания"])
+async def export_xlsx_ep(
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    single_date: Optional[str] = None,
+    group_ids: Optional[List[int]] = None,
+    separate_courses: bool = False,
+    include_stats: bool = True,
+    db: Session = Depends(get_db)
+):
+    """Экспорт расписания в XLSX формат с расширенным функционалом"""
+    return await export_schedule_xlsx(db, date_from, date_to, single_date, group_ids, separate_courses, include_stats)
+
+@app.get("/api/schedule/export/pdf", tags=["📥 Экспорт расписания"])
+async def export_pdf_ep(
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    single_date: Optional[str] = None,
+    group_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    """Экспорт расписания в PDF формат (оптимизирован для печати)"""
+    return await export_schedule_pdf(db, date_from, date_to, single_date, group_id)
 
 @app.get("/api/schedule", response_model=List[dict], tags=["🗓️ Расписание"])
 @cache(expire=30)
