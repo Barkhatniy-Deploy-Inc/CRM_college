@@ -1,5 +1,6 @@
 import os
-from typing import List
+from typing import List, Union
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
@@ -26,7 +27,8 @@ class Settings(BaseSettings):
     LOCKOUT_DURATION_MINUTES: int = int(os.getenv("LOCKOUT_DURATION_MINUTES", "30"))
     
     # CORS
-    ALLOWED_ORIGINS: List[str] = os.getenv(
+    # CORS
+    ALLOWED_ORIGINS: Union[List[str], str] = os.getenv(
         "ALLOWED_ORIGINS", 
         "http://localhost:3000,http://localhost:80"
     ).split(",")
@@ -51,6 +53,13 @@ class Settings(BaseSettings):
     REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
     REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
     REDIS_DB: int = int(os.getenv("REDIS_DB", "0"))
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def parse_allowed_origins(cls, v):
+        if isinstance(v, str) and not v.strip().startswith("["):
+            return [x.strip() for x in v.split(",")]
+        return v
     
     class Config:
         case_sensitive = True
