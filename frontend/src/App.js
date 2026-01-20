@@ -9,13 +9,14 @@ function App() {
   const [view, setView] = useState('login');
 
   // Лучше вынести в .env, но для хакатона сойдет
-  const API_URL = '/api';
+  const API_URL = 'http://localhost';
+  //"/api" или "http://localhost"
 
   useEffect(() => {
     // При загрузке восстанавливаем сессию
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
-    
+
     if (storedUser && storedToken) {
       try {
         setUser(JSON.parse(storedUser));
@@ -46,20 +47,20 @@ function App() {
     <div className="App">
       {!user ? (
         view === 'login' ? (
-          <Login 
-            apiUrl={API_URL} 
+          <Login
+            apiUrl={API_URL}
             onSuccess={handleLoginSuccess}
             onSwitchToRegister={() => setView('register')}
           />
         ) : (
-          <Register 
+          <Register
             apiUrl={API_URL}
             onSuccess={handleLoginSuccess}
             onSwitchToLogin={() => setView('login')}
           />
         )
       ) : (
-        <Dashboard 
+        <Dashboard
           user={user}
           onLogout={handleLogout}
           apiUrl={API_URL}

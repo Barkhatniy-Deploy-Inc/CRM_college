@@ -1,0 +1,128 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  STUDENT
+  MODERATOR
+}
+
+enum LoginStatus {
+  SUCCESS
+  FAILED
+  BLOCKED
+}
+
+enum AuditAction {
+  PASSWORD_CHANGE
+  ROLE_CHANGE
+  PROFILE_UPDATE
+  EMAIL_CHANGE
+  USER_CREATED
+  USER_DELETED
+  USER_ACTIVATED
+  USER_DEACTIVATED
+  PERMISSION_GRANTED
+  PERMISSION_REVOKED
+  SESSION_REVOKED
+  LOGIN
+  LOGOUT
+}
+
+model User {
+  id                    Int              @id @default(autoincrement())
+  email                 String           @unique
+  passwordHash          String
+  fullName              String
+  isActive              Boolean          @default(true)
+  isVerified            Boolean          @default(false)
+  role                  UserRole         @default(STUDENT)
+  failedLoginAttempts  Int              @default(0)
+  lockedUntil           DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  lastLogin            DateTime?
+  
+  refreshTokens        RefreshToken[]
+  loginHistory         LoginHistory[]
+  userPermissions      UserPermission[]
+  auditLogs            AuditLog[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  token       String   @unique
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  isRevoked   Boolean  @default(false)
+  ipAddress   String?
+  userAgent   String?
+  deviceName  String?
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model LoginHistory {
+  id        Int         @id @default(autoincrement())
+  userId    Int?
+  email     String
+  status    LoginStatus
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime    @default(now())
+  
+  user      User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("login_history")
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  resource    String
+  action      String
+  
+  userPermissions UserPermission[]
+
+  @@map("permissions")
+}
+
+model UserPermission {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  grantedAt    DateTime @default(now())
+  
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@map("user_permissions")
+}
+
+model AuditLog {
+  id        Int         @id @default(autoincrement())
+  userId    Int?
+  action    AuditAction
+  details   String?     // Можно хранить JSON как строку
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime    @default(now())
+  
+  user      User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}

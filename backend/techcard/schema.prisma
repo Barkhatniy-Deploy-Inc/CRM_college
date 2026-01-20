@@ -1,0 +1,46 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+model TechCard {
+  id              Int             @id @default(autoincrement())
+  groupId         Int?
+  lessonId        Int?
+  teacherId       Int?
+  lessonTypeId    Int?
+  tema            String          @db.Text
+  nomerZanyatiya  String?
+  pedTech         String?         @db.Text
+  celZanyatiya    String?         @db.Text
+  zadachiObuch    String?         @db.Text
+  zadachiRazv     String?         @db.Text
+  zadachiVosp     String?         @db.Text
+  prognozResult   String?         @db.Text
+  oborudovanie    String?         @db.Text
+  istochniki      String?         @db.Text
+  
+  stages          TechCardStage[]
+
+  @@map("tech_cards")
+}
+
+model TechCardStage {
+  id                     Int      @id @default(autoincrement())
+  techCardId             Int
+  nomerEtapa             Int
+  nazvanieEtapa          String
+  celEtapa               String?  @db.Text
+  dlitelnost             String?
+  deyatelnostPrepod     String?  @db.Text
+  deyatelnostObuch       String?  @db.Text
+  formiruemyeKompetencii String?  @db.Text
+  
+  techCard               TechCard @relation(fields: [techCardId], references: [id], onDelete: Cascade)
+
+  @@map("tech_card_stages")
+}

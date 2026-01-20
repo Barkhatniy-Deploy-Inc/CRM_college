@@ -1,0 +1,80 @@
+generator client {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  email         String        @unique
+  password_hash String
+  full_name     String
+  telegram_id   String?
+  participants  Participant[]
+
+  @@map("users")
+}
+
+model Auditorium {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  capacity    Int?
+  description String?
+  slots       ClassSlot[]
+
+  @@map("auditoriums")
+}
+
+model Group {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  instructor  String?
+  slots       ClassSlot[]
+
+  @@map("groups")
+}
+
+enum SlotStatus {
+  scheduled
+  in_progress
+  completed
+  cancelled
+}
+
+model ClassSlot {
+  id               Int           @id @default(autoincrement())
+  title            String
+  start_time       DateTime
+  end_time         DateTime
+  instructor       String?
+  max_participants Int?
+  status           SlotStatus    @default(scheduled)
+  group_id         Int
+  auditorium_id    Int?
+  group            Group         @relation(fields: [group_id], references: [id])
+  auditorium       Auditorium?   @relation(fields: [auditorium_id], references: [id])
+  participants     Participant[]
+
+  @@map("class_slots")
+}
+
+enum ParticipantStatus {
+  registered
+  attended
+  absent
+}
+
+model Participant {
+  id            Int               @id @default(autoincrement())
+  class_slot_id Int
+  user_id       Int
+  status        ParticipantStatus @default(registered)
+  slot          ClassSlot         @relation(fields: [class_slot_id], references: [id])
+  user          User              @relation(fields: [user_id], references: [id])
+
+  @@map("participants")
+}

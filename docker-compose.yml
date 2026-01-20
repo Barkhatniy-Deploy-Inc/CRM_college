@@ -47,23 +47,10 @@ services:
     container_name: crm_auth
     restart: unless-stopped
     environment:
-      DB_HOST: db
-      DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-changeme}
-      AUTH_DB_NAME: ${AUTH_DB_NAME:-auth_db}
-      SECRET_KEY: ${SECRET_KEY:-your_super_secret_key_here}
-      ENVIRONMENT: ${ENVIRONMENT:-development}
-      DEBUG: ${DEBUG:-true}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
-      SERVICE_PORT: 8000
-    ports:
-      - "8002:8000"
-    depends_on:
-      db:
-        condition: service_healthy
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-changeme}@db:5432/${AUTH_DB_NAME:-auth_db}?schema=public
+      - SECRET_KEY=${SECRET_KEY:-your_super_secret_key_here}
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -79,26 +66,10 @@ services:
     container_name: crm_schedule
     restart: unless-stopped
     environment:
-      DB_HOST: db
-      DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-changeme}
-      DB_NAME: ${DB_NAME:-schedule_db}
-      SECRET_KEY: ${SECRET_KEY:-your_super_secret_key_here}
-      ENVIRONMENT: ${ENVIRONMENT:-development}
-      DEBUG: ${DEBUG:-true}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
-      AUTH_SERVICE_URL: http://auth:8000
-      SERVICE_PORT: 8000
-    ports:
-      - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-      auth:
-        condition: service_healthy
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-changeme}@db:5432/${DB_NAME:-schedule_db}?schema=public
+      - SECRET_KEY=${SECRET_KEY:-your_super_secret_key_here}
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -114,26 +85,10 @@ services:
     container_name: crm_techcard
     restart: unless-stopped
     environment:
-      DB_HOST: db
-      DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-changeme}
-      TECHCARD_DB_NAME: ${TECHCARD_DB_NAME:-techcard_db}
-      SECRET_KEY: ${SECRET_KEY:-your_super_secret_key_here}
-      ENVIRONMENT: ${ENVIRONMENT:-development}
-      DEBUG: ${DEBUG:-true}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
-      AUTH_SERVICE_URL: http://auth:8000
-      SERVICE_PORT: 8000
-    ports:
-      - "8001:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-      auth:
-        condition: service_healthy
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-changeme}@db:5432/${TECHCARD_DB_NAME:-techcard_db}?schema=public
+      - SECRET_KEY=${SECRET_KEY:-your_super_secret_key_here}
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
