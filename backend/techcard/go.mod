@@ -3,6 +3,7 @@ module techcard
 go 1.25.5
 
 require (
+	common v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.11.0
 	github.com/joho/godotenv v1.5.1
 	github.com/shopspring/decimal v1.4.0
@@ -43,3 +44,5 @@ require (
 	golang.org/x/tools v0.34.0 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 )
+
+replace common => ../common

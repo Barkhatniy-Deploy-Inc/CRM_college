@@ -1,5 +1,6 @@
-FROM alpine:latest
+FROM debian:bookworm-slim
 WORKDIR /app
+RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
 COPY main .
 COPY schema.prisma .
 COPY prisma-query-engine .
