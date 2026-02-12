@@ -1,0 +1,56 @@
+:root {
+    /* Цветовая палитра - Strict Minimalist (Vellum & Ink) */
+    --bg-primary: #FFFFFF;
+    /* Pure White */
+    --bg-secondary: #F8F9FA;
+    /* Very light gray for subtle separation */
+
+    /* Remove Glass - Use Solid Lines/Blocks */
+    --bg-glass: #FFFFFF;
+    --bg-glass-hover: #F1F3F5;
+
+    /* Accents - Functional & Strict */
+    --accent-primary: #0056D2;
+    /* Technical Blue (Link/Button) */
+    --accent-secondary: #D93025;
+    /* Signal Red */
+    --accent-gradient: #0056D2;
+    /* No gradients, solid color */
+
+    /* Text - High Contrast Ink */
+    --text-primary: #111111;
+    /* Almost pure black */
+    --text-secondary: #444444;
+    /* Dark gray for secondary text */
+    --text-muted: #757575;
+    /* Caption gray */
+
+    /* Borders - Technical precision */
+    --border-glass: #E0E0E0;
+    /* Thin, crisp gray lines */
+    --shadow-glow: none;
+    /* No glows */
+
+    /* Типографика - Strict Grotesque */
+    --font-body: 'Inter', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+    --font-heading: 'Inter', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+
+    /* Размеры - Strict geometry */
+    --radius-sm: 4px;
+    /* Minimal rounding */
+    --radius-md: 6px;
+    --radius-lg: 8px;
+
+    /* Spacing - "Air" */
+    --space-xs: 0.5rem;
+    --space-sm: 1.0rem;
+    --space-md: 2.0rem;
+    /* Increased whitespace */
+    --space-lg: 3.0rem;
+    --space-xl: 5.0rem;
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 200ms ease;
+    --transition-slow: 300ms ease;
+}

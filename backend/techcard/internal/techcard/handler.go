@@ -23,6 +23,40 @@ func NewHandler() *Handler {
 	}
 }
 
+// GetTechCards возвращает список техкарт
+func (h *Handler) GetTechCards(c *gin.Context) {
+	techcards, err := h.db.TechCard.FindMany().Exec(context.Background())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch techcards"})
+		return
+	}
+	c.JSON(http.StatusOK, techcards)
+}
+
+// CreateTechCard создает новую техкарту
+func (h *Handler) CreateTechCard(c *gin.Context) {
+	var req TechCardUpdate
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Создаем новую техкарту
+	created, err := h.db.TechCard.CreateOne(
+		db.TechCard.Tema.Set(req.Tema),
+		db.TechCard.ID.Set(req.ID), // Если ID передается, иначе уберите эту строку
+	).Exec(context.Background())
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create techcard: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, created)
+}
+
+
+
 // UpdateTechCard обновляет или создает техкарту
 func (h *Handler) UpdateTechCard(c *gin.Context) {
 	techcardID := c.Param("techcard_id")

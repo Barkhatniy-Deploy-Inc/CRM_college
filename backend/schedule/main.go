@@ -37,27 +37,28 @@ func main() {
 	r.Use(middleware.CorsMiddleware())
 
 	// Routes (Синхронизация с фронтендом)
-	apiGroup := r.Group("/api/schedule")
+	// Routes (Nginx handles prefix stripping)
+	apiGroup := r.Group("/")
 	{
 		apiGroup.POST("/upload", handler.UploadSchedule)
-		// Здесь должны быть ручки для /groups, /lessons и т.д.
-	}
-
-	// Фронт иногда стучится без /api
-	scheduleGroup := r.Group("/schedule")
-	{
-		scheduleGroup.GET("/lessons", func(c *gin.Context) {
+		apiGroup.GET("/lessons", func(c *gin.Context) {
 			c.JSON(200, gin.H{"message": "Schedule list endpoint"})
 		})
 	}
+
 
 	// Health check
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	log.Println("Schedule Service starting on :8000")
-	if err := r.Run(":8000"); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
+	log.Printf("Schedule Service starting on :%s", port)
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -84,3 +84,6 @@ yarn-error.log*
 /.mcpower/
 /.serena/
 /.serena/
+
+.gemini/
+gha-creds-*.json

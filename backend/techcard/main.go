@@ -4,6 +4,7 @@ import (
 	"common/middleware"
 	"log"
 	"net/http"
+	"os"
 	"techcard/internal/db"
 	"techcard/internal/techcard"
 
@@ -27,18 +28,27 @@ func main() {
 
 	h := techcard.NewHandler()
 
-	api := r.Group("/api/techcards")
+	// Routes (Nginx handles prefix stripping)
+	api := r.Group("/")
 	{
+		api.GET("/", h.GetTechCards) // Add list endpoint if missing or implies root
+		api.POST("/", h.CreateTechCard)
 		api.PUT("/:techcard_id", h.UpdateTechCard)
 		api.GET("/download", h.Download)
 	}
 
+	// Health check
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "service": "techcard"})
 	})
 
-	log.Println("Techcard Service starting on :8000")
-	if err := r.Run(":8000"); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
+	log.Printf("Techcard Service starting on :%s", port)
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }

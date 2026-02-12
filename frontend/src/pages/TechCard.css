@@ -1,0 +1,48 @@
+.techcard-page {
+    max-width: 1200px;
+}
+
+.loading {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--text-muted);
+}
+
+.techcard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+}
+
+.techcard-item h3 {
+    margin-bottom: var(--space-xs);
+}
+
+.techcard-item p {
+    margin-bottom: var(--space-md);
+    line-height: 1.5;
+}
+
+.techcard-meta {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-glass);
+}
+
+.meta-item {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+@media (max-width: 768px) {
+    .techcard-grid {
+        grid-template-columns: 1fr;
+    }
+}

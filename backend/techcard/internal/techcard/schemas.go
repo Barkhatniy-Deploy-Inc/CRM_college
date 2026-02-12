@@ -11,6 +11,8 @@ type StageUpdate struct {
 }
 
 type TechCardUpdate struct {
+	ID             int           `json:"id"`
+	Tema           string        `json:"tema"`
 	LessonID       int           `json:"lesson_id"`
 	GroupID        int           `json:"group_id"`
 	LessonTypeID   int           `json:"lesson_type_id"`

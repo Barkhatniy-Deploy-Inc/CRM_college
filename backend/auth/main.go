@@ -7,6 +7,7 @@ import (
 	"common/middleware"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -26,9 +27,9 @@ func main() {
 	// CORS Middleware
 	r.Use(middleware.CorsMiddleware())
 
-	// Auth routes (Убрали /api, так как фронт шлет сразу /auth/login)
+	// Auth routes (Nginx strips /api/auth, so we listen on root /)
 	h := auth.NewHandler()
-	authGroup := r.Group("/auth")
+	authGroup := r.Group("/")
 	{
 		authGroup.POST("/register", h.Register)
 		authGroup.POST("/login", h.Login)
@@ -46,8 +47,13 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "service": "auth"})
 	})
 
-	log.Println("Auth Service starting on :8000")
-	if err := r.Run(":8000"); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
+	log.Printf("Auth Service starting on :%s", port)
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }
