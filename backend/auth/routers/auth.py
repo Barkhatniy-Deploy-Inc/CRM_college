@@ -16,6 +16,7 @@ from services.cookie_service import set_auth_cookies, clear_auth_cookies
 from services.audit_service import log_action, AuditAction
 from dependencies import get_current_active_user
 from middleware.rate_limit import get_client_ip, get_user_agent
+from core.utils import mask_email
 from core.config import settings
 
 router = APIRouter(prefix="/api/auth", tags=["🔐 Авторизация"])
@@ -46,7 +47,7 @@ async def register(
     set_auth_cookies(response, access_token, refresh_token)
     
     # Логирование в аудит
-    log_action(AuditAction.USER_CREATED, user.id, db, {"email": user.email, "role": user.role.value}, request)
+    log_action(AuditAction.USER_CREATED, user.id, db, {"email": mask_email(user.email), "role": user.role.value}, request)
     
     return TokenResponse(
         access_token=access_token,

@@ -7,6 +7,7 @@ from typing import Optional, List
 from database.models import User, UserRole, RefreshToken, LoginHistory, LoginStatus, Permission, UserPermission
 from database.schemas import UserCreate, UserUpdate
 from services.security import hash_password, verify_password, check_user_locked, increment_failed_login_attempts, reset_failed_login_attempts
+from core.utils import mask_email, mask_ip
 
 
 def get_user_by_id(user_id: int, db: Session) -> Optional[User]:
@@ -74,10 +75,10 @@ def authenticate_user(email: str, password: str, db: Session, ip_address: str = 
     
     # Логируем попытку входа
     login_history = LoginHistory(
-        email=email,
+        email=mask_email(email),
         user_id=user.id if user else None,
         status=LoginStatus.FAILED,
-        ip_address=ip_address,
+        ip_address=mask_ip(ip_address) if ip_address else None,
         user_agent=user_agent
     )
     

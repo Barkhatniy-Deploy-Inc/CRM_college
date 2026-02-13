@@ -9,6 +9,7 @@ import json
 from database.models import AuditLog, AuditAction, User
 from database.schemas import AuditLogResponse, AuditLogFilter, AuditLogListResponse
 from middleware.rate_limit import get_client_ip, get_user_agent
+from core.utils import mask_ip
 from fastapi import Request
 
 
@@ -44,7 +45,7 @@ def log_action(
         user_id=user_id,
         action=action,
         details=json.dumps(details) if details else None,
-        ip_address=ip_address,
+        ip_address=mask_ip(ip_address) if ip_address else None,
         user_agent=user_agent
     )
     

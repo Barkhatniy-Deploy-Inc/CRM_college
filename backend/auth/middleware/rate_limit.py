@@ -61,14 +61,15 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
 def get_client_ip(request: Request) -> str:
     """Получение IP адреса клиента с учетом прокси"""
-    # Проверяем заголовки прокси
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
-    
+    # В первую очередь проверяем X-Real-IP, так как он устанавливается Nginx
     real_ip = request.headers.get("X-Real-IP")
     if real_ip:
         return real_ip
+    
+    # Если X-Real-IP нет, берем последний адрес из X-Forwarded-For (ближайший к нам прокси)
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[-1].strip()
     
     return request.client.host if request.client else "unknown"
 

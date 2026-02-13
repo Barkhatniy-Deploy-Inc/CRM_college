@@ -1,5 +1,6 @@
 from fastapi import UploadFile, File, HTTPException
 from typing import List, Optional
+from sqlalchemy import String
 from sqlalchemy.orm import Session, joinedload
 from database.models import ClassSlot, Auditorium, Group
 from services.schedule_importer import ScheduleImporter
@@ -90,7 +91,7 @@ async def get_schedule_list(
     if date_from and date_to:
         query = query.filter(ClassSlot.start_time.between(date_from, date_to))
     elif date:
-        query = query.filter(ClassSlot.start_time.like(f"{date}%"))
+        query = query.filter(ClassSlot.start_time.cast(String).like(f"{date}%"))
 
     real_limit = 2000 if (date_from or date_to) else limit
     slots = query.order_by(ClassSlot.start_time.desc()).limit(real_limit).offset(offset).all()

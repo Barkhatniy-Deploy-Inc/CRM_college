@@ -64,7 +64,7 @@ if settings.RATE_LIMIT_ENABLED:
 # Обработчик ошибок
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    logger.error(f"Необработанная ошибка: {exc}", exc_info=True)
+    logger.error(f"Необработанная ошибка: {exc}", exc_info=settings.DEBUG)
     return JSONResponse(
         status_code=500,
         content={"detail": "Внутренняя ошибка сервера"}
