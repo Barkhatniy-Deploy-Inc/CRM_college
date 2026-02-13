@@ -1,4 +1,5 @@
 ﻿import { defineStore } from 'pinia'
+import api from '../core/utils/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -11,6 +12,27 @@ export const useAuthStore = defineStore('auth', {
     setUser(user) {
       this.user = user
       this.isAuthenticated = !!user
+    },
+    async login(email, password) {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await api.post('/auth/login', { email, password })
+        this.setUser(response.data.user)
+        return true
+      } catch (err) {
+        this.error = err.response?.data?.detail || 'Ошибка при входе в систему'
+        return false
+      } finally {
+        this.loading = false
+      }
+    },
+    async logout() {
+      try {
+        await api.post('/auth/logout')
+      } finally {
+        this.clearAuth()
+      }
     },
     clearAuth() {
       this.user = null
