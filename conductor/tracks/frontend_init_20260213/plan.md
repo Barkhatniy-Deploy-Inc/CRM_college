@@ -11,7 +11,7 @@
 - [x] Task: Implement Feature-based folder structure inside 'frontend/src' (498dff2)
 - [x] Task: Configure Vue Router with basic route definitions (87f39fe)
 - [x] Task: Setup Pinia store for authentication state management (549a07e)
-- [ ] Task: Create MD3-based base components (Button, Input, Card) using Glassmorphism principles
+- [x] Task: Create MD3-based base components (Button, Input, Card) using Glassmorphism principles (d87f21d)
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Architecture Setup' (Protocol in workflow.md)
 
 ## Phase 3: Basic Authentication Flow
@@ -20,6 +20,8 @@
 - [ ] Task: Implement login API integration with the backend Auth Service
 - [ ] Task: Setup navigation guards to protect private routes
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Basic Authentication Flow' (Protocol in workflow.md)
+
+
 
 
 
