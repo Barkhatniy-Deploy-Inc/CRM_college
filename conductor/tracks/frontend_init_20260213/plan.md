@@ -7,7 +7,7 @@
 - [x] Task: Configure Vitest and create a dummy test to verify the setup (e16aa00)
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Environment Cleanup and Scaffolding' (Protocol in workflow.md)
 
-## Phase 2: Core Architecture Setup
+## Phase 2: Core Architecture Setup [checkpoint: d8ca980]
 - [x] Task: Implement Feature-based folder structure inside 'frontend/src' (498dff2)
 - [x] Task: Configure Vue Router with basic route definitions (87f39fe)
 - [x] Task: Setup Pinia store for authentication state management (549a07e)
@@ -20,6 +20,7 @@
 - [ ] Task: Implement login API integration with the backend Auth Service
 - [ ] Task: Setup navigation guards to protect private routes
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Basic Authentication Flow' (Protocol in workflow.md)
+
 
 
 
