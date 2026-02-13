@@ -6,7 +6,8 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     isAuthenticated: false,
     loading: false,
-    error: null
+    error: null,
+    isInitialized: false
   }),
   actions: {
     setUser(user) {
@@ -25,6 +26,17 @@ export const useAuthStore = defineStore('auth', {
         return false
       } finally {
         this.loading = false
+      }
+    },
+    async fetchUser() {
+      if (this.isInitialized) return
+      try {
+        const response = await api.get('/auth/me')
+        this.setUser(response.data)
+      } catch (err) {
+        this.clearAuth()
+      } finally {
+        this.isInitialized = true
       }
     },
     async logout() {
