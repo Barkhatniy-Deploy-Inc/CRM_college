@@ -1,0 +1,28 @@
+﻿:root {
+  --md-sys-color-primary: #004A99;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-surface: #F8F9FA;
+  --md-sys-color-on-surface: #1C1B1F;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-blur: 10px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+.glass-enabled .glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-disabled .glass-panel {
+  background: var(--md-sys-color-surface);
+  border: 1px solid #ddd;
+}
