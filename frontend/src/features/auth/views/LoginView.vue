@@ -1,7 +1,9 @@
-﻿<template>
-  <div class="auth-container glass-enabled">
+<template>
+  <div class="auth-container">
     <BaseCard class="login-card">
-      <div class="logo-placeholder">🎓</div>
+      <div class="logo-container">
+        <img src="/sielom/logo-sielom.svg" alt="Логотип СИЭУиП" class="main-logo" />
+      </div>
       <h2 class="auth-title">Вход в систему</h2>
       <p class="auth-subtitle">Сургутский институт экономики, управления и права</p>
       
@@ -24,9 +26,13 @@
         </div>
 
         <BaseButton type="submit" :loading="authStore.loading" class="full-width">
-          {{ authStore.loading ? 'Загрузка...' : 'Войти' }}
+          Войти
         </BaseButton>
       </form>
+
+      <div class="footer-logo">
+        <img src="/sielom/ten-years-logo.svg" alt="10 лет" class="anniversary-logo" />
+      </div>
     </BaseCard>
   </div>
 </template>
@@ -43,8 +49,14 @@ const email = ref('')
 const password = ref('')
 
 const handleLogin = async () => {
-  if (!email.value || !password.value) return
-  await authStore.login(email.value, password.value)
+  if (!email.value || !password.value) {
+    alert('Пожалуйста, заполните все поля')
+    return
+  }
+  const success = await authStore.login(email.value, password.value)
+  if (success) {
+    window.location.href = '/'
+  }
 }
 </script>
 
@@ -54,39 +66,43 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f5f7fa;
+  padding: 20px;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
   text-align: center;
-  border-top: 4px solid var(--md-sys-color-primary) !important;
+  border-top: 4px solid #FFD700 !important;
 }
 
-.logo-placeholder {
-  font-size: 3rem;
-  margin-bottom: 16px;
+.logo-container {
+  margin-bottom: 20px;
+}
+
+.main-logo {
+  height: 80px;
+  width: auto;
 }
 
 .auth-title {
   margin: 0 0 8px 0;
   font-weight: 700;
-  letter-spacing: -0.5px;
+  color: #1c1b1f;
 }
 
 .auth-subtitle {
   margin: 0 0 32px 0;
   opacity: 0.6;
   font-size: 0.85rem;
+  color: #1c1b1f;
   line-height: 1.4;
 }
 
 .full-width {
   width: 100%;
   margin-top: 24px;
-  font-weight: 600;
-  height: 48px;
 }
 
 .error-message {
@@ -96,7 +112,14 @@ const handleLogin = async () => {
   border-radius: 8px;
   margin-bottom: 16px;
   font-size: 0.85rem;
-  border: 1px solid rgba(183, 28, 28, 0.2);
+}
+
+.footer-logo {
+  margin-top: 30px;
+  opacity: 0.5;
+}
+
+.anniversary-logo {
+  height: 40px;
 }
 </style>
-

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <button class="md-button" :class="[variant, { 'is-loading': loading }]" :disabled="loading">
     <span v-if="loading" class="spinner"></span>
     <span :class="{ 'text-transparent': loading }">
@@ -35,11 +35,12 @@ defineProps({
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  min-height: 48px;
 }
 
 .primary {
-  background-color: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
+  background-color: #FFD700;
+  color: #1C1B1F;
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 }
 
@@ -49,16 +50,15 @@ defineProps({
   filter: brightness(1.05);
 }
 
-.primary:active:not(:disabled) {
-  transform: translateY(0);
+.outline {
+  background-color: transparent;
+  border-color: #ddd;
+  color: #666;
 }
 
-.is-loading {
-  cursor: wait;
-}
-
-.text-transparent {
-  color: transparent;
+.md-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .spinner {
@@ -66,9 +66,13 @@ defineProps({
   width: 20px;
   height: 20px;
   border: 3px solid rgba(0,0,0,0.1);
-  border-top-color: var(--md-sys-color-on-primary);
+  border-top-color: #1C1B1F;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.text-transparent {
+  color: transparent;
 }
 
 @keyframes spin {

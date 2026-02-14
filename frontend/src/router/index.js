@@ -1,4 +1,4 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import HomeView from '../core/views/HomeView.vue'
 
@@ -25,7 +25,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // Инициализация пользователя при первом заходе
   if (!authStore.isInitialized) {
     await authStore.fetchUser()
   }

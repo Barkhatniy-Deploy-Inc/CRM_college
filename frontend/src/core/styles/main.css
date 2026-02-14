@@ -1,32 +1,21 @@
-﻿:root {
-  --md-sys-color-primary: #FFD700; /* Золотисто-желтый */
-  --md-sys-color-on-primary: #1C1B1F; /* Темный текст на желтом */
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --md-sys-color-primary: #FFD700;
+  --md-sys-color-on-primary: #1C1B1F;
   --md-sys-color-surface: #FFFFFF;
   --md-sys-color-on-surface: #1C1B1F;
-  --md-sys-color-outline: #79747E;
+  --md-sys-color-outline: #E0E0E0;
   
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.5);
   --glass-blur: 12px;
-  
-  --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', 'Roboto', sans-serif;
-  background: var(--bg-gradient);
+  font-family: 'Inter', sans-serif;
+  background: #f8f9fa;
   color: var(--md-sys-color-on-surface);
-}
-
-.glass-enabled .glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-}
-
-.glass-disabled .glass-panel {
-  background: var(--md-sys-color-surface);
-  border: 1px solid #e0e0e0;
+  -webkit-font-smoothing: antialiased;
 }

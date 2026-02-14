@@ -1,118 +1,127 @@
-﻿<template>
-  <div class="home-container glass-enabled">
-    <BaseCard class="welcome-card">
-      <h1 class="title">Добро пожаловать в личный кабинет</h1>
-      <p class="subtitle">Информационная система управления учебным процессом</p>
+<template>
+  <div class="page-container">
+    
+    <!-- Карточка - теперь это единственный центр -->
+    <BaseCard class="login-card">
       
-      <div class="user-info" v-if="authStore.user">
-        <div class="info-row">
-          <span class="label">Пользователь</span>
-          <span class="value">{{ authStore.user.full_name }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Email</span>
-          <span class="value">{{ authStore.user.email }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Роль</span>
-          <span class="role-badge">{{ authStore.user.role }}</span>
-        </div>
+      <!-- Логотип вынесен из потока, чтобы не смещать центр карточки -->
+      <div class="floating-logo">
+        <img src="/sielom/logo-sielom.svg" alt="Логотип СИЭУиП" class="main-logo" />
+      </div>
+      
+      <h2 class="auth-title">Вход в систему</h2>
+      <p class="auth-subtitle">Сургутский институт экономики, управления и права</p>
+      
+      <div class="form-section">
+        <BaseInput 
+          label="Электронная почта" 
+          v-model="email" 
+          placeholder="example@sielom.ru"
+        />
+        <BaseInput 
+          label="Пароль" 
+          type="password" 
+          v-model="password" 
+          placeholder="••••••••"
+        />
+        
+        <BaseButton class="full-width">
+          Войти
+        </BaseButton>
       </div>
 
-      <div class="actions">
-        <BaseButton @click="handleLogout" variant="outline">Выйти из системы</BaseButton>
+      <div class="footer-logo">
+        <img src="/sielom/ten-years-logo.svg" alt="10 лет" class="anniversary-logo" />
       </div>
     </BaseCard>
+
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useAuthStore } from '../../store/auth'
-import { useRouter } from 'vue-router'
 import BaseCard from '../components/BaseCard.vue'
+import BaseInput from '../components/BaseInput.vue'
 import BaseButton from '../components/BaseButton.vue'
 
 const authStore = useAuthStore()
-const router = useRouter()
-
-const handleLogout = async () => {
-  await authStore.logout()
-  router.push({ name: 'login' })
-}
+const email = ref('')
+const password = ref('')
 </script>
 
 <style scoped>
-.home-container {
-  min-height: 100vh;
+.page-container {
+  height: 100vh;
+  width: 100vw;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  align-items: center; /* Карточка строго по центру вертикали */
+  justify-content: center; /* Карточка строго по центру горизонтали */
+  background: #f8f9fa;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-.welcome-card {
+.login-card {
+  position: relative; /* Для позиционирования логотипа */
   width: 100%;
-  max-width: 550px;
+  max-width: 440px;
   text-align: center;
-  border-left: 6px solid var(--md-sys-color-primary) !important;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  opacity: 0.5;
-  font-size: 0.9rem;
-  margin-bottom: 32px;
-}
-
-.user-info {
-  text-align: left;
   background: white;
-  padding: 24px;
-  border-radius: 12px;
-  margin-bottom: 32px;
-  border: 1px solid #eee;
+  padding: 40px 40px 32px 40px; 
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+  border-top: 6px solid #FFD700 !important;
 }
 
-.info-row {
+.floating-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 40px); /* Ровно 40px над верхним краем карточки */
+  width: auto;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f5f5f5;
+  justify-content: center;
 }
 
-.info-row:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
+.main-logo {
+  height: 90px;
+  width: auto;
+  display: block;
 }
 
-.label {
+.auth-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+  margin: 12px 0 32px 0;
   color: #666;
   font-size: 0.85rem;
+  line-height: 1.4;
 }
 
-.value {
-  font-weight: 600;
+.form-section {
+  width: 100%;
 }
 
-.role-badge {
-  background: var(--md-sys-color-primary);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
+.full-width {
+  width: 100%;
+  margin-top: 8px;
 }
 
-.actions {
-  display: flex;
-  justify-content: center;
+.footer-logo {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #f5f5f5;
+  opacity: 0.4;
+}
+
+.anniversary-logo {
+  height: 40px;
 }
 </style>
-
