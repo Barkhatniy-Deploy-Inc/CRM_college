@@ -14,12 +14,13 @@
 - [x] Task: Create MD3-based base components (Button, Input, Card) using Glassmorphism principles (d87f21d)
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Architecture Setup' (Protocol in workflow.md)
 
-## Phase 3: Basic Authentication Flow
+## Phase 3: Basic Authentication Flow [checkpoint: ea07af4]
 - [x] Task: Create Login page component (b54b4c8)
 - [x] Task: Write unit tests for authentication store and login logic (1a0b239)
 - [x] Task: Implement login API integration with the backend Auth Service (3b85256)
 - [x] Task: Setup navigation guards to protect private routes (367d0c9)
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Basic Authentication Flow' (Protocol in workflow.md)
+
 
 
 
