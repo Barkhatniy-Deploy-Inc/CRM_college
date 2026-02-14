@@ -1,21 +1,70 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --md-sys-color-primary: #FFD700;
-  --md-sys-color-on-primary: #1C1B1F;
-  --md-sys-color-surface: #FFFFFF;
-  --md-sys-color-on-surface: #1C1B1F;
-  --md-sys-color-outline: #E0E0E0;
-  
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --glass-blur: 12px;
+  --primary-color: #FFD700;
+  --on-primary: #1C1B1F;
 }
 
-body {
+/* СВЕТЛАЯ ТЕМА */
+html[data-theme="light"], :root {
+  --bg-color: #f5f7fa;
+  --text-primary: #1C1B1F;
+  --text-secondary: #666666;
+  --card-bg: #FFFFFF;
+  --input-bg: #FFFFFF;
+  --input-border: rgba(0, 0, 0, 0.12);
+  
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.12); /* Ярче */
+}
+
+/* ТЕМНАЯ ТЕМА */
+html[data-theme="dark"] {
+  --bg-color: #0A0A0A;
+  --text-primary: #FFFFFF;
+  --text-secondary: #AAAAAA;
+  --card-bg: #1A1A1A;
+  --input-bg: #222222;
+  --input-border: rgba(255, 255, 255, 0.15);
+  
+  --glass-bg: rgba(30, 30, 30, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 25px 70px rgba(0, 0, 0, 0.6); /* Намного ярче и глубже */
+}
+
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   font-family: 'Inter', sans-serif;
-  background: #f8f9fa;
-  color: var(--md-sys-color-on-surface);
-  -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-color) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+}
+
+.glass-panel {
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid var(--glass-border);
+  box-shadow: var(--card-shadow);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.glass-disabled .glass-panel {
+  background-color: var(--card-bg) !important;
+  backdrop-filter: none !important;
+}
+
+h1, h2, h3, h4, p, span, label, strong {
+  color: inherit;
 }

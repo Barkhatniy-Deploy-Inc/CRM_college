@@ -5,7 +5,6 @@
         <img src="/sielom/logo-sielom.svg" alt="Логотип СИЭУиП" class="main-logo" />
       </div>
       <h2 class="auth-title">Вход в систему</h2>
-      <p class="auth-subtitle">Сургутский институт экономики, управления и права</p>
       
       <form @submit.prevent="handleLogin">
         <BaseInput 

@@ -9,7 +9,6 @@
         class="styled-input"
         :placeholder="placeholder"
       />
-      <div class="focus-indicator"></div>
     </div>
   </div>
 </template>
@@ -25,70 +24,72 @@ defineEmits(['update:modelValue'])
   flex-direction: column;
   margin-bottom: 24px;
   text-align: left;
+  width: 100%;
 }
 
 .styled-label {
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
-  font-weight: 600;
-  color: #4A4A4A;
-  margin-bottom: 8px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
   margin-left: 4px;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .input-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
+  width: 100%;
 }
 
 .styled-input {
   width: 100%;
-  padding: 14px 18px;
-  font-family: 'Inter', sans-serif;
+  padding: 14px 20px;
+  font-family: inherit;
   font-size: 1rem;
-  font-weight: 400;
-  color: #1C1B1F;
-  background: #FFFFFF;
-  border: 1.5px solid #F0F0F0;
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: none;
   border-radius: 14px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Более яркая базовая тень */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
 }
 
 .styled-input::placeholder {
-  color: #A0A0A0;
-  font-weight: 400;
-  opacity: 0.7;
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 .styled-input:hover {
-  border-color: #D0D0D0;
-  background: #FAFAFA;
+  background-color: var(--card-bg);
+  /* Насыщенная желтая тень */
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
 }
 
 .styled-input:focus {
-  border-color: transparent;
-  background: #FFFFFF;
-  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.15);
+  background-color: var(--card-bg);
+  /* Очень яркая и широкая тень при фокусе */
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.45);
+  transform: translateY(-1px);
 }
 
-.focus-indicator {
-  position: absolute;
-  inset: -1.5px;
-  border-radius: 14px;
-  border: 2px solid var(--md-sys-color-primary);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 1;
+/* Темная тема - более агрессивные тени для контраста */
+:global(html[data-theme="dark"]) .styled-input {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-.styled-input:focus + .focus-indicator {
-  opacity: 1;
+:global(html[data-theme="dark"]) .styled-input:hover {
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
+}
+
+:global(html[data-theme="dark"]) .styled-input:focus {
+  box-shadow: 0 12px 35px rgba(255, 215, 0, 0.35);
 }
 </style>

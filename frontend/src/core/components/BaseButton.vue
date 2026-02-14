@@ -39,7 +39,7 @@ defineProps({
 }
 
 .primary {
-  background-color: #FFD700;
+  background-color: var(--primary-color);
   color: #1C1B1F;
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 }
@@ -47,13 +47,12 @@ defineProps({
 .primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
-  filter: brightness(1.05);
 }
 
 .outline {
   background-color: transparent;
   border-color: #ddd;
-  color: #666;
+  color: var(--text-primary);
 }
 
 .md-button:disabled {
