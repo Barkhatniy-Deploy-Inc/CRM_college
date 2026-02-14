@@ -28,7 +28,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres_dump.sql:/docker-entrypoint-initdb.d/postgres_dump.sql:ro
+      - ./db-init:/docker-entrypoint-initdb.d:ro
     ports:
       - "${DB_PORT:-5432}:5432"
     healthcheck:
@@ -47,6 +47,7 @@ services:
     container_name: crm_auth
     restart: unless-stopped
     environment:
+      DB_TYPE: postgresql
       DB_HOST: db
       DB_PORT: ${DB_PORT:-5432}
       DB_USER: ${DB_USER:-postgres}

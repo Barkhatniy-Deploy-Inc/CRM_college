@@ -1,0 +1,23 @@
+[run]
+omit =
+    */tests/*
+    */scripts/*
+    */migrations/*
+    */__init__.py
+    */venv/*
+    */.idea/*
+    */.vscode/*
+    backend/schedule/scripts/*
+    backend/schedule/tests/*
+    backend/auth/scripts/*
+    backend/auth/tests/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if __name__ == .__main__.:
+    raise AssertionError
+    raise NotImplementedError
+    if settings.DEBUG:

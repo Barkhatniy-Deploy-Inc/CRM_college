@@ -23,10 +23,17 @@ print("---------------------------------")
 # ---------------------------
 
 # Используем новый драйвер psycopg (вместо psycopg2)
-DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+if os.getenv("TESTING") == "1":
+    DATABASE_URL = "sqlite:///:memory:"
+else:
+    DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Добавляем echo=True, чтобы видеть все SQL-запросы в консоли
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(
+    DATABASE_URL, 
+    echo=True,
+    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

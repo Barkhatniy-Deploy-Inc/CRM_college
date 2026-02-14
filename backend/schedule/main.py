@@ -1,4 +1,5 @@
 import logging
+import os
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -74,7 +75,7 @@ app.include_router(export.router)
 app.include_router(notifications.router)
 app.include_router(calendar.router)
 
-@app.get("/api/health", tags=["⚙️ Система"])
+@app.get("/health", tags=["⚙️ Система"])
 async def health_check():
     return {"status": "healthy", "telegram": "enabled" if NOTIFICATIONS_ENABLED else "disabled", "database": "connected"}
 

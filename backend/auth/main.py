@@ -72,7 +72,7 @@ async def global_exception_handler(request, exc):
 
 
 # Health check (перемещен в конец)
-@app.get("/api/health", tags=["⚙️ Система"])
+@app.get("/health", tags=["⚙️ Система"])
 async def health_check():
     """Проверка здоровья сервиса"""
     try:

@@ -26,3 +26,7 @@ app.include_router(techcard_router)
 @app.get("/")
 async def root():
     return {"message": "API для генератора технологических карт работает!"}
+
+@app.get("/health", tags=["⚙️ Система"])
+async def health_check():
+    return {"status": "healthy", "service": "Techcard Service"}
