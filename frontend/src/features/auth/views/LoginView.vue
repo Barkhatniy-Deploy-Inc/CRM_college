@@ -1,15 +1,16 @@
 ﻿<template>
   <div class="auth-container glass-enabled">
     <BaseCard class="login-card">
-      <h2 class="auth-title">Вход в CRM</h2>
-      <p class="auth-subtitle">Информационная система колледжа</p>
+      <div class="logo-placeholder">🎓</div>
+      <h2 class="auth-title">Вход в систему</h2>
+      <p class="auth-subtitle">Сургутский институт экономики, управления и права</p>
       
       <form @submit.prevent="handleLogin">
         <BaseInput 
-          label="Email" 
+          label="Электронная почта" 
           type="email" 
           v-model="email" 
-          placeholder="example@college.ru"
+          placeholder="example@sielom.ru"
         />
         <BaseInput 
           label="Пароль" 
@@ -22,8 +23,8 @@
           {{ authStore.error }}
         </div>
 
-        <BaseButton type="submit" :disabled="authStore.loading" class="full-width">
-          {{ authStore.loading ? 'Вход...' : 'Войти' }}
+        <BaseButton type="submit" :loading="authStore.loading" class="full-width">
+          {{ authStore.loading ? 'Загрузка...' : 'Войти' }}
         </BaseButton>
       </form>
     </BaseCard>
@@ -53,37 +54,49 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #004A99 0%, #002d66 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   text-align: center;
+  border-top: 4px solid var(--md-sys-color-primary) !important;
+}
+
+.logo-placeholder {
+  font-size: 3rem;
+  margin-bottom: 16px;
 }
 
 .auth-title {
   margin: 0 0 8px 0;
-  color: var(--md-sys-color-on-surface);
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .auth-subtitle {
-  margin: 0 0 24px 0;
-  opacity: 0.7;
-  font-size: 0.9rem;
+  margin: 0 0 32px 0;
+  opacity: 0.6;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .full-width {
   width: 100%;
-  margin-top: 16px;
+  margin-top: 24px;
+  font-weight: 600;
+  height: 48px;
 }
 
 .error-message {
-  color: #d32f2f;
-  background: rgba(211, 47, 47, 0.1);
-  padding: 8px;
-  border-radius: 4px;
+  color: #b71c1c;
+  background: rgba(183, 28, 28, 0.08);
+  padding: 12px;
+  border-radius: 8px;
   margin-bottom: 16px;
   font-size: 0.85rem;
+  border: 1px solid rgba(183, 28, 28, 0.2);
 }
 </style>
+

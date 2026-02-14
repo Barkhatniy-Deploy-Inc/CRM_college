@@ -1,17 +1,21 @@
 ﻿:root {
-  --md-sys-color-primary: #004A99;
-  --md-sys-color-on-primary: #FFFFFF;
-  --md-sys-color-surface: #F8F9FA;
+  --md-sys-color-primary: #FFD700; /* Золотисто-желтый */
+  --md-sys-color-on-primary: #1C1B1F; /* Темный текст на желтом */
+  --md-sys-color-surface: #FFFFFF;
   --md-sys-color-on-surface: #1C1B1F;
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-blur: 10px;
+  --md-sys-color-outline: #79747E;
+  
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-blur: 12px;
+  
+  --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
 }
 
 body {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--md-sys-color-surface);
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background: var(--bg-gradient);
   color: var(--md-sys-color-on-surface);
 }
 
@@ -24,5 +28,5 @@ body {
 
 .glass-disabled .glass-panel {
   background: var(--md-sys-color-surface);
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
 }
