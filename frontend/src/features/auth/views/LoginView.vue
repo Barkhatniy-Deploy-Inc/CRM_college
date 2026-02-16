@@ -38,12 +38,14 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../../store/auth'
 import BaseCard from '../../../core/components/BaseCard.vue'
 import BaseInput from '../../../core/components/BaseInput.vue'
 import BaseButton from '../../../core/components/BaseButton.vue'
 
 const authStore = useAuthStore()
+const router = useRouter()
 const email = ref('')
 const password = ref('')
 
@@ -54,7 +56,7 @@ const handleLogin = async () => {
   }
   const success = await authStore.login(email.value, password.value)
   if (success) {
-    window.location.href = '/'
+    router.push('/dashboard')
   }
 }
 </script>
@@ -89,14 +91,6 @@ const handleLogin = async () => {
   margin: 0 0 8px 0;
   font-weight: 700;
   color: #1c1b1f;
-}
-
-.auth-subtitle {
-  margin: 0 0 32px 0;
-  opacity: 0.6;
-  font-size: 0.85rem;
-  color: #1c1b1f;
-  line-height: 1.4;
 }
 
 .full-width {
