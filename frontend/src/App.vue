@@ -1,46 +1,38 @@
 <template>
-  <div id="app-wrapper">
-    <!-- Глобальные настройки темы и стиля -->
-    <SettingsToggle />
+  <div :class="{ 'glass-disabled': !settingsStore.glassEnabled }">
+    <!-- Для неавторизованных -->
+    <router-view v-if="!authStore.isAuthenticated" />
     
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </router-view>
+    <!-- Для авторизованных (Dashboard и т.д.) -->
+    <DefaultLayout v-else>
+      <router-view />
+    </DefaultLayout>
   </div>
 </template>
 
 <script setup>
 import { onMounted } from 'vue'
 import { useSettingsStore } from './store/settings'
-import SettingsToggle from './core/components/SettingsToggle.vue'
+import { useAuthStore } from './store/auth'
+import DefaultLayout from './core/layouts/DefaultLayout.vue'
 
-const settings = useSettingsStore()
+const settingsStore = useSettingsStore()
+const authStore = useAuthStore()
 
 onMounted(() => {
-  settings.applySettings()
+  settingsStore.initTheme()
 })
 </script>
 
 <style>
-#app-wrapper {
-  height: 100%;
-  width: 100%;
-}
-
+/* Глобальные переходы между страницами */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
+.fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
 }
 </style>

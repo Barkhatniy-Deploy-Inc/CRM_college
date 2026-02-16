@@ -65,19 +65,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include Routers
-app.include_router(auth.router)
-app.include_router(groups.router)
+# Глобальный Health Check (ПОЛНЫЙ ПУТЬ)
+@app.get("/api/schedule/health", tags=["⚙️ Система"])
+async def health_check():
+    return {"status": "healthy", "service": "Schedule Service"}
+
+# Подключаем роутеры БЕЗ префиксов в include (префиксы будут внутри файлов)
 app.include_router(schedule.router)
+app.include_router(groups.router)
 app.include_router(auditoriums.router)
 app.include_router(participants.router)
 app.include_router(export.router)
 app.include_router(notifications.router)
 app.include_router(calendar.router)
-
-@app.get("/health", tags=["⚙️ Система"])
-async def health_check():
-    return {"status": "healthy", "telegram": "enabled" if NOTIFICATIONS_ENABLED else "disabled", "database": "connected"}
+app.include_router(auth.router)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

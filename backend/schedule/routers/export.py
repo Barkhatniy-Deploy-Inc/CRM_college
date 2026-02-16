@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database.database import get_db
 from api.export_api import export_schedule_xlsx, export_schedule_pdf
 
-router = APIRouter(prefix="/api/schedule/export", tags=["📥 Экспорт расписания"])
+router = APIRouter(prefix="/export", tags=["📥 Экспорт расписания"])
 
 @router.get("/xlsx")
 async def export_xlsx_ep(

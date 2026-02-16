@@ -1,8 +1,0 @@
-﻿{
-    "description":  "Инициализация нового фронтенда на Vue 3 + Vite и базовая интеграция с существующим бэкендом",
-    "track_id":  "frontend_init_20260213",
-    "type":  "feature",
-    "created_at":  "2026-02-13T15:55:00Z",
-    "status":  "new",
-    "updated_at":  "2026-02-13T15:55:00Z"
-}

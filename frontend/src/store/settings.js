@@ -3,31 +3,29 @@ import { defineStore } from 'pinia'
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     theme: localStorage.getItem('theme') || 'light',
-    glassEnabled: localStorage.getItem('glassEnabled') !== 'false'
+    glassEnabled: JSON.parse(localStorage.getItem('glass_enabled') ?? 'true')
   }),
+
   actions: {
+    initTheme() {
+      // Применяем тему к тегу html при загрузке
+      document.documentElement.setAttribute('data-theme', this.theme)
+      if (this.theme === 'dark') {
+        document.documentElement.classList.add('dark-theme')
+      } else {
+        document.documentElement.classList.remove('dark-theme')
+      }
+    },
+
     toggleTheme() {
       this.theme = this.theme === 'light' ? 'dark' : 'light'
       localStorage.setItem('theme', this.theme)
-      this.applySettings()
+      this.initTheme()
     },
+
     toggleGlass() {
       this.glassEnabled = !this.glassEnabled
-      localStorage.setItem('glassEnabled', this.glassEnabled)
-      this.applySettings()
-    },
-    applySettings() {
-      const html = document.documentElement
-      
-      // Применяем тему через атрибут (самый надежный способ)
-      html.setAttribute('data-theme', this.theme)
-      
-      // Применяем стиль стекла через класс
-      if (this.glassEnabled === false) {
-        html.classList.add('glass-disabled')
-      } else {
-        html.classList.remove('glass-disabled')
-      }
+      localStorage.setItem('glass_enabled', JSON.stringify(this.glassEnabled))
     }
   }
 })

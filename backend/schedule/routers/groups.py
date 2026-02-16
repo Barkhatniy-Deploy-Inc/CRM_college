@@ -9,7 +9,8 @@ from fastapi_cache.decorator import cache
 import json
 from services.websocket_manager import manager
 
-router = APIRouter(prefix="/api/groups", tags=["👥 Группы"])
+# Явный полный путь
+router = APIRouter(prefix="/api/schedule/groups", tags=["👥 Группы"])
 
 @router.get("/", response_model=List[GroupResponse])
 @cache(expire=60)

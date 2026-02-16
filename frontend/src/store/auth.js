@@ -3,52 +3,52 @@ import api from '../core/utils/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
-    isAuthenticated: false,
-    loading: false,
-    error: null,
-    isInitialized: false
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    accessToken: localStorage.getItem('access_token') || null,
+    isLoading: false,
+    error: null
   }),
+
+  getters: {
+    isAuthenticated: (state) => !!state.accessToken,
+    userRole: (state) => state.user?.role || 'guest'
+  },
+
   actions: {
-    setUser(user) {
-      this.user = user
-      this.isAuthenticated = !!user
-    },
     async login(email, password) {
-      this.loading = true
+      this.isLoading = true
       this.error = null
       try {
         const response = await api.post('/auth/login', { email, password })
-        this.setUser(response.data.user)
+        const { access_token, user } = response.data
+        
+        this.accessToken = access_token
+        this.user = user
+        
+        localStorage.setItem('access_token', access_token)
+        localStorage.setItem('user', JSON.stringify(user))
+        
         return true
       } catch (err) {
-        this.error = err.response?.data?.detail || 'Ошибка при входе в систему'
-        return false
+        this.error = err.response?.data?.detail || 'Ошибка входа'
+        throw err
       } finally {
-        this.loading = false
+        this.isLoading = false
       }
     },
-    async fetchUser() {
-      if (this.isInitialized) return
-      try {
-        const response = await api.get('/auth/me')
-        this.setUser(response.data)
-      } catch (err) {
-        this.clearAuth()
-      } finally {
-        this.isInitialized = true
-      }
-    },
+
     async logout() {
       try {
         await api.post('/auth/logout')
+      } catch (e) {
+        console.error('Logout error', e)
       } finally {
-        this.clearAuth()
+        this.user = null
+        this.accessToken = null
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('user')
+        window.location.href = '/'
       }
-    },
-    clearAuth() {
-      this.user = null
-      this.isAuthenticated = false
     }
   }
 })
