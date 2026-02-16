@@ -40,14 +40,14 @@ app.add_middleware(
 if settings.RATE_LIMIT_ENABLED:
     app.add_middleware(RateLimitMiddleware)
 
-# Health check
+# Health check (ГЛОБАЛЬНЫЙ)
 @app.get("/api/auth/health", tags=["⚙️ Система"])
 async def health_check():
     return {"status": "healthy", "service": "Auth Service"}
 
-# Подключение роутеров с явными префиксами
-app.include_router(auth.router, prefix="/api/auth")
-app.include_router(users.router, prefix="/api/users")
+# Подключение роутеров БЕЗ дополнительных префиксов
+app.include_router(auth.router)
+app.include_router(users.router)
 
 @app.get("/")
 async def root():

@@ -70,7 +70,7 @@ app.add_middleware(
 async def health_check():
     return {"status": "healthy", "service": "Schedule Service"}
 
-# Подключаем роутеры БЕЗ префиксов в include (префиксы будут внутри файлов)
+# Подключаем роутеры БЕЗ дополнительных префиксов (они заданы внутри файлов)
 app.include_router(schedule.router)
 app.include_router(groups.router)
 app.include_router(auditoriums.router)

@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/schedule", tags=["🗓️ Расписание"]
 @router.post("/", response_model=ClassSlotResponse)
 async def create_lesson_ep(data: ClassSlotCreate, u: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     lesson = await create_class_slot(data, db)
-    await manager.broadcast(json.dumps({"type": "lesson_created", "data": json.loads(ClassSlotResponse.from_orm(lesson).model_dump_json())}))
+    await manager.broadcast(json.dumps({"type": "lesson_created", "data": json.loads(ClassSlotResponse.model_validate(lesson).model_dump_json())}))
     return lesson
 
 @router.post("/upload")
@@ -38,7 +38,7 @@ async def get_lesson_ep(lesson_id: int, db: Session = Depends(get_db)):
 @router.put("/{lesson_id}", response_model=ClassSlotResponse)
 async def update_lesson_ep(lesson_id: int, data: ClassSlotUpdate, u: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     lesson = await update_class_slot(lesson_id, data, db)
-    await manager.broadcast(json.dumps({"type": "lesson_updated", "data": json.loads(ClassSlotResponse.from_orm(lesson).model_dump_json())}))
+    await manager.broadcast(json.dumps({"type": "lesson_updated", "data": json.loads(ClassSlotResponse.model_validate(lesson).model_dump_json())}))
     return lesson
 
 @router.delete("/{lesson_id}")
@@ -46,5 +46,3 @@ async def delete_lesson_ep(lesson_id: int, u: User = Depends(get_current_active_
     await delete_class_slot(lesson_id, db)
     await manager.broadcast(json.dumps({"type": "lesson_deleted", "data": {"id": lesson_id}}))
     return {"message": "Урок успешно удален"}
-
-from dependencies import get_current_active_user
