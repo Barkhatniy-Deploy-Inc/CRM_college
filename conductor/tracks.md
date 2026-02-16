@@ -4,8 +4,11 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Управление системой (Пользователи, Группы и Расписание)**
-  *Link: [./tracks/frontend_mgmt_20260216/](./tracks/frontend_mgmt_20260216/)*
+- [x] **Track: Управление системой (Пользователи, Группы и Расписание)**
+  *Link: [./archive/frontend_mgmt_20260216/](./archive/frontend_mgmt_20260216/)*
+
+- [ ] **Track: Технологические карты (Конструктор и Генерация документов)**
+  *Link: [./tracks/frontend_techcards_20260216/](./tracks/frontend_techcards_20260216/)*
 
 ---
 
