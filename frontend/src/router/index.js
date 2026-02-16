@@ -50,6 +50,18 @@ const routes = [
     name: 'admin-auditoriums',
     component: () => import('../features/admin/views/AuditoriumsView.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/techcards',
+    name: 'techcards-list',
+    component: () => import('../features/techcards/views/TechcardsListView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/techcards/:id',
+    name: 'techcard-editor',
+    component: () => import('../features/techcards/views/TechcardEditorView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

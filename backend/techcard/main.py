@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from database.database_techcard import engine_techcard, BaseTechCard
+from database.database import engine_techcard, BaseTechCard
 from routers.techcard_router import router as techcard_router
 
 @asynccontextmanager

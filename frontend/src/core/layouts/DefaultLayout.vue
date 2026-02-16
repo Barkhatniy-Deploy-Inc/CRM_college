@@ -60,6 +60,7 @@ const isCollapsed = ref(false)
 const allMenuItems = [
   { path: '/dashboard', label: 'Главная', icon: 'dashboard', roles: ['admin', 'student', 'teacher'] },
   { path: '/schedule', label: 'Расписание', icon: 'schedule', roles: ['admin', 'student', 'teacher'] },
+  { path: '/techcards', label: 'Техкарты', icon: 'activity', roles: ['admin', 'teacher'] },
   { path: '/admin', label: 'Администрирование', icon: 'shield', roles: ['admin'] },
 ]
 

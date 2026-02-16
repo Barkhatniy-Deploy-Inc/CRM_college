@@ -15,7 +15,7 @@ router = APIRouter(
     tags=["Технологические карты"]
 )
 
-SCHEDULE_API_URL = "http://localhost:8000/api/schedule"
+SCHEDULE_API_URL = "http://schedule:8000/api/schedule"
 
 
 async def get_lesson_data(lesson_id: int):
@@ -101,14 +101,52 @@ async def update_techcard(
         raise HTTPException(status_code=500, detail=f"Ошибка обновления: {str(e)}")
 
 
-@router.get("/download")
-def download_techcard(
+@router.get("/download/{techcard_id}")
+async def download_techcard(
+        techcard_id: int,
         db: Session = Depends(get_techcard_db)
 ):
     """
     Генерирует .docx файл из данных технологической карты и отдаёт его для скачивания.
     """
-    raise HTTPException(status_code=501, detail="Функционал временно отключен")
+    db_card = db.query(TechCard).filter(TechCard.id == techcard_id).first()
+    if not db_card:
+        raise HTTPException(status_code=404, detail="Технологическая карта не найдена")
+    
+    # Преобразуем модель в словарь для генератора
+    card_data = {
+        "tema": db_card.tema,
+        "nomer_zanyatiya": db_card.nomer_zanyatiya,
+        "cel_zanyatiya": db_card.cel_zanyatiya,
+        "zadachi_obuch": db_card.zadachi_obuch,
+        "zadachi_razv": db_card.zadachi_razv,
+        "zadachi_vosp": db_card.zadachi_vosp,
+        "ped_tech": db_card.ped_tech,
+        "prognoz_result": db_card.prognoz_result,
+        "oborudovanie": db_card.oborudovanie,
+        "istochniki": db_card.istochniki,
+        "stages": [
+            {
+                "nomer_etapa": s.nomer_etapa,
+                "nazvanie_etapa": s.nazvanie_etapa,
+                "dlitelnost": s.dlitelnost,
+                "deyatelnost_prepod": s.deyatelnost_prepod,
+                "deyatelnost_obuch": s.deyatelnost_obuch
+            } for s in db_card.stages
+        ]
+    }
+
+    try:
+        file_stream = generate_techcard_docx(card_data)
+        filename = f"Techcard_{techcard_id}.docx"
+        
+        return StreamingResponse(
+            file_stream,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка генерации файла: {str(e)}")
 
 
 @router.get("/{techcard_id}", response_model=TechCardResponse)

@@ -5,7 +5,7 @@ from database.database import get_db
 from database.models import ClassSlotResponse, ClassSlotCreate, ClassSlotUpdate, User
 from api.slots_api import create_class_slot, get_class_slot, update_class_slot, delete_class_slot
 from api.schedule_api import get_schedule_list, upload_schedule
-from dependencies import get_current_user
+from dependencies import get_current_user, get_current_active_user
 from fastapi_cache.decorator import cache
 import json
 from services.websocket_manager import manager

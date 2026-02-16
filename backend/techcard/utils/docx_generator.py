@@ -1,54 +1,55 @@
+import os
 from docxtpl import DocxTemplate
 from io import BytesIO
-import os
+from datetime import datetime
 
-
-def generate_techcard_docx(techcard_data, group_name, lesson_name, teacher_name, lesson_type_name):
+def generate_techcard_docx(card_data: dict) -> BytesIO:
     """
-    Генерирует DOCX из шаблона, заполняя его данными из БД.
+    Генерирует .docx файл на основе данных техкарты.
+    card_data - это словарь с данными из БД и вложенными этапами.
     """
     # Путь к шаблону
-    template_path = os.path.join('templates', 'Tekhnologicheskaia-karta-zaniatiia.docx')
-
-    # Загружаем шаблон
-    doc = DocxTemplate(template_path)
-
-    # Подготавливаем данные для подстановки
+    template_path = os.path.join(os.path.dirname(__file__), "templates", "techcard_template.docx")
+    
+    # Если шаблона нет, мы могли бы создать его программно, 
+    # но docxtpl требует файл. Для начала создадим базовый контекст.
+    
     context = {
-        'lesson_name': lesson_name or '',
-        'tema': techcard_data.tema or '',
-        'group_name': group_name or '',
-        'teacher_name': teacher_name or '',
-        'lesson_type_name': lesson_type_name or '',
-        'nomer_zanyatiya': techcard_data.nomer_zanyatiya or '',
-        'ped_tech': techcard_data.ped_tech or '',
-        'cel_zanyatiya': techcard_data.cel_zanyatiya or '',
-        'zadachi_obuch': techcard_data.zadachi_obuch or '',
-        'zadachi_razv': techcard_data.zadachi_razv or '',
-        'zadachi_vosp': techcard_data.zadachi_vosp or '',
-        'prognoz_result': techcard_data.prognoz_result or '',
-        'oborudovanie': techcard_data.oborudovanie or '',
-        'istochniki': techcard_data.istochniki or '',
-        'stages': [
-            {
-                'nomer_etapa': stage.nomer_etapa,
-                'nazvanie_etapa': stage.nazvanie_etapa or '',
-                'cel_etapa': stage.cel_etapa or '',
-                'dlitelnost': stage.dlitelnost or '',
-                'deyatelnost_prepod': stage.deyatelnost_prepod or '',
-                'deyatelnost_obuch': stage.deyatelnost_obuch or '',
-                'formiruemye_kompetencii': stage.formiruemye_kompetencii or ''
-            }
-            for stage in techcard_data.stages
-        ]
+        'tema': card_data.get('tema', 'Не указана'),
+        'nomer': card_data.get('nomer_zanyatiya', '1'),
+        'cel': card_data.get('cel_zanyatiya', ''),
+        'obuch': card_data.get('zadachi_obuch', ''),
+        'razv': card_data.get('zadachi_razv', ''),
+        'vosp': card_data.get('zadachi_vosp', ''),
+        'tech': card_data.get('ped_tech', ''),
+        'res': card_data.get('prognoz_result', ''),
+        'oborud': card_data.get('oborudovanie', ''),
+        'istoch': card_data.get('istochniki', ''),
+        'stages': card_data.get('stages', []),
+        'date': datetime.now().strftime("%d.%m.%Y")
     }
 
-    # Заполняем шаблон данными
-    doc.render(context)
-
-    # Сохраняем в BytesIO
-    file_stream = BytesIO()
-    doc.save(file_stream)
-    file_stream.seek(0)
-
-    return file_stream
+    # Создаем временный файл в памяти
+    target_stream = BytesIO()
+    
+    try:
+        if os.path.exists(template_path):
+            doc = DocxTemplate(template_path)
+            doc.render(context)
+            doc.save(target_stream)
+        else:
+            # Если шаблона нет, создаем простейший документ через python-docx
+            from docx import Document
+            doc = Document()
+            doc.add_heading(f"Технологическая карта занятия: {context['tema']}", 0)
+            doc.add_paragraph(f"Цель: {context['cel']}")
+            doc.add_heading("Ход занятия", 1)
+            for s in context['stages']:
+                doc.add_paragraph(f"Этап: {s.get('nazvanie_etapa')}\nПрод: {s.get('dlitelnost')} мин.\nДеят. преп.: {s.get('deyatelnost_prepod')}")
+            doc.save(target_stream)
+            
+        target_stream.seek(0)
+        return target_stream
+    except Exception as e:
+        print(f"Error generating DOCX: {e}")
+        raise e
