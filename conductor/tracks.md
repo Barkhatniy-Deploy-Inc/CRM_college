@@ -4,6 +4,11 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [ ] **Track: Управление системой (Пользователи, Группы и Расписание)**
+  *Link: [./tracks/frontend_mgmt_20260216/](./tracks/frontend_mgmt_20260216/)*
+
+---
+
 ## Archive
 - [x] **Track: Инициализация нового фронтенда на Vue 3 + Vite и базовая интеграция с существующим бэкендом**
   *Link: [./archive/frontend_init_20260213/](./archive/frontend_init_20260213/)*
