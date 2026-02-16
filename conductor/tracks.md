@@ -4,8 +4,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Администрирование (Аудит и Логирование)**
-  *Link: [./tracks/admin_audit_20260216/](./tracks/admin_audit_20260216/)*
+- [ ] **Track: Администрирование (Расширенный профиль и тех. данные)**
+  *Link: [./tracks/admin_user_details_20260216/](./tracks/admin_user_details_20260216/)*
 
 ---
 
@@ -21,3 +21,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Технологические карты (Конструктор и Генерация документов)**
   *Link: [./archive/frontend_techcards_20260216/](./archive/frontend_techcards_20260216/)*
+
+- [x] **Track: Администрирование (Аудит и Логирование)**
+  *Link: [./archive/admin_audit_20260216/](./archive/admin_audit_20260216/)*
