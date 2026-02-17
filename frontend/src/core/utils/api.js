@@ -10,6 +10,10 @@ const api = axios.create({
 
 // Логирование запросов для отладки
 api.interceptors.request.use(config => {
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
   console.log(`🚀 API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`)
   return config
 })

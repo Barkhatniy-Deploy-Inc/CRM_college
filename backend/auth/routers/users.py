@@ -106,6 +106,24 @@ async def update_user_admin(
     return UserResponse.model_validate(updated_user)
 
 
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user_details(
+    user_id: int,
+    current_user: User = Depends(require_role(UserRole.ADMIN)),
+    db: Session = Depends(get_db)
+):
+    """
+    Получение детальной информации о пользователе (только для админов)
+    """
+    user = get_detailed_user(user_id, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден"
+        )
+    return UserResponse.model_validate(user)
+
+
 # ============ Поиск пользователей ============
 
 @router.get("", response_model=UserListResponse)
@@ -187,4 +205,33 @@ async def get_all_audit_logs(
     )
     
     return get_audit_logs(params, db)
+
+
+@router.post("/audit-log/internal", status_code=status.HTTP_201_CREATED)
+async def create_internal_audit_log(
+    data: dict,
+    db: Session = Depends(get_db)
+):
+    """
+    Внутренний эндпоинт для создания логов из других сервисов.
+    """
+    from services.audit_service import log_action
+    from database.models import AuditAction
+    
+    try:
+        action_val = data.get("action")
+        try:
+            action = AuditAction(action_val)
+        except ValueError:
+            action = AuditAction.SECURITY_ALERT
+            
+        log_action(
+            action=action,
+            user_id=data.get("user_id"),
+            db=db,
+            details=data.get("details", {})
+        )
+        return {"status": "logged"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 

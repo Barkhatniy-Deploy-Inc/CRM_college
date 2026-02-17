@@ -1,105 +1,216 @@
 <template>
-  <div class="admin-page">
-    <header class="page-header">
+  <div class="logs-page">
+    <header class="page-header animate-in">
       <div class="title-section">
-        <BaseButton variant="outline" @click="$router.back()" class="back-btn">
-          <AppIcon name="chevron-left" size="18" />
-        </BaseButton>
-        <h1>Системные логи</h1>
+        <h1>Аудит системы</h1>
+        <p class="subtitle">Мониторинг критических действий и безопасности</p>
       </div>
-      <div class="actions">
-        <BaseButton @click="fetchData">
+      <div class="header-actions">
+        <BaseButton variant="outline" @click="fetchLogs">
           <AppIcon name="activity" size="18" class="btn-icon" />
           Обновить
         </BaseButton>
       </div>
     </header>
 
-    <BaseCard class="table-card glass-panel">
-      <div v-if="adminStore.isLoading" class="loading-overlay">
-        <div class="spinner"></div>
-      </div>
+    <div class="logs-container glass-panel">
+      <!-- Панель фильтров -->
+      <aside class="filters-sidebar">
+        <h3>Фильтры</h3>
+        <div class="filter-group">
+          <label>Тип действия</label>
+          <select v-model="filters.action" class="styled-select">
+            <option value="">Все события</option>
+            <option value="security_alert">🚨 Безопасность</option>
+            <option value="login">🔑 Вход в систему</option>
+            <option value="schedule_edited">🗓️ Расписание</option>
+            <option value="user_deleted">❌ Удаление пользователей</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>ID пользователя</label>
+          <input type="number" v-model="filters.user_id" placeholder="Любой..." class="styled-input" />
+        </div>
+        <div class="filter-group">
+          <label>Период</label>
+          <input type="date" v-model="filters.date_from" class="styled-input" />
+          <input type="date" v-model="filters.date_to" class="styled-input" />
+        </div>
+      </aside>
 
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Время</th>
-            <th>Действие</th>
-            <th>Пользователь</th>
-            <th>IP адрес</th>
-            <th>Детали</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="log in adminStore.auditLogs" :key="log.id">
-            <td class="date">{{ formatDate(log.created_at) }}</td>
-            <td><span class="action-badge">{{ log.action }}</span></td>
-            <td>
-              <span v-if="log.user_id" class="user-link">ID: {{ log.user_id }}</span>
-              <span v-else class="system">Система</span>
-            </td>
-            <td class="mono">{{ log.ip_address || '—' }}</td>
-            <td class="details">{{ formatDetails(log.details) }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Основная лента логов -->
+      <main class="logs-feed">
+        <div v-if="adminStore.isLoading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Сканирование архивов...</p>
+        </div>
 
-      <div v-if="adminStore.auditLogs.length === 0 && !adminStore.isLoading" class="empty-table">
-        Записей в аудите пока нет
+        <div v-else-if="adminStore.auditLogs.length === 0" class="empty-state">
+          <AppIcon name="shield" size="48" class="empty-icon" />
+          <p>Подозрительная активность не обнаружена</p>
+        </div>
+
+        <div v-else class="terminal-logs">
+          <div 
+            v-for="log in adminStore.auditLogs" 
+            :key="log.id" 
+            class="log-entry"
+            :class="getLogSeverity(log.action)"
+            @click="selectedLog = log"
+          >
+            <span class="log-time">[{{ formatTime(log.created_at) }}]</span>
+            <span class="log-badge">{{ formatAction(log.action) }}</span>
+            <span class="log-user">User #{{ log.user_id || 'SYSTEM' }}</span>
+            <span class="log-ip">{{ log.ip_address || 'local' }}</span>
+            <span class="log-message">{{ getShortMessage(log) }}</span>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Модалка деталей (JSON Inspector) -->
+    <BaseModal 
+      :show="!!selectedLog" 
+      :title="'Детали события #' + selectedLog?.id" 
+      @close="selectedLog = null"
+    >
+      <div class="log-details" v-if="selectedLog">
+        <div class="detail-row">
+          <strong>Действие:</strong> 
+          <span :class="getLogSeverity(selectedLog.action)">{{ selectedLog.action }}</span>
+        </div>
+        <div class="detail-row">
+          <strong>Время:</strong> {{ formatDateTime(selectedLog.created_at) }}
+        </div>
+        <div class="detail-row">
+          <strong>IP / Браузер:</strong> {{ selectedLog.ip_address }} / {{ selectedLog.user_agent }}
+        </div>
+        <div class="metadata-section">
+          <label>Полные данные (JSON):</label>
+          <pre class="json-box">{{ formatJSON(selectedLog.details) }}</pre>
+        </div>
       </div>
-    </BaseCard>
+    </BaseModal>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useAdminStore } from '../../../store/admin'
-import BaseCard from '../../../core/components/BaseCard.vue'
 import BaseButton from '../../../core/components/BaseButton.vue'
+import BaseModal from '../../../core/components/BaseModal.vue'
 import AppIcon from '../../../core/components/AppIcon.vue'
 
 const adminStore = useAdminStore()
+const selectedLog = ref(null)
 
-const fetchData = () => adminStore.fetchAuditLogs()
+const filters = reactive({
+  action: '',
+  user_id: '',
+  date_from: '',
+  date_to: ''
+})
 
-const formatDate = (dateStr) => {
-  return new Date(dateStr).toLocaleString('ru-RU', { 
-    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit'
-  })
+const fetchLogs = () => {
+  adminStore.fetchAuditLogs({ ...filters })
 }
 
-const formatDetails = (details) => {
-  if (!details) return '—'
-  return typeof details === 'object' ? JSON.stringify(details).slice(0, 50) + '...' : details
+watch(filters, () => fetchLogs())
+
+const getLogSeverity = (action) => {
+  const cleanAction = action.replace('AuditAction.', '').toLowerCase()
+  if (['security_alert', 'unauthorized_access', 'user_deleted'].includes(cleanAction)) return 'critical'
+  if (['schedule_edited', 'role_change', 'password_change'].includes(cleanAction)) return 'warning'
+  return 'info'
 }
 
-onMounted(fetchData)
+const formatAction = (action) => {
+  return action.replace('AuditAction.', '').toUpperCase()
+}
+
+const formatTime = (dateStr) => {
+  return new Date(dateStr).toLocaleTimeString('ru-RU', { hour12: false })
+}
+
+const formatDateTime = (dateStr) => {
+  return new Date(dateStr).toLocaleString('ru-RU')
+}
+
+const getShortMessage = (log) => {
+  try {
+    const details = JSON.parse(log.details)
+    if (log.action === 'login') return `Вход выполнен`
+    if (details?.email) return `Объект: ${details.email}`
+    return ''
+  } catch (e) { return '' }
+}
+
+const formatJSON = (jsonStr) => {
+  try {
+    return JSON.stringify(JSON.parse(jsonStr), null, 2)
+  } catch (e) { return jsonStr }
+}
+
+onMounted(() => fetchLogs())
 </script>
 
 <style scoped>
-/* Стили идентичны UsersManagementView для единообразия */
-.admin-page { max-width: 1200px; margin: 0 auto; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-.title-section { display: flex; align-items: center; gap: 16px; }
-h1 { margin: 0; font-size: 1.8rem; font-weight: 800; }
-.back-btn { padding: 8px; min-height: auto; }
-.table-card { padding: 0; overflow: hidden; position: relative; min-height: 400px; }
-.admin-table { width: 100%; border-collapse: collapse; text-align: left; }
-th { padding: 16px 24px; background: rgba(255, 255, 255, 0.03); font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; }
-td { padding: 14px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem; }
-.mono { font-family: 'JetBrains Mono', monospace; opacity: 0.7; }
-.date { white-space: nowrap; color: var(--text-secondary); }
-.action-badge { 
-  background: rgba(255, 215, 0, 0.1); 
-  color: var(--primary-color); 
-  padding: 4px 8px; 
-  border-radius: 6px; 
-  font-size: 0.75rem; 
-  font-weight: 700;
+.logs-page { max-width: 1400px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+h1 { font-size: 2.2rem; font-weight: 800; margin: 0; }
+.subtitle { color: var(--text-secondary); }
+
+.logs-container { 
+  display: grid; grid-template-columns: 280px 1fr; gap: 1px; 
+  background: var(--glass-border); overflow: hidden; height: 70vh;
 }
-.details { font-size: 0.8rem; opacity: 0.6; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 10; }
-.spinner { width: 32px; height: 32px; border: 3px solid rgba(255, 215, 0, 0.1); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+
+.filters-sidebar { background: var(--bg-color); padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.filters-sidebar h3 { margin: 0 0 16px 0; font-size: 1rem; opacity: 0.6; text-transform: uppercase; }
+
+.filter-group { display: flex; flex-direction: column; gap: 8px; }
+.filter-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); }
+
+.logs-feed { background: #0a0a0c; overflow-y: auto; position: relative; }
+
+.terminal-logs { padding: 16px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; }
+
+.log-entry { 
+  padding: 8px 12px; border-radius: 6px; cursor: pointer; 
+  display: flex; gap: 16px; transition: background 0.2s;
+  border-left: 3px solid transparent;
+}
+.log-entry:hover { background: rgba(255, 255, 255, 0.05); }
+
+.log-time { color: #5c6370; }
+.log-badge { font-weight: 800; min-width: 140px; }
+.log-user { color: var(--primary-color); min-width: 100px; }
+.log-ip { color: #61afef; min-width: 120px; }
+.log-message { color: var(--text-secondary); flex: 1; }
+
+/* Severities */
+.critical { color: #e06c75; border-color: #e06c75; }
+.warning { color: #d19a66; border-color: #d19a66; }
+.info { color: #98c379; border-color: #98c379; }
+
+.json-box { 
+  background: #1e1e1e; padding: 16px; border-radius: 12px; 
+  font-family: monospace; font-size: 0.9rem; color: #dcdcdc;
+  max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);
+}
+
+.detail-row { margin-bottom: 12px; font-size: 1rem; }
+.detail-row strong { color: var(--text-secondary); margin-right: 8px; }
+
+.loading-state, .empty-state { 
+  height: 100%; display: flex; flex-direction: column; 
+  align-items: center; justify-content: center; color: var(--text-secondary);
+}
+
+.spinner { 
+  width: 40px; height: 40px; border: 4px solid rgba(255,215,0,0.1); 
+  border-top-color: var(--primary-color); border-radius: 50%; 
+  animation: spin 1s linear infinite; margin-bottom: 16px;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-.empty-table { text-align: center; padding: 64px; color: var(--text-secondary); }
 </style>

@@ -5,7 +5,7 @@ from typing import Tuple, List
 from math import ceil
 
 from database.models import User, UserRole
-from database.schemas import UserPublic, UserSearchParams, UserListResponse
+from database.schemas import UserResponse, UserSearchParams, UserListResponse
 
 
 def search_users(params: UserSearchParams, db: Session) -> UserListResponse:
@@ -60,8 +60,13 @@ def search_users(params: UserSearchParams, db: Session) -> UserListResponse:
     # Вычисление количества страниц
     pages = ceil(total / params.limit) if total > 0 else 0
     
+    validated_users = [UserResponse.model_validate(user) for user in users]
+    # Отладка
+    for u in validated_users:
+        print(f"DEBUG: User {u.email} is_active={u.is_active}")
+        
     return UserListResponse(
-        users=[UserPublic.model_validate(user) for user in users],
+        users=validated_users,
         total=total,
         page=params.page,
         limit=params.limit,

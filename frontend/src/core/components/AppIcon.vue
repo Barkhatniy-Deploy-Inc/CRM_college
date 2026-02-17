@@ -93,6 +93,19 @@
     <template v-else-if="name === 'activity'">
       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
     </template>
+    <template v-else-if="name === 'monitor'">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+      <line x1="8" y1="21" x2="16" y2="21"></line>
+      <line x1="12" y1="17" x2="12" y2="21"></line>
+    </template>
+    <template v-else-if="name === 'smartphone'">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+      <line x1="12" y1="18" x2="12" y2="18"></line>
+    </template>
+    <template v-else-if="name === 'tablet'">
+      <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+      <line x1="12" y1="18" x2="12" y2="18"></line>
+    </template>
   </svg>
 </template>
 

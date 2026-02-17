@@ -9,6 +9,7 @@ from dependencies import get_current_user, get_current_active_user
 from fastapi_cache.decorator import cache
 import json
 from services.websocket_manager import manager
+from services.audit_logger import log_schedule_action
 
 # Явный полный путь
 router = APIRouter(prefix="/api/schedule", tags=["🗓️ Расписание"])
@@ -17,6 +18,14 @@ router = APIRouter(prefix="/api/schedule", tags=["🗓️ Расписание"]
 async def create_lesson_ep(data: ClassSlotCreate, u: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     lesson = await create_class_slot(data, db)
     await manager.broadcast(json.dumps({"type": "lesson_created", "data": json.loads(ClassSlotResponse.model_validate(lesson).model_dump_json())}))
+    
+    # ЛОГИРОВАНИЕ
+    await log_schedule_action(
+        action="schedule_edited",
+        user_id=u.id,
+        details={"lesson_id": lesson.id, "title": lesson.title, "action": "created"}
+    )
+    
     return lesson
 
 @router.post("/upload")
@@ -24,6 +33,14 @@ async def upload_schedule_ep(file: UploadFile = File(...), u: User = Depends(get
     """Загрузка расписания из Excel файла"""
     result = await upload_schedule(db, file)
     await manager.broadcast(json.dumps({"type": "schedule_uploaded", "data": result}))
+    
+    # ЛОГИРОВАНИЕ
+    await log_schedule_action(
+        action="schedule_imported",
+        user_id=u.id,
+        details={"filename": file.filename, "rows_processed": len(result.get("created", []))}
+    )
+    
     return result
 
 @router.get("/list", response_model=List[dict])
@@ -39,10 +56,26 @@ async def get_lesson_ep(lesson_id: int, db: Session = Depends(get_db)):
 async def update_lesson_ep(lesson_id: int, data: ClassSlotUpdate, u: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     lesson = await update_class_slot(lesson_id, data, db)
     await manager.broadcast(json.dumps({"type": "lesson_updated", "data": json.loads(ClassSlotResponse.model_validate(lesson).model_dump_json())}))
+    
+    # ЛОГИРОВАНИЕ
+    await log_schedule_action(
+        action="schedule_edited",
+        user_id=u.id,
+        details={"lesson_id": lesson_id, "title": lesson.title, "action": "updated"}
+    )
+    
     return lesson
 
 @router.delete("/{lesson_id}")
 async def delete_lesson_ep(lesson_id: int, u: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     await delete_class_slot(lesson_id, db)
     await manager.broadcast(json.dumps({"type": "lesson_deleted", "data": {"id": lesson_id}}))
+    
+    # ЛОГИРОВАНИЕ
+    await log_schedule_action(
+        action="schedule_deleted",
+        user_id=u.id,
+        details={"lesson_id": lesson_id}
+    )
+    
     return {"message": "Урок успешно удален"}

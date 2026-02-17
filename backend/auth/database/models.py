@@ -123,6 +123,19 @@ class AuditAction(str, Enum):
     SESSION_REVOKED = "session_revoked"
     LOGIN = "login"
     LOGOUT = "logout"
+    
+    # Расписание
+    SCHEDULE_EDITED = "schedule_edited"
+    SCHEDULE_IMPORTED = "schedule_imported"
+    SCHEDULE_DELETED = "schedule_deleted"
+    
+    # Техкарты
+    TECHCARD_CREATED = "techcard_created"
+    TECHCARD_EXPORTED = "techcard_exported"
+    
+    # Безопасность
+    SECURITY_ALERT = "security_alert"
+    UNAUTHORIZED_ACCESS = "unauthorized_access"
 
 
 class AuditLog(Base):

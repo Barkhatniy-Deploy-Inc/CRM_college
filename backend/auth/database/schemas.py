@@ -25,15 +25,19 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: int
-    is_active: bool
-    is_verified: bool
+    is_active: bool = True
+    is_verified: bool = False
     role: UserRole
     created_at: datetime
     updated_at: datetime
     last_login: Optional[datetime] = None
     
-    model_config = ConfigDict(from_attributes=True)
+    # Расширенные технические данные
+    last_ip: Optional[str] = None
+    last_user_agent: Optional[str] = None
+    device_type: Optional[str] = None  # "desktop", "mobile", "tablet"
 
+    model_config = ConfigDict(from_attributes=True)
 
 class UserPublic(BaseModel):
     """Публичная информация о пользователе (без чувствительных данных)"""
@@ -173,7 +177,7 @@ class UserSearchParams(BaseModel):
 
 class UserListResponse(BaseModel):
     """Список пользователей с пагинацией"""
-    users: List[UserPublic]
+    users: List[UserResponse]
     total: int
     page: int
     limit: int
