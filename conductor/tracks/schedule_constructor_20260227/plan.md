@@ -1,7 +1,7 @@
 # Implementation Plan: Продвинутый конструктор расписания и Редактор связей
 
 ## Phase 1: База данных и Бэкенд (Связи)
-- [ ] Task: Создание моделей для связей (Teacher-Subject, Subject-Auditorium) в `backend/schedule/database/models.py`
+- [x] Task: Создание моделей для связей (Teacher-Subject, Subject-Auditorium) in `backend/schedule/database/models.py` [b033b79]
 - [ ] Task: Создание API эндпоинтов для управления связями в `backend/schedule/api/`
 - [ ] Task: Обновление модели `Schedule` для поддержки локальных замен преподавателя/кабинета
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend Infrastructure' (Protocol in workflow.md)
