@@ -25,6 +25,45 @@ class User(Base):
     full_name = Column(String, nullable=False)
     telegram_id = Column(String, nullable=True)
     participants = relationship("Participant", back_populates="user")
+    subjects = relationship("TeacherSubject", back_populates="teacher")
+
+class Subject(Base):
+    __tablename__ = "subjects"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    description = Column(String)
+    
+    teachers = relationship("TeacherSubject", back_populates="subject")
+    auditoriums = relationship("SubjectAuditorium", back_populates="subject")
+    groups = relationship("GroupSubject", back_populates="subject")
+    slots = relationship("ClassSlot", back_populates="subject")
+
+class TeacherSubject(Base):
+    __tablename__ = "teacher_subjects"
+    id = Column(Integer, primary_key=True, index=True)
+    teacher_id = Column(Integer, ForeignKey("users.id"))
+    subject_id = Column(Integer, ForeignKey("subjects.id"))
+    
+    teacher = relationship("User", back_populates="subjects")
+    subject = relationship("Subject", back_populates="teachers")
+
+class GroupSubject(Base):
+    __tablename__ = "group_subjects"
+    id = Column(Integer, primary_key=True, index=True)
+    group_id = Column(Integer, ForeignKey("groups.id"))
+    subject_id = Column(Integer, ForeignKey("subjects.id"))
+    
+    group = relationship("Group", back_populates="subjects")
+    subject = relationship("Subject", back_populates="groups")
+
+class SubjectAuditorium(Base):
+    __tablename__ = "subject_auditoriums"
+    id = Column(Integer, primary_key=True, index=True)
+    subject_id = Column(Integer, ForeignKey("subjects.id"))
+    auditorium_id = Column(Integer, ForeignKey("auditoriums.id"))
+    
+    subject = relationship("Subject", back_populates="auditoriums")
+    auditorium = relationship("Auditorium", back_populates="subject_links")
 
 class Auditorium(Base):
     __tablename__ = "auditoriums"
@@ -33,6 +72,7 @@ class Auditorium(Base):
     capacity = Column(Integer)
     description = Column(String)
     slots = relationship("ClassSlot", back_populates="auditorium")
+    subject_links = relationship("SubjectAuditorium", back_populates="auditorium")
 
 class Group(Base):
     __tablename__ = "groups"
@@ -41,6 +81,7 @@ class Group(Base):
     description = Column(String)
     instructor = Column(String) # Куратор
     slots = relationship("ClassSlot", back_populates="group")
+    subjects = relationship("GroupSubject", back_populates="group")
 
 class ClassSlot(Base):
     __tablename__ = "class_slots"
@@ -48,14 +89,19 @@ class ClassSlot(Base):
     title = Column(String, nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
-    instructor = Column(String) # Преподаватель
+    instructor = Column(String) # Отображаемое имя преподавателя
+    instructor_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     max_participants = Column(Integer)
     status = Column(SQLAlchemyEnum(SlotStatus), default=SlotStatus.SCHEDULED)
     group_id = Column(Integer, ForeignKey("groups.id"))
     auditorium_id = Column(Integer, ForeignKey("auditoriums.id"))
+    subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=True)
+    
     group = relationship("Group", back_populates="slots")
     auditorium = relationship("Auditorium", back_populates="slots")
+    subject = relationship("Subject", back_populates="slots")
     participants = relationship("Participant", back_populates="slot")
+    teacher = relationship("User")
 
 class Participant(Base):
     __tablename__ = "participants"
