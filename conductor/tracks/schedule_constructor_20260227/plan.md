@@ -3,7 +3,7 @@
 ## Phase 1: База данных и Бэкенд (Связи)
 - [x] Task: Создание моделей для связей (Teacher-Subject, Subject-Auditorium) in `backend/schedule/database/models.py` [b033b79]
 - [x] Task: Создание API эндпоинтов для управления связями в `backend/schedule/api/` [a838217]
-- [ ] Task: Обновление модели `Schedule` для поддержки локальных замен преподавателя/кабинета
+- [x] Task: Обновление модели `Schedule` для поддержки локальных замен преподавателя/кабинета [9b0dfd3]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend Infrastructure' (Protocol in workflow.md)
 
 ## Phase 2: Интерфейс Редактора связей
