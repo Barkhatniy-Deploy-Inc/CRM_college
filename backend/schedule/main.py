@@ -25,7 +25,8 @@ from routers import (
     export, 
     notifications, 
     calendar,
-    auth
+    auth,
+    relations
 )
 
 # Инициализируем логирование
@@ -79,6 +80,7 @@ app.include_router(export.router)
 app.include_router(notifications.router)
 app.include_router(calendar.router)
 app.include_router(auth.router)
+app.include_router(relations.router)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

@@ -218,3 +218,44 @@ class ParticipantResponse(ParticipantBase):
     user_id: int
     class Config:
         from_attributes = True
+
+# ============ Relations Schemas ============
+
+class SubjectBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+class SubjectCreate(SubjectBase):
+    pass
+
+class SubjectResponse(SubjectBase):
+    id: int
+    class Config:
+        from_attributes = True
+
+class TeacherSubjectLink(BaseModel):
+    teacher_id: int
+    subject_id: int
+
+class TeacherSubjectResponse(TeacherSubjectLink):
+    id: int
+    class Config:
+        from_attributes = True
+
+class GroupSubjectLink(BaseModel):
+    group_id: int
+    subject_id: int
+
+class GroupSubjectResponse(GroupSubjectLink):
+    id: int
+    class Config:
+        from_attributes = True
+
+class SubjectAuditoriumLink(BaseModel):
+    subject_id: int
+    auditorium_id: int
+
+class SubjectAuditoriumResponse(SubjectAuditoriumLink):
+    id: int
+    class Config:
+        from_attributes = True
