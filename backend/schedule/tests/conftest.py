@@ -58,8 +58,15 @@ async def client(db) -> Generator:
 def mock_auth(monkeypatch):
     """Мок для зависимостей авторизации"""
     from routers.auth import get_current_user
+    class MockUser:
+        def __init__(self):
+            self.id = 1
+            self.email = "test@test.ru"
+            self.role = "admin"
+            self.is_active = True
+            
     async def mock_get_current_user():
-        return {"id": 1, "email": "test@test.ru", "role": "admin"}
+        return MockUser()
     
     app.dependency_overrides[get_current_user] = mock_get_current_user
     yield

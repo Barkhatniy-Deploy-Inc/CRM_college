@@ -176,6 +176,8 @@ class ClassSlotBase(BaseModel):
     start_time: datetime
     end_time: datetime
     instructor: Optional[str] = None
+    instructor_id: Optional[int] = None
+    subject_id: Optional[int] = None
     max_participants: Optional[int] = None
     status: SlotStatus = SlotStatus.SCHEDULED
 
@@ -189,6 +191,8 @@ class ClassSlotUpdate(BaseModel):
     end_time: Optional[datetime] = None
     auditorium_id: Optional[int] = None
     instructor: Optional[str] = None
+    instructor_id: Optional[int] = None
+    subject_id: Optional[int] = None
     max_participants: Optional[int] = None
     status: Optional[SlotStatus] = None
 
