@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from datetime import datetime, timezone
 from typing import Optional, List
 
-from database.models import User, UserRole, RefreshToken, LoginHistory, LoginStatus, Permission, UserPermission
+from database.models import User, UserRole, RefreshToken, LoginHistory, LoginStatus, Permission, UserPermission, AuditLog, AuditAction
 from database.schemas import UserCreate, UserUpdate, UserResponse
 from services.security import hash_password, verify_password, check_user_locked, increment_failed_login_attempts, reset_failed_login_attempts
 from core.utils import mask_email, mask_ip
@@ -27,13 +27,20 @@ def get_detailed_user(user_id: int, db: Session) -> Optional[User]:
         LoginHistory.status == LoginStatus.SUCCESS
     ).order_by(LoginHistory.created_at.desc()).first()
     
+    # Ищем последнее изменение пароля в аудите
+    last_password_change = db.query(AuditLog).filter(
+        AuditLog.user_id == user_id,
+        AuditLog.action == AuditAction.PASSWORD_CHANGE
+    ).order_by(AuditLog.created_at.desc()).first()
+    
     # Прикрепляем дополнительные поля прямо к объекту SQLAlchemy
     user.last_ip = last_login.ip_address if last_login else None
     user.last_user_agent = last_login.user_agent if last_login else None
+    user.password_updated_at = last_password_change.created_at if last_password_change else None
     
     if last_login and last_login.user_agent:
         ua = last_login.user_agent.lower()
-        if any(k in ua for keyword in ["mobile", "android", "iphone", "ipad"]):
+        if any(keyword in ua for keyword in ["mobile", "android", "iphone", "ipad"]):
             user.device_type = "mobile"
         elif "tablet" in ua:
             user.device_type = "tablet"

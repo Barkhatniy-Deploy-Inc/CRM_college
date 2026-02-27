@@ -5,7 +5,7 @@
         <div class="modal-container glass-panel animate-modal">
           <header class="modal-header">
             <h3>{{ title }}</h3>
-            <button class="close-btn" @click="$emit('close')">
+            <button v-if="!hideCloseIcon" class="close-btn" @click="$emit('close')">
               <AppIcon name="chevron-right" style="transform: rotate(45deg) scale(1.5)" />
             </button>
           </header>
@@ -16,7 +16,7 @@
 
           <footer class="modal-footer">
             <slot name="footer">
-              <BaseButton variant="outline" @click="$emit('close')">Отмена</BaseButton>
+              <BaseButton v-if="!hideCancel" variant="outline" @click="$emit('close')">Отмена</BaseButton>
               <BaseButton :loading="loading" @click="$emit('confirm')">{{ confirmText }}</BaseButton>
             </slot>
           </footer>
@@ -34,7 +34,9 @@ defineProps({
   show: Boolean,
   title: String,
   confirmText: { type: String, default: 'Сохранить' },
-  loading: Boolean
+  loading: Boolean,
+  hideCancel: { type: Boolean, default: false },
+  hideCloseIcon: { type: Boolean, default: false }
 })
 
 defineEmits(['close', 'confirm'])

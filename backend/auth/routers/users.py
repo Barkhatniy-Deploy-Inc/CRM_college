@@ -8,7 +8,8 @@ from database.schemas import (
     UserResponse, UserUpdate, UserPublic, UserSearchParams, UserListResponse,
     LoginHistoryResponse, AuditLogResponse, AuditLogFilter, AuditLogListResponse
 )
-from services.user_service import get_user_by_id, update_user, get_login_history
+from services.user_service import get_user_by_id, update_user, get_login_history, get_detailed_user
+from services.security import hash_password
 from services.search_service import search_users
 from services.audit_service import get_audit_logs, get_user_audit_logs, log_action, AuditAction
 from dependencies import get_current_active_user, require_role
@@ -37,7 +38,7 @@ async def get_user(
     db: Session = Depends(get_db)
 ):
     """Получение информации о пользователе (только для админов и модераторов)"""
-    user = get_user_by_id(user_id, db)
+    user = get_detailed_user(user_id, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -158,13 +159,31 @@ async def search_users_endpoint(
 
 # ============ Аудит действий ============
 
-@router.get("/{user_id}/audit-log", response_model=List[AuditLogResponse])
-async def get_user_audit_log(
+@router.put("/{user_id}/password", response_model=UserResponse)
+async def reset_user_password(
     user_id: int,
-    limit: int = Query(50, ge=1, le=100),
-    current_user: User = Depends(require_role(UserRole.ADMIN, UserRole.MODERATOR)),
+    new_password: str = Query(..., min_length=8),
+    current_user: User = Depends(require_role(UserRole.ADMIN)),
+    request: Request = None,
     db: Session = Depends(get_db)
 ):
+    """Принудительная смена пароля пользователя администратором"""
+    user = get_user_by_id(user_id, db)
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    
+    user.password_hash = hash_password(new_password)
+    db.commit()
+    
+    log_action(
+        AuditAction.PASSWORD_CHANGE, 
+        user_id, 
+        db, 
+        {"changed_by": current_user.id, "type": "admin_reset"}, 
+        request
+    )
+    
+    return UserResponse.model_validate(user)
     """
     Получение истории действий пользователя (только для админов и модераторов)
     """

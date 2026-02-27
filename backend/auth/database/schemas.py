@@ -45,6 +45,15 @@ class UserPublic(BaseModel):
     email: EmailStr
     full_name: str
     role: UserRole
+    is_active: bool = True
+    created_at: Optional[datetime] = None
+    
+    # Технические данные для админа
+    last_ip: Optional[str] = None
+    last_user_agent: Optional[str] = None
+    device_type: Optional[str] = None
+    last_login: Optional[datetime] = None
+    password_updated_at: Optional[datetime] = None
     
     model_config = ConfigDict(from_attributes=True)
 

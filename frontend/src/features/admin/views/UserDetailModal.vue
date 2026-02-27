@@ -1,5 +1,13 @@
 <template>
-  <BaseModal :show="show" :title="'Профиль: ' + user?.full_name" @close="$emit('close')" confirm-text="Закрыть" @confirm="$emit('close')">
+  <BaseModal 
+    :show="show" 
+    :title="'Профиль: ' + user?.full_name" 
+    @close="$emit('close')" 
+    confirm-text="Закрыть" 
+    @confirm="$emit('close')"
+    hide-cancel
+    hide-close-icon
+  >
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Загрузка данных...</p>
@@ -14,13 +22,66 @@
         </div>
         <div class="info-row">
           <span class="label">Роль:</span>
-          <span class="role-badge">{{ user.role }}</span>
+          <span class="role-badge">{{ user.role?.toUpperCase() }}</span>
         </div>
         <div class="info-row">
           <span class="label">Статус:</span>
-          <span class="status-indicator" :style="{ color: user.is_active ? '#52c41a' : '#ff4d4f' }">
-            {{ user.is_active ? 'Активен' : 'Заблокирован' }}
+          <span class="status-indicator" :style="{ color: user.is_active !== false ? '#52c41a' : '#ff4d4f' }">
+            {{ user.is_active !== false ? 'Активен' : 'Заблокирован' }}
           </span>
+        </div>
+        <div class="info-row">
+          <span class="label">Пароль:</span>
+          <span class="value password-info">
+            {{ user.password_updated_at ? 'Обновлен ' + formatDate(user.password_updated_at) : 'С момента создания' }}
+          </span>
+        </div>
+      </section>
+
+      <!-- Управление паролем -->
+      <section class="tech-section password-section glass-panel">
+        <header class="section-title">
+          <AppIcon name="lock" size="16" />
+          Управление безопасностью
+        </header>
+
+        <div v-if="newPassword" class="generated-password animate-in">
+          <span class="password-label">НОВЫЙ ПАРОЛЬ:</span>
+          <div class="password-box">
+            <span class="password-text">{{ newPassword }}</span>
+            <button class="copy-btn" @click="copyPassword" title="Копировать">
+              <AppIcon name="copy" size="14" />
+            </button>
+          </div>
+          <p class="warning-text">Обязательно сохраните его сейчас!</p>
+        </div>
+
+        <div v-else class="password-actions">
+          <div class="manual-reset" v-if="isEditingPassword">
+            <input 
+              type="text" 
+              v-model="manualPassword" 
+              placeholder="Минимум 8 символов" 
+              class="password-input glass-panel"
+            />
+            <div class="edit-btns">
+              <button class="small-btn save" @click="handleManualReset" :disabled="manualPassword.length < 8">
+                Сохранить
+              </button>
+              <button class="small-btn cancel" @click="isEditingPassword = false">Отмена</button>
+            </div>
+          </div>
+          
+          <div v-else class="action-grid">
+            <button class="action-card reset" @click="generateAndReset">
+              <AppIcon name="refresh" size="20" />
+              <span>Сбросить и показать</span>
+            </button>
+            <button class="action-card edit" @click="isEditingPassword = true">
+              <AppIcon name="edit" size="20" />
+              <span>Установить свой</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -31,12 +92,12 @@
           Последняя активность
         </header>
         
-        <div class="tech-grid" v-if="user.last_login">
+        <div class="tech-grid" v-if="user.last_ip || user.last_user_agent">
           <div class="tech-item">
             <AppIcon :name="getDeviceIcon(user.device_type)" size="32" class="device-icon" />
             <div class="tech-info">
               <span class="tech-label">Устройство</span>
-              <span class="tech-value">{{ user.device_type || 'Desktop' }}</span>
+              <span class="tech-value">{{ user.device_type ? user.device_type.toUpperCase() : 'DESKTOP' }}</span>
             </div>
           </div>
 
@@ -71,6 +132,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useAdminStore } from '../../../store/admin'
 import BaseModal from '../../../core/components/BaseModal.vue'
 import AppIcon from '../../../core/components/AppIcon.vue'
 
@@ -80,17 +142,51 @@ const props = defineProps({
   loading: Boolean
 })
 
-watch(() => props.user, (newVal) => {
-  if (newVal) {
-    console.log('DEBUG: User details received:', {
-      email: newVal.email,
-      is_active: newVal.is_active,
-      type: typeof newVal.is_active
-    })
+const adminStore = useAdminStore()
+const emit = defineEmits(['close'])
+
+const newPassword = ref('')
+const isEditingPassword = ref(false)
+const manualPassword = ref('')
+
+// Сброс состояния при закрытии/открытии
+watch(() => props.show, (val) => {
+  if (!val) {
+    newPassword.value = ''
+    isEditingPassword.value = false
+    manualPassword.value = ''
   }
 })
 
-defineEmits(['close'])
+const generatePassword = () => {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+  return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+}
+
+const generateAndReset = async () => {
+  const pwd = generatePassword()
+  try {
+    await adminStore.resetUserPassword(props.user.id, pwd)
+    newPassword.value = pwd
+  } catch (err) {
+    alert('Ошибка при сбросе пароля')
+  }
+}
+
+const handleManualReset = async () => {
+  try {
+    await adminStore.resetUserPassword(props.user.id, manualPassword.value)
+    newPassword.value = manualPassword.value
+    isEditingPassword.value = false
+  } catch (err) {
+    alert('Ошибка при смене пароля')
+  }
+}
+
+const copyPassword = () => {
+  navigator.clipboard.writeText(newPassword.value)
+  alert('Пароль скопирован!')
+}
 
 const getDeviceIcon = (type) => {
   if (type === 'mobile') return 'smartphone'
@@ -108,7 +204,9 @@ const formatBrowser = (ua) => {
 }
 
 const formatDate = (dateStr) => {
-  return new Date(dateStr).toLocaleString('ru-RU')
+  if (!dateStr) return '—'
+  const date = new Date(dateStr)
+  return isNaN(date.getTime()) ? '—' : date.toLocaleString('ru-RU')
 }
 </script>
 
@@ -119,6 +217,7 @@ const formatDate = (dateStr) => {
 .info-row { display: flex; justify-content: space-between; align-items: center; }
 .label { color: var(--text-secondary); font-size: 0.9rem; }
 .value { font-weight: 700; }
+.password-info { font-size: 0.85rem; opacity: 0.8; }
 
 .role-badge { 
   background: rgba(255, 215, 0, 0.1); color: var(--primary-color);
@@ -145,6 +244,39 @@ const formatDate = (dateStr) => {
 .truncate { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .device-icon { color: var(--primary-color); opacity: 0.8; }
+
+.password-section { border: 1px solid rgba(255, 215, 0, 0.1); }
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.action-card {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 16px; border-radius: 16px; border: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.03); color: var(--text-primary);
+  transition: all 0.2s; font-size: 0.8rem; font-weight: 700;
+}
+.action-card:hover { background: rgba(255, 215, 0, 0.1); transform: translateY(-2px); }
+.action-card span { opacity: 0.8; }
+
+.generated-password { text-align: center; padding: 10px 0; }
+.password-label { font-size: 0.7rem; font-weight: 800; opacity: 0.5; letter-spacing: 1px; }
+.password-box {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin: 12px 0; background: rgba(0,0,0,0.2); padding: 12px 20px; border-radius: 12px;
+}
+.password-text { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: var(--primary-color); font-weight: 800; }
+.copy-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0.6; }
+.copy-btn:hover { opacity: 1; color: var(--primary-color); }
+.warning-text { font-size: 0.75rem; color: #ff4d4f; font-weight: 700; }
+
+.manual-reset { display: flex; flex-direction: column; gap: 12px; }
+.password-input {
+  width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.2); color: white; outline: none; font-family: monospace;
+}
+.edit-btns { display: flex; gap: 8px; }
+.small-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+.small-btn.save { background: var(--primary-color); color: #1C1B1F; }
+.small-btn.save:disabled { opacity: 0.3; cursor: not-allowed; }
+.small-btn.cancel { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
 
 .timestamps { font-size: 0.75rem; opacity: 0.4; text-align: center; margin-top: 12px; }
 
