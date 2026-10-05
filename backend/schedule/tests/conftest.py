@@ -56,22 +56,20 @@ async def client(db) -> Generator:
 
 @pytest.fixture(scope="function")
 def mock_auth(monkeypatch):
-    """Мок для зависимостей авторизации.
+    """Мок зависимости авторизации.
 
-    Роутеры используют `dependencies.get_current_user`, поэтому переопределяем
-    именно её (а не `routers.auth.get_current_user`).
+    После перехода на токены auth-сервиса `get_current_user` возвращает
+    словарь (claims), а не ORM-пользователя, поэтому мок это учитывает.
     """
     from dependencies import get_current_user
 
-    class MockUser:
-        def __init__(self):
-            self.id = 1
-            self.email = "test@test.ru"
-            self.role = "admin"
-            self.is_active = True
-
     async def mock_get_current_user():
-        return MockUser()
+        return {
+            "user_id": 1,
+            "email": "test@test.ru",
+            "role": "admin",
+            "type": "access",
+        }
 
     app.dependency_overrides[get_current_user] = mock_get_current_user
     yield

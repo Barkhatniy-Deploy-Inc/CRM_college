@@ -326,7 +326,7 @@
 ### Фаза 2 — Данные и идентичность
 - [x] CRM-8 Techcard → PostgreSQL (конфигурируемый движок)
 - [x] CRM-9 Alembic baseline (upgrade/downgrade проверены на SQLite)
-- [ ] CRM-10 Единый JWT, удаление legacy-auth
+- [~] CRM-10 Единый JWT: токены выпускает только auth; schedule валидирует access-JWT и роли. Консолидация модели `User` — отдельный шаг.
 
 ### Фаза 3 — Frontend и тесты
 - [x] CRM-11 API-слой + refresh + bootstrap `/auth/me`

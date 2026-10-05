@@ -8,8 +8,11 @@ from database.models import (
     GroupSubject, GroupSubjectLink, GroupSubjectResponse,
     SubjectAuditorium, SubjectAuditoriumLink, SubjectAuditoriumResponse
 )
+from dependencies import require_roles
 
 router = APIRouter(prefix="/api/relations", tags=["🔗 Связи (Конструктор)"])
+
+_editor = require_roles("admin", "moderator")
 
 # --- Subjects ---
 
@@ -18,7 +21,7 @@ def get_subjects(db: Session = Depends(get_db)):
     return db.query(Subject).all()
 
 @router.post("/subjects", response_model=SubjectResponse, status_code=201)
-def create_subject(subject: SubjectCreate, db: Session = Depends(get_db)):
+def create_subject(subject: SubjectCreate, u: dict = Depends(_editor), db: Session = Depends(get_db)):
     db_subject = Subject(**subject.model_dump())
     db.add(db_subject)
     db.commit()
@@ -28,7 +31,7 @@ def create_subject(subject: SubjectCreate, db: Session = Depends(get_db)):
 # --- Teacher - Subject ---
 
 @router.post("/teacher-subject", response_model=TeacherSubjectResponse, status_code=201)
-def link_teacher_subject(link: TeacherSubjectLink, db: Session = Depends(get_db)):
+def link_teacher_subject(link: TeacherSubjectLink, u: dict = Depends(_editor), db: Session = Depends(get_db)):
     db_link = TeacherSubject(**link.model_dump())
     db.add(db_link)
     db.commit()
@@ -43,7 +46,7 @@ def get_group_subjects(group_id: int, db: Session = Depends(get_db)):
     return subjects
 
 @router.post("/group-subject", response_model=GroupSubjectResponse, status_code=201)
-def link_group_subject(link: GroupSubjectLink, db: Session = Depends(get_db)):
+def link_group_subject(link: GroupSubjectLink, u: dict = Depends(_editor), db: Session = Depends(get_db)):
     db_link = GroupSubject(**link.model_dump())
     db.add(db_link)
     db.commit()
@@ -53,7 +56,7 @@ def link_group_subject(link: GroupSubjectLink, db: Session = Depends(get_db)):
 # --- Subject - Auditorium ---
 
 @router.post("/subject-auditorium", response_model=SubjectAuditoriumResponse, status_code=201)
-def link_subject_auditorium(link: SubjectAuditoriumLink, db: Session = Depends(get_db)):
+def link_subject_auditorium(link: SubjectAuditoriumLink, u: dict = Depends(_editor), db: Session = Depends(get_db)):
     db_link = SubjectAuditorium(**link.model_dump())
     db.add(db_link)
     db.commit()

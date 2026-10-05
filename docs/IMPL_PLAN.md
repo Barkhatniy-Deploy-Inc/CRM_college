@@ -190,7 +190,7 @@ npm run lint && npm run format:check && npm run test && npm run build
 - [x] CRM-7 techcard CRUD + auth
 - [x] CRM-8 techcard → PostgreSQL (конфигурируемый движок)
 - [x] CRM-9 Alembic baseline (upgrade/downgrade проверены)
-- [ ] CRM-10 единый JWT
+- [~] CRM-10 единый JWT: schedule больше не выпускает токены, валидирует auth-JWT, мутации под ролями. Осталось: консолидация `schedule.User`/teacher-профиля (рискованно, отдельно)
 - [x] CRM-11 frontend API/refresh
 - [x] CRM-12 тесты выровнены, CI-гейт честный (покрытие auth 75 / schedule 50 / techcard 60)
 - [ ] CRM-13 документация
