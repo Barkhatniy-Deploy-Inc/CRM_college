@@ -324,13 +324,13 @@
 - [x] Обновлены `requirements.txt` techcard (`PyJWT`), `.env.example`, `docker-compose.yml`, `AGENTS.md`
 
 ### Фаза 2 — Данные и идентичность
-- [x] CRM-8 Techcard → PostgreSQL (конфигурируемый движок; Alembic ещё нет)
-- [ ] CRM-9 Alembic baseline
+- [x] CRM-8 Techcard → PostgreSQL (конфигурируемый движок)
+- [x] CRM-9 Alembic baseline (upgrade/downgrade проверены на SQLite)
 - [ ] CRM-10 Единый JWT, удаление legacy-auth
 
 ### Фаза 3 — Frontend и тесты
 - [x] CRM-11 API-слой + refresh + bootstrap `/auth/me`
-- [ ] CRM-12 Выравнивание тестов, блокирующий CI
+- [x] CRM-12 Тесты выровнены; backend-CI с покрытием 75/50/60 и без `continue-on-error`
 - [ ] CRM-13 Документация
 
 ### Фаза 4 — E2E

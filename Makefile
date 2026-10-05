@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 COMPOSE := docker compose
 
-.PHONY: help up down build logs ps restart test test-frontend test-backend lint format typecheck security smoke
+.PHONY: help up down build logs ps restart test test-frontend test-backend lint format typecheck security smoke migrate revision
 
 help: ## Показать список команд
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -56,3 +56,11 @@ smoke: ## Проверка health endpoints запущенного стека
 	curl -fsS http://localhost:8002/api/auth/health
 	curl -fsS http://localhost:8000/api/schedule/health
 	curl -fsS http://localhost:8001/api/techcard/health
+
+migrate: ## Применить миграции Alembic во всех сервисах
+	cd backend/auth && alembic upgrade head
+	cd backend/schedule && alembic upgrade head
+	cd backend/techcard && alembic upgrade head
+
+revision: ## Создать миграцию: make revision SERVICE=auth M="message"
+	cd backend/$(SERVICE) && alembic revision --autogenerate -m "$(M)"

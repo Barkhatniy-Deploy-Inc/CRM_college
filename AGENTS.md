@@ -101,7 +101,12 @@ npm run test
   - `schedule_db`;
   - `techcard_db`.
 - `db-init/init.sql` выполняется только при первоначальном создании PostgreSQL volume. Изменение этого файла не применяет изменения к уже существующему volume.
-- Бэкенд при старте самостоятельно создаёт таблицы через SQLAlchemy `create_all`; отдельной миграционной системы в конфигурации проекта не обнаружено.
+- Схема БД управляется Alembic: у каждого сервиса свой `alembic/` и baseline-миграция. Применяйте изменения через:
+  ```bash
+  make migrate    # alembic upgrade head во всех сервисах
+  cd backend/auth && alembic revision --autogenerate -m "message"
+  ```
+- `create_all` в `lifespan` пока остаётся как временный fallback и будет удалён после полного перехода на миграции.
 - Не удаляйте PostgreSQL volume без явного намерения потерять локальные данные.
 
 ## Инструменты качества

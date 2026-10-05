@@ -189,9 +189,9 @@ npm run lint && npm run format:check && npm run test && npm run build
 - [x] CRM-6 nginx + префиксы
 - [x] CRM-7 techcard CRUD + auth
 - [x] CRM-8 techcard → PostgreSQL (конфигурируемый движок)
-- [ ] CRM-9 Alembic
+- [x] CRM-9 Alembic baseline (upgrade/downgrade проверены)
 - [ ] CRM-10 единый JWT
 - [x] CRM-11 frontend API/refresh
-- [ ] CRM-12 тесты/CI
+- [x] CRM-12 тесты выровнены, CI-гейт честный (покрытие auth 75 / schedule 50 / techcard 60)
 - [ ] CRM-13 документация
 - [ ] CRM-14 E2E
