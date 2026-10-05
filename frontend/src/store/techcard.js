@@ -17,8 +17,7 @@ export const useTechcardStore = defineStore('techcard', {
     async fetchTechcards(params = {}) {
       this.isLoading = true
       try {
-        // Эндпоинт в Techcard Service: GET /api/techcard/techcards (через Nginx)
-        const response = await api.get('/techcard/techcards', { params })
+        const response = await api.get('/techcards', { params })
         this.techcards = response.data
       } catch (err) {
         this.error = 'Не удалось загрузить технологические карты'
@@ -28,10 +27,23 @@ export const useTechcardStore = defineStore('techcard', {
       }
     },
 
+    async createCard(data) {
+      this.isLoading = true
+      try {
+        const response = await api.post('/techcards', data)
+        return response.data
+      } catch (err) {
+        this.error = 'Ошибка при создании'
+        throw err
+      } finally {
+        this.isLoading = false
+      }
+    },
+
     async fetchCardById(id) {
       this.isLoading = true
       try {
-        const response = await api.get(`/techcard/techcards/${id}`)
+        const response = await api.get(`/techcards/${id}`)
         this.currentCard = response.data
         return this.currentCard
       } catch (err) {
@@ -45,7 +57,7 @@ export const useTechcardStore = defineStore('techcard', {
     async saveCard(id, data) {
       this.isLoading = true
       try {
-        const response = await api.put(`/techcard/techcards/${id}`, data)
+        const response = await api.put(`/techcards/${id}`, data)
         return response.data
       } catch (err) {
         this.error = 'Ошибка при сохранении'
@@ -57,7 +69,7 @@ export const useTechcardStore = defineStore('techcard', {
 
     async downloadCard(id) {
       try {
-        const response = await api.get(`/techcard/techcards/download/${id}`, {
+        const response = await api.get(`/techcards/download/${id}`, {
           responseType: 'blob'
         })
         const url = window.URL.createObjectURL(new Blob([response.data]))

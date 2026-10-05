@@ -54,6 +54,9 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-changeme}
       AUTH_DB_NAME: ${AUTH_DB_NAME:-auth_db}
       SECRET_KEY: ${SECRET_KEY:-your_super_secret_key_here}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS:-30}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       DEBUG: ${DEBUG:-true}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
@@ -86,6 +89,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-changeme}
       DB_NAME: ${DB_NAME:-schedule_db}
       SECRET_KEY: ${SECRET_KEY:-your_super_secret_key_here}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       DEBUG: ${DEBUG:-true}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}

@@ -6,7 +6,8 @@ import api from '../../core/utils/api'
 vi.mock('../../core/utils/api', () => ({
   default: {
     get: vi.fn(),
-    put: vi.fn()
+    put: vi.fn(),
+    post: vi.fn()
   }
 }))
 
@@ -22,9 +23,20 @@ describe('Techcard Store', () => {
     api.get.mockResolvedValueOnce({ data: mockData })
 
     await store.fetchTechcards()
-    
+
     expect(store.techcards).toEqual(mockData)
-    expect(api.get).toHaveBeenCalledWith('/techcard/techcards', { params: {} })
+    expect(api.get).toHaveBeenCalledWith('/techcards', { params: {} })
+  })
+
+  it('should create a card', async () => {
+    const store = useTechcardStore()
+    const payload = { tema: 'New Card' }
+    api.post.mockResolvedValueOnce({ data: { id: 7, ...payload } })
+
+    const result = await store.createCard(payload)
+
+    expect(result.id).toBe(7)
+    expect(api.post).toHaveBeenCalledWith('/techcards', payload)
   })
 
   it('should fetch card by id', async () => {
@@ -33,10 +45,10 @@ describe('Techcard Store', () => {
     api.get.mockResolvedValueOnce({ data: mockCard })
 
     const result = await store.fetchCardById(1)
-    
+
     expect(result).toEqual(mockCard)
     expect(store.currentCard).toEqual(mockCard)
-    expect(api.get).toHaveBeenCalledWith('/techcard/techcards/1')
+    expect(api.get).toHaveBeenCalledWith('/techcards/1')
   })
 
   it('should save card successfully', async () => {
@@ -45,8 +57,8 @@ describe('Techcard Store', () => {
     api.put.mockResolvedValueOnce({ data: { id: 1, ...cardData } })
 
     const result = await store.saveCard(1, cardData)
-    
+
     expect(result.tema).toBe('Updated')
-    expect(api.put).toHaveBeenCalledWith('/techcard/techcards/1', cardData)
+    expect(api.put).toHaveBeenCalledWith('/techcards/1', cardData)
   })
 })

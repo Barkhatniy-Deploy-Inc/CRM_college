@@ -10,8 +10,8 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.accessToken,
-    userRole: (state) => state.user?.role || 'guest'
+    isAuthenticated: state => !!state.accessToken,
+    userRole: state => state.user?.role || 'guest'
   },
 
   actions: {
@@ -21,19 +21,36 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await api.post('/auth/login', { email, password })
         const { access_token, user } = response.data
-        
+
         this.accessToken = access_token
         this.user = user
-        
+
         localStorage.setItem('access_token', access_token)
         localStorage.setItem('user', JSON.stringify(user))
-        
+
         return true
       } catch (err) {
         this.error = err.response?.data?.detail || 'Ошибка входа'
         throw err
       } finally {
         this.isLoading = false
+      }
+    },
+
+    async fetchMe() {
+      const response = await api.get('/auth/me')
+      this.user = response.data
+      localStorage.setItem('user', JSON.stringify(this.user))
+      return this.user
+    },
+
+    async bootstrap() {
+      // Восстанавливаем профиль, если есть признаки активной сессии.
+      if (!this.accessToken && !this.user) return
+      try {
+        await this.fetchMe()
+      } catch {
+        // 401 обрабатывается интерцептором (refresh или разлогин).
       }
     },
 
