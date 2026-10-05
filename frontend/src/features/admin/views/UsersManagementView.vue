@@ -13,7 +13,7 @@
           <span>Добавить пользователя</span>
         </button>
         <button @click="fetchData" class="btn-secondary" title="Обновить список">
-          <AppIcon name="refresh" size="18" :class="{ 'spin': adminStore.isLoading }" />
+          <AppIcon name="refresh" size="18" :class="{ spin: adminStore.isLoading }" />
         </button>
       </div>
     </header>
@@ -74,19 +74,28 @@
     </div>
 
     <!-- Модалка создания -->
-    <BaseModal 
-      :show="showCreateModal" 
-      title="Новый пользователь" 
+    <BaseModal
+      :show="showCreateModal"
+      title="Новый пользователь"
       @close="showCreateModal = false"
       @confirm="handleCreate"
       confirm-text="Создать"
       :loading="isCreating"
     >
       <div class="edit-form">
-        <BaseInput label="Полное имя" v-model="createForm.full_name" placeholder="Иванов Иван Иванович" />
+        <BaseInput
+          label="Полное имя"
+          v-model="createForm.full_name"
+          placeholder="Иванов Иван Иванович"
+        />
         <BaseInput label="Email" v-model="createForm.email" placeholder="user@sielom.ru" />
-        <BaseInput label="Пароль" v-model="createForm.password" type="password" placeholder="Минимум 8 символов" />
-        
+        <BaseInput
+          label="Пароль"
+          v-model="createForm.password"
+          type="password"
+          placeholder="Минимум 8 символов"
+        />
+
         <div class="select-group">
           <label class="styled-label">Роль</label>
           <select v-model="createForm.role" class="styled-select glass-panel">
@@ -100,16 +109,16 @@
     </BaseModal>
 
     <!-- Модалка редактирования (ВОССТАНОВЛЕНА) -->
-    <BaseModal 
-      :show="!!selectedUser" 
-      title="Редактирование пользователя" 
+    <BaseModal
+      :show="!!selectedUser"
+      title="Редактирование пользователя"
       @close="selectedUser = null"
       @confirm="handleUpdate"
       :loading="isUpdating"
     >
       <div class="edit-form" v-if="selectedUser">
         <BaseInput label="Полное имя" v-model="editForm.full_name" />
-        
+
         <div class="select-group">
           <label class="styled-label">Роль в системе</label>
           <select v-model="editForm.role" class="styled-select glass-panel">
@@ -122,7 +131,7 @@
 
         <div class="checkbox-group">
           <label class="switch">
-            <input type="checkbox" v-model="editForm.is_active">
+            <input type="checkbox" v-model="editForm.is_active" />
             <span class="slider"></span>
           </label>
           <span class="label-text">Аккаунт активен</span>
@@ -131,9 +140,9 @@
     </BaseModal>
 
     <!-- Модалка деталей -->
-    <UserDetailModal 
-      :show="showDetails" 
-      :user="userDetails" 
+    <UserDetailModal
+      :show="showDetails"
+      :user="userDetails"
       :loading="isLoadingDetails"
       @close="showDetails = false"
     />
@@ -184,14 +193,14 @@ const openCreate = () => {
   showCreateModal.value = true
 }
 
-const openEdit = (user) => {
+const openEdit = user => {
   selectedUser.value = user
   editForm.full_name = user.full_name
   editForm.role = user.role.toLowerCase()
   editForm.is_active = user.is_active
 }
 
-const openDetails = async (user) => {
+const openDetails = async user => {
   showDetails.value = true
   isLoadingDetails.value = true
   try {
@@ -235,115 +244,309 @@ onMounted(fetchData)
 </script>
 
 <style scoped>
-.admin-page { max-width: 1300px; margin: 0 auto; padding: 20px; }
+.admin-page {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
 /* Header & Actions */
-.page-header { 
-  display: flex; justify-content: space-between; align-items: center; 
-  margin-bottom: 40px; 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
 }
-.title-section { display: flex; align-items: center; gap: 20px; }
-h1 { margin: 0; font-size: 2.2rem; font-weight: 900; letter-spacing: -0.5px; }
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
 
-.actions { display: flex; gap: 12px; }
+.actions {
+  display: flex;
+  gap: 12px;
+}
 
 /* Premium Buttons */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #FFD700 100%);
-  color: #1C1B1F; border: none; padding: 12px 24px; border-radius: 14px;
-  font-weight: 800; display: flex; align-items: center; gap: 10px;
-  cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #ffd700 100%);
+  color: #1c1b1f;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
 }
-.btn-primary:hover { 
-  transform: translateY(-2px) scale(1.02); 
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
   box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active {
+  transform: translateY(0);
+}
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05); color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px;
-  border-radius: 14px; cursor: pointer; transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
-.btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--primary-color); }
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary-color);
+}
 
 /* Table Styling */
-.table-container { 
-  position: relative; border-radius: 24px; overflow: hidden; 
-  background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+.table-container {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
-.admin-table { width: 100%; border-collapse: collapse; }
-
-th { 
-  text-align: left; padding: 20px 24px; font-size: 0.75rem; 
-  font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--text-secondary); background: rgba(255, 255, 255, 0.03);
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.table-row { transition: background 0.2s; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
-.table-row:hover { background: rgba(255, 215, 0, 0.03); }
-
-td { padding: 18px 24px; vertical-align: middle; }
-
-.mono-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; opacity: 0.4; font-size: 0.85rem; }
-
-.user-info-cell { display: flex; align-items: center; gap: 16px; }
-.user-avatar { 
-  width: 40px; height: 40px; border-radius: 12px; 
-  background: linear-gradient(135deg, var(--primary-color) 0%, #FFA500 100%);
-  color: #1C1B1F; display: flex; align-items: center; justify-content: center;
-  font-weight: 900; font-size: 1.1rem;
+th {
+  text-align: left;
+  padding: 20px 24px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.03);
 }
-.user-name { display: block; font-weight: 700; font-size: 1rem; }
-.user-sub { font-size: 0.7rem; text-transform: uppercase; opacity: 0.5; font-weight: 800; letter-spacing: 0.5px; }
 
-.email-cell { color: var(--text-secondary); font-weight: 500; }
+.table-row {
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+.table-row:hover {
+  background: rgba(255, 215, 0, 0.03);
+}
+
+td {
+  padding: 18px 24px;
+  vertical-align: middle;
+}
+
+.mono-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  opacity: 0.4;
+  font-size: 0.85rem;
+}
+
+.user-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #ffa500 100%);
+  color: #1c1b1f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+.user-name {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.user-sub {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  opacity: 0.5;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.email-cell {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
 
 /* Role Badges */
 .badge-role {
-  padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; 
-  font-weight: 800; text-transform: uppercase; display: inline-block;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  display: inline-block;
 }
-.badge-role.admin { background: rgba(255, 77, 79, 0.1); color: #ff4d4f; border: 1px solid rgba(255, 77, 79, 0.2); }
-.badge-role.student { background: rgba(255, 215, 0, 0.1); color: var(--primary-color); border: 1px solid rgba(255, 215, 0, 0.2); }
-.badge-role.teacher { background: rgba(64, 169, 255, 0.1); color: #40a9ff; border: 1px solid rgba(64, 169, 255, 0.2); }
+.badge-role.admin {
+  background: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+  border: 1px solid rgba(255, 77, 79, 0.2);
+}
+.badge-role.student {
+  background: rgba(255, 215, 0, 0.1);
+  color: var(--primary-color);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+.badge-role.teacher {
+  background: rgba(64, 169, 255, 0.1);
+  color: #40a9ff;
+  border: 1px solid rgba(64, 169, 255, 0.2);
+}
 
 /* Status Indicators */
-.status-wrapper { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #ff4d4f; }
-.status-wrapper.is-active { color: #52c41a; }
-.status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.status-wrapper.is-active .status-dot { box-shadow: 0 0 10px #52c41a; }
+.status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ff4d4f;
+}
+.status-wrapper.is-active {
+  color: #52c41a;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-wrapper.is-active .status-dot {
+  box-shadow: 0 0 10px #52c41a;
+}
 
 /* Action Buttons */
-.actions-group { display: flex; gap: 8px; }
-.action-btn {
-  width: 38px; height: 38px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);
-  background: rgba(255,255,255,0.03); color: var(--text-secondary);
-  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+.actions-group {
+  display: flex;
+  gap: 8px;
 }
-.action-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: rgba(255, 215, 0, 0.05); }
-.action-btn.edit:hover { border-color: #40a9ff; color: #40a9ff; background: rgba(64, 169, 255, 0.05); }
+.action-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.action-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: rgba(255, 215, 0, 0.05);
+}
+.action-btn.edit:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+  background: rgba(64, 169, 255, 0.05);
+}
 
-.justify-end { justify-content: flex-end; }
-.text-right { text-align: right; }
+.justify-end {
+  justify-content: flex-end;
+}
+.text-right {
+  text-align: right;
+}
 
-.loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.spinner { width: 40px; height: 40px; border: 4px solid rgba(255,215,0,0.1); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
-.spin { animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 215, 0, 0.1);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Form & Inputs */
-.edit-form { display: flex; flex-direction: column; gap: 24px; padding: 10px 0; }
-.select-group { display: flex; flex-direction: column; gap: 10px; }
-.styled-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
-.styled-select { 
-  width: 100%; padding: 16px; border-radius: 16px; 
-  background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(255,255,255,0.1);
-  font-size: 1rem; outline: none; cursor: pointer; appearance: none;
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 10px 0;
 }
-.styled-select:focus { border-color: var(--primary-color); background: rgba(255,255,255,0.05); }
+.select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.styled-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.6;
+  letter-spacing: 1px;
+}
+.styled-select {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+}
+.styled-select:focus {
+  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.05);
+}
 
-.animate-in { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>

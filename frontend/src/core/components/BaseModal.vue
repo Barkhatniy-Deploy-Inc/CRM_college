@@ -9,15 +9,19 @@
               <AppIcon name="chevron-right" style="transform: rotate(45deg) scale(1.5)" />
             </button>
           </header>
-          
+
           <div class="modal-body">
             <slot></slot>
           </div>
 
           <footer class="modal-footer">
             <slot name="footer">
-              <BaseButton v-if="!hideCancel" variant="outline" @click="$emit('close')">Отмена</BaseButton>
-              <BaseButton :loading="loading" @click="$emit('confirm')">{{ confirmText }}</BaseButton>
+              <BaseButton v-if="!hideCancel" variant="outline" @click="$emit('close')"
+                >Отмена</BaseButton
+              >
+              <BaseButton :loading="loading" @click="$emit('confirm')">{{
+                confirmText
+              }}</BaseButton>
             </slot>
           </footer>
         </div>
@@ -63,7 +67,7 @@ defineEmits(['close', 'confirm'])
   display: flex;
   flex-direction: column;
   gap: 24px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
 .modal-header {
@@ -107,11 +111,13 @@ h3 {
 }
 
 /* Animations */
-.modal-enter-active, .modal-leave-active {
+.modal-enter-active,
+.modal-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.modal-enter-from, .modal-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
 }
 
@@ -120,7 +126,13 @@ h3 {
 }
 
 @keyframes slideIn {
-  from { transform: scale(0.9) translateY(20px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
+  from {
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 </style>

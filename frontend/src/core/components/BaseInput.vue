@@ -2,9 +2,9 @@
   <div class="input-group">
     <label v-if="label" class="styled-label">{{ label }}</label>
     <div class="input-wrapper">
-      <input 
-        :type="type" 
-        :value="modelValue" 
+      <input
+        :type="type"
+        :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
         class="styled-input"
         :placeholder="placeholder"
@@ -53,10 +53,10 @@ defineEmits(['update:modelValue'])
   background-color: var(--input-bg);
   border: none;
   border-radius: 14px;
-  
+
   /* Более яркая базовая тень */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  
+
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
   box-sizing: border-box;
@@ -81,15 +81,15 @@ defineEmits(['update:modelValue'])
 }
 
 /* Темная тема - более агрессивные тени для контраста */
-:global(html[data-theme="dark"]) .styled-input {
+:global(html[data-theme='dark']) .styled-input {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-:global(html[data-theme="dark"]) .styled-input:hover {
+:global(html[data-theme='dark']) .styled-input:hover {
   box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
 }
 
-:global(html[data-theme="dark"]) .styled-input:focus {
+:global(html[data-theme='dark']) .styled-input:focus {
   box-shadow: 0 12px 35px rgba(255, 215, 0, 0.35);
 }
 </style>

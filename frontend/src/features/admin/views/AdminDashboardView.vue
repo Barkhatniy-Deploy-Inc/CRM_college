@@ -56,16 +56,68 @@ import AppIcon from '../../../core/components/AppIcon.vue'
 </script>
 
 <style scoped>
-.admin-container { max-width: 1200px; margin: 0 auto; }
-.admin-header { margin-bottom: 40px; }
-h1 { font-size: 2rem; font-weight: 800; margin: 0; }
-.subtitle { color: var(--text-secondary); margin-top: 8px; }
-.admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-.admin-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 32px; transition: transform 0.3s ease; }
-.admin-card:hover { transform: translateY(-5px); }
-.card-icon { width: 64px; height: 64px; border-radius: 20px; background: rgba(255, 215, 0, 0.1); color: var(--primary-color); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-h3 { margin: 0 0 12px 0; font-size: 1.25rem; }
-p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; height: 3em; display: flex; align-items: center; justify-content: center; }
-.full-width { width: 100%; text-decoration: none; }
-.action-btn { width: 100%; }
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.admin-header {
+  margin-bottom: 40px;
+}
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+}
+.subtitle {
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.admin-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px;
+  transition: transform 0.3s ease;
+}
+.admin-card:hover {
+  transform: translateY(-5px);
+}
+.card-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: rgba(255, 215, 0, 0.1);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.25rem;
+}
+p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+  height: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.full-width {
+  width: 100%;
+  text-decoration: none;
+}
+.action-btn {
+  width: 100%;
+}
 </style>

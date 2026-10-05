@@ -1,9 +1,13 @@
 <template>
   <div class="global-settings">
-    <div class="settings-fab" @click="isExpanded = !isExpanded" :class="{ 'active': isExpanded }">
+    <div class="settings-fab" @click="isExpanded = !isExpanded" :class="{ active: isExpanded }">
       <div class="options-panel glass-panel" v-if="isExpanded">
         <button @click.stop="settingsStore.toggleTheme" class="option-btn">
-          <AppIcon :name="settingsStore.theme === 'light' ? 'moon' : 'sun'" size="18" class="icon" />
+          <AppIcon
+            :name="settingsStore.theme === 'light' ? 'moon' : 'sun'"
+            size="18"
+            class="icon"
+          />
           <span class="label">Тема</span>
         </button>
         <button @click.stop="settingsStore.toggleGlass" class="option-btn">
@@ -47,7 +51,7 @@ const isExpanded = ref(false)
   height: 48px;
   border-radius: 16px;
   background: var(--primary-color);
-  color: #1C1B1F;
+  color: #1c1b1f;
   display: flex;
   align-items: center;
   justify-content: center;

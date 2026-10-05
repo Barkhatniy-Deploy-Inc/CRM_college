@@ -54,9 +54,9 @@ export const useScheduleStore = defineStore('schedule', {
     async fetchUpcoming() {
       // Получаем расписание на сегодня
       const today = new Date().toISOString().split('T')[0]
-      return await this.fetchSchedule({ 
-        date_from: today, 
-        date_to: today 
+      return await this.fetchSchedule({
+        date_from: today,
+        date_to: today
       })
     }
   }

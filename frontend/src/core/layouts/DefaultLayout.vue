@@ -1,7 +1,7 @@
 <template>
   <div class="app-layout">
     <!-- Sidebar -->
-    <aside class="sidebar glass-panel" :class="{ 'collapsed': isCollapsed }">
+    <aside class="sidebar glass-panel" :class="{ collapsed: isCollapsed }">
       <div class="sidebar-header">
         <img src="/sielom/logo-sielom.svg" alt="Logo" class="logo" />
         <span v-if="!isCollapsed" class="app-name">CRM College</span>
@@ -37,7 +37,7 @@
           </div>
         </div>
       </header>
-      
+
       <div class="content-area">
         <slot></slot>
       </div>
@@ -58,10 +58,20 @@ const authStore = useAuthStore()
 const isCollapsed = ref(false)
 
 const allMenuItems = [
-  { path: '/dashboard', label: 'Главная', icon: 'dashboard', roles: ['admin', 'student', 'teacher'] },
-  { path: '/schedule', label: 'Расписание', icon: 'schedule', roles: ['admin', 'student', 'teacher'] },
+  {
+    path: '/dashboard',
+    label: 'Главная',
+    icon: 'dashboard',
+    roles: ['admin', 'student', 'teacher']
+  },
+  {
+    path: '/schedule',
+    label: 'Расписание',
+    icon: 'schedule',
+    roles: ['admin', 'student', 'teacher']
+  },
   { path: '/techcards', label: 'Техкарты', icon: 'activity', roles: ['admin', 'teacher'] },
-  { path: '/admin', label: 'Администрирование', icon: 'shield', roles: ['admin'] },
+  { path: '/admin', label: 'Администрирование', icon: 'shield', roles: ['admin'] }
 ]
 
 const filteredMenuItems = computed(() => {
@@ -154,7 +164,7 @@ const handleLogout = () => {
 
 .nav-item.active {
   background: var(--primary-color);
-  color: #1C1B1F;
+  color: #1c1b1f;
 }
 
 .nav-icon {
@@ -219,7 +229,7 @@ const handleLogout = () => {
 
 .toggle-btn:hover {
   background: var(--primary-color);
-  color: #1C1B1F;
+  color: #1c1b1f;
 }
 
 .user-profile {

@@ -37,7 +37,9 @@
             <td>{{ aud.capacity || '—' }} чел.</td>
             <td>{{ aud.description || '—' }}</td>
             <td>
-              <button class="icon-btn" title="Редактировать"><AppIcon name="settings" size="16" /></button>
+              <button class="icon-btn" title="Редактировать">
+                <AppIcon name="settings" size="16" />
+              </button>
             </td>
           </tr>
         </tbody>
@@ -45,9 +47,9 @@
     </BaseCard>
 
     <!-- Модалка добавления -->
-    <BaseModal 
-      :show="showAddModal" 
-      title="Новая аудитория" 
+    <BaseModal
+      :show="showAddModal"
+      title="Новая аудитория"
       @close="showAddModal = false"
       @confirm="handleAdd"
       :loading="isAdding"
@@ -102,20 +104,97 @@ onMounted(fetchData)
 </script>
 
 <style scoped>
-.admin-page { max-width: 1200px; margin: 0 auto; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-.title-section { display: flex; align-items: center; gap: 16px; }
-h1 { margin: 0; font-size: 1.8rem; font-weight: 800; }
-.table-card { padding: 0; overflow: hidden; position: relative; min-height: 200px; }
-.admin-table { width: 100%; border-collapse: collapse; text-align: left; }
-th { padding: 16px 24px; background: rgba(255, 255, 255, 0.03); font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; }
-td { padding: 16px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.95rem; }
-.mono { font-family: 'JetBrains Mono', monospace; opacity: 0.6; }
-.bold { font-weight: 700; color: var(--primary-color); }
-.icon-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s; }
-.icon-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--primary-color); }
-.edit-form { display: flex; flex-direction: column; gap: 20px; }
-.loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 10; }
-.spinner { width: 32px; height: 32px; border: 3px solid rgba(255, 215, 0, 0.1); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+.table-card {
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  min-height: 200px;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+th {
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+td {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+}
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.6;
+}
+.bold {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--primary-color);
+}
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 215, 0, 0.1);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

@@ -4,36 +4,32 @@
       <div class="floating-logo">
         <img src="/sielom/logo-sielom.svg" alt="Логотип СИЭУиП" class="main-logo" />
       </div>
-      
+
       <h2 class="auth-title">Вход в систему</h2>
       <p class="auth-subtitle">Личный кабинет CRM College</p>
-      
+
       <form @submit.prevent="handleLogin" class="form-section">
-        <BaseInput 
-          label="Электронная почта" 
-          v-model="email" 
+        <BaseInput
+          label="Электронная почта"
+          v-model="email"
           placeholder="example@sielom.ru"
           required
         />
-        <BaseInput 
-          label="Пароль" 
-          type="password" 
-          v-model="password" 
+        <BaseInput
+          label="Пароль"
+          type="password"
+          v-model="password"
           placeholder="••••••••"
           required
         />
-        
+
         <transition name="fade">
           <div v-if="authStore.error" class="error-message">
             {{ authStore.error }}
           </div>
         </transition>
 
-        <BaseButton 
-          type="submit"
-          class="full-width" 
-          :loading="authStore.isLoading"
-        >
+        <BaseButton type="submit" class="full-width" :loading="authStore.isLoading">
           Войти
         </BaseButton>
       </form>
@@ -89,7 +85,7 @@ const handleLogin = async () => {
   width: 100%;
   max-width: 400px;
   text-align: center;
-  padding: 40px; 
+  padding: 40px;
   border-radius: 28px;
 }
 
@@ -149,6 +145,12 @@ const handleLogin = async () => {
   height: 36px;
 }
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

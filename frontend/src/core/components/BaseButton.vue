@@ -40,7 +40,7 @@ defineProps({
 
 .primary {
   background-color: var(--primary-color);
-  color: #1C1B1F;
+  color: #1c1b1f;
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 }
 
@@ -64,8 +64,8 @@ defineProps({
   position: absolute;
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(0,0,0,0.1);
-  border-top-color: #1C1B1F;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #1c1b1f;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -75,6 +75,8 @@ defineProps({
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

@@ -1,39 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --primary-color: #FFD700;
-  --on-primary: #1C1B1F;
+  --primary-color: #ffd700;
+  --on-primary: #1c1b1f;
 }
 
 /* СВЕТЛАЯ ТЕМА */
-html[data-theme="light"], :root {
+html[data-theme='light'],
+:root {
   --bg-color: #f5f7fa;
-  --text-primary: #1C1B1F;
+  --text-primary: #1c1b1f;
   --text-secondary: #666666;
-  --card-bg: #FFFFFF;
-  --input-bg: #FFFFFF;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
   --input-border: rgba(0, 0, 0, 0.12);
-  
+
   --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(255, 255, 255, 0.5);
   --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.12); /* Ярче */
 }
 
 /* ТЕМНАЯ ТЕМА */
-html[data-theme="dark"] {
-  --bg-color: #0A0A0A;
-  --text-primary: #FFFFFF;
-  --text-secondary: #AAAAAA;
-  --card-bg: #1A1A1A;
+html[data-theme='dark'] {
+  --bg-color: #0a0a0a;
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --card-bg: #1a1a1a;
   --input-bg: #222222;
   --input-border: rgba(255, 255, 255, 0.15);
-  
+
   --glass-bg: rgba(30, 30, 30, 0.65);
   --glass-border: rgba(255, 255, 255, 0.1);
   --card-shadow: 0 25px 70px rgba(0, 0, 0, 0.6); /* Намного ярче и глубже */
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100vh;
@@ -42,7 +44,9 @@ html, body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-color) !important;
   color: var(--text-primary) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 #app {
@@ -65,6 +69,13 @@ html, body {
   backdrop-filter: none !important;
 }
 
-h1, h2, h3, h4, p, span, label, strong {
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+label,
+strong {
   color: inherit;
 }

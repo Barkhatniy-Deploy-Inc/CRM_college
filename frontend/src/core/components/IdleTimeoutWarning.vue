@@ -7,8 +7,11 @@
             <AppIcon name="clock" size="48" />
           </div>
           <h2>Сессия истекает</h2>
-          <p>Вы долго не проявляли активность. В целях безопасности система скоро выполнит автоматический выход.</p>
-          
+          <p>
+            Вы долго не проявляли активность. В целях безопасности система скоро выполнит
+            автоматический выход.
+          </p>
+
           <div class="actions">
             <BaseButton @click="reloadPage" variant="primary" size="lg">
               <AppIcon name="activity" size="18" class="btn-icon" />
@@ -66,12 +69,31 @@ const reloadPage = () => {
   margin-bottom: 10px;
 }
 
-h2 { margin: 0; font-size: 1.8rem; font-weight: 800; }
-p { color: var(--text-secondary); line-height: 1.6; font-size: 1.1rem; }
+h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
 
-.actions { margin-top: 10px; width: 100%; }
-.btn-icon { margin-right: 8px; }
+.actions {
+  margin-top: 10px;
+  width: 100%;
+}
+.btn-icon {
+  margin-right: 8px;
+}
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.5s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

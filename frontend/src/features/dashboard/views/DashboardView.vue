@@ -17,31 +17,41 @@
           </div>
           <router-link to="/schedule" class="view-all">Смотреть всё</router-link>
         </div>
-        
+
         <div class="schedule-content">
           <div v-if="scheduleStore.isLoading" class="skeleton-list">
             <div v-for="i in 2" :key="i" class="skeleton-item"></div>
           </div>
-          
+
           <div v-else-if="upcomingLessons.length > 0" class="lesson-list">
-             <div v-for="lesson in upcomingLessons" :key="lesson.id" class="mini-lesson-card glass-panel">
-                <div class="time-box">
-                  <span class="start">{{ lesson.start_time.split('T')[1]?.slice(0, 5) || '08:30' }}</span>
-                  <AppIcon name="clock" size="14" class="time-icon" />
+            <div
+              v-for="lesson in upcomingLessons"
+              :key="lesson.id"
+              class="mini-lesson-card glass-panel"
+            >
+              <div class="time-box">
+                <span class="start">{{
+                  lesson.start_time.split('T')[1]?.slice(0, 5) || '08:30'
+                }}</span>
+                <AppIcon name="clock" size="14" class="time-icon" />
+              </div>
+              <div class="lesson-info">
+                <span class="subject">{{ lesson.title }}</span>
+                <div class="meta">
+                  <span class="meta-item"
+                    ><AppIcon name="location" size="12" /> {{ lesson.auditorium_id || '201' }}</span
+                  >
+                  <span class="meta-item"
+                    ><AppIcon name="user" size="12" /> {{ lesson.instructor }}</span
+                  >
                 </div>
-                <div class="lesson-info">
-                  <span class="subject">{{ lesson.title }}</span>
-                  <div class="meta">
-                    <span class="meta-item"><AppIcon name="location" size="12" /> {{ lesson.auditorium_id || '201' }}</span>
-                    <span class="meta-item"><AppIcon name="user" size="12" /> {{ lesson.instructor }}</span>
-                  </div>
-                </div>
-             </div>
+              </div>
+            </div>
           </div>
 
           <div v-else class="empty-state">
             <AppIcon name="coffee" size="48" class="empty-icon" />
-            <p>На сегодня занятий больше нет.<br>Отличное время для отдыха!</p>
+            <p>На сегодня занятий больше нет.<br />Отличное время для отдыха!</p>
           </div>
         </div>
       </BaseCard>
@@ -65,7 +75,9 @@
           </div>
           <div class="status-item">
             <span class="label">ID:</span>
-            <span class="value mono">#{{ String(authStore.user?.id || '0').padStart(4, '0') }}</span>
+            <span class="value mono"
+              >#{{ String(authStore.user?.id || '0').padStart(4, '0') }}</span
+            >
           </div>
         </div>
       </BaseCard>
@@ -173,7 +185,7 @@ h3 {
 
 .view-all:hover {
   background: var(--primary-color);
-  color: #1C1B1F;
+  color: #1c1b1f;
 }
 
 .mini-lesson-card {
@@ -278,7 +290,7 @@ h3 {
 
 .value.badge {
   background: var(--primary-color);
-  color: #1C1B1F;
+  color: #1c1b1f;
   padding: 2px 10px;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -300,15 +312,24 @@ h3 {
 
 .skeleton-item {
   height: 80px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
   border-radius: 12px;
 }
 
 @keyframes loading {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (max-width: 900px) {

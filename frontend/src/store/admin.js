@@ -19,12 +19,12 @@ export const useAdminStore = defineStore('admin', {
     async fetchUsers(params = {}) {
       this.isLoading = true
       try {
-        const response = await api.get('/users', { 
-          params: { ...this.pagination, ...params } 
+        const response = await api.get('/users', {
+          params: { ...this.pagination, ...params }
         })
-        
+
         console.log('DEBUG: fetchUsers response.data:', response.data)
-        
+
         // Обработка разных форматов ответа
         let usersData = []
         if (Array.isArray(response.data)) {
@@ -34,12 +34,12 @@ export const useAdminStore = defineStore('admin', {
         } else {
           console.warn('DEBUG: usersData is not an array, check response structure')
         }
-        
+
         this.users = usersData.map(u => ({
           ...u,
           is_active: u.is_active !== false
         }))
-        
+
         this.totalUsers = response.data.total || usersData.length
       } catch (err) {
         this.error = 'Ошибка при загрузке пользователей'

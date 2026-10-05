@@ -2,7 +2,7 @@
   <div :class="{ 'glass-disabled': !settingsStore.glassEnabled }">
     <!-- Для неавторизованных -->
     <router-view v-if="!authStore.isAuthenticated" />
-    
+
     <!-- Для авторизованных (Dashboard и т.д.) -->
     <DefaultLayout v-else>
       <router-view />
@@ -36,7 +36,7 @@ const resetTimers = () => {
     isIdle.value = false
     return
   }
-  
+
   isIdle.value = false
   clearTimeout(idleTimer)
   clearTimeout(logoutTimer)
@@ -52,13 +52,13 @@ const resetTimers = () => {
 
 onMounted(() => {
   settingsStore.initTheme()
-  
+
   // Отслеживаем активность
   const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart']
   events.forEach(event => {
     window.addEventListener(event, resetTimers)
   })
-  
+
   if (authStore.isAuthenticated) {
     resetTimers()
   }

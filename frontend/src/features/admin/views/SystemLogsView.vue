@@ -29,7 +29,12 @@
         </div>
         <div class="filter-group">
           <label>ID пользователя</label>
-          <input type="number" v-model="filters.user_id" placeholder="Любой..." class="styled-input" />
+          <input
+            type="number"
+            v-model="filters.user_id"
+            placeholder="Любой..."
+            class="styled-input"
+          />
         </div>
         <div class="filter-group">
           <label>Период</label>
@@ -51,9 +56,9 @@
         </div>
 
         <div v-else class="terminal-logs">
-          <div 
-            v-for="log in adminStore.auditLogs" 
-            :key="log.id" 
+          <div
+            v-for="log in adminStore.auditLogs"
+            :key="log.id"
             class="log-entry"
             :class="getLogSeverity(log.action)"
             @click="selectedLog = log"
@@ -69,14 +74,14 @@
     </div>
 
     <!-- Модалка деталей (JSON Inspector) -->
-    <BaseModal 
-      :show="!!selectedLog" 
-      :title="'Детали события #' + selectedLog?.id" 
+    <BaseModal
+      :show="!!selectedLog"
+      :title="'Детали события #' + selectedLog?.id"
       @close="selectedLog = null"
     >
       <div class="log-details" v-if="selectedLog">
         <div class="detail-row">
-          <strong>Действие:</strong> 
+          <strong>Действие:</strong>
           <span :class="getLogSeverity(selectedLog.action)">{{ selectedLog.action }}</span>
         </div>
         <div class="detail-row">
@@ -117,100 +122,208 @@ const fetchLogs = () => {
 
 watch(filters, () => fetchLogs())
 
-const getLogSeverity = (action) => {
+const getLogSeverity = action => {
   const cleanAction = action.replace('AuditAction.', '').toLowerCase()
-  if (['security_alert', 'unauthorized_access', 'user_deleted'].includes(cleanAction)) return 'critical'
+  if (['security_alert', 'unauthorized_access', 'user_deleted'].includes(cleanAction))
+    return 'critical'
   if (['schedule_edited', 'role_change', 'password_change'].includes(cleanAction)) return 'warning'
   return 'info'
 }
 
-const formatAction = (action) => {
+const formatAction = action => {
   return action.replace('AuditAction.', '').toUpperCase()
 }
 
-const formatTime = (dateStr) => {
+const formatTime = dateStr => {
   return new Date(dateStr).toLocaleTimeString('ru-RU', { hour12: false })
 }
 
-const formatDateTime = (dateStr) => {
+const formatDateTime = dateStr => {
   return new Date(dateStr).toLocaleString('ru-RU')
 }
 
-const getShortMessage = (log) => {
+const getShortMessage = log => {
   try {
     const details = JSON.parse(log.details)
     if (log.action === 'login') return `Вход выполнен`
     if (details?.email) return `Объект: ${details.email}`
     return ''
-  } catch (e) { return '' }
+  } catch (e) {
+    return ''
+  }
 }
 
-const formatJSON = (jsonStr) => {
+const formatJSON = jsonStr => {
   try {
     return JSON.stringify(JSON.parse(jsonStr), null, 2)
-  } catch (e) { return jsonStr }
+  } catch (e) {
+    return jsonStr
+  }
 }
 
 onMounted(() => fetchLogs())
 </script>
 
 <style scoped>
-.logs-page { max-width: 1400px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-h1 { font-size: 2.2rem; font-weight: 800; margin: 0; }
-.subtitle { color: var(--text-secondary); }
-
-.logs-container { 
-  display: grid; grid-template-columns: 280px 1fr; gap: 1px; 
-  background: var(--glass-border); overflow: hidden; height: 70vh;
+.logs-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+}
+.subtitle {
+  color: var(--text-secondary);
 }
 
-.filters-sidebar { background: var(--bg-color); padding: 24px; display: flex; flex-direction: column; gap: 20px; }
-.filters-sidebar h3 { margin: 0 0 16px 0; font-size: 1rem; opacity: 0.6; text-transform: uppercase; }
+.logs-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1px;
+  background: var(--glass-border);
+  overflow: hidden;
+  height: 70vh;
+}
 
-.filter-group { display: flex; flex-direction: column; gap: 8px; }
-.filter-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); }
+.filters-sidebar {
+  background: var(--bg-color);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.filters-sidebar h3 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
 
-.logs-feed { background: #0a0a0c; overflow-y: auto; position: relative; }
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filter-group label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
 
-.terminal-logs { padding: 16px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; }
+.logs-feed {
+  background: #0a0a0c;
+  overflow-y: auto;
+  position: relative;
+}
 
-.log-entry { 
-  padding: 8px 12px; border-radius: 6px; cursor: pointer; 
-  display: flex; gap: 16px; transition: background 0.2s;
+.terminal-logs {
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.log-entry {
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  gap: 16px;
+  transition: background 0.2s;
   border-left: 3px solid transparent;
 }
-.log-entry:hover { background: rgba(255, 255, 255, 0.05); }
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
 
-.log-time { color: #5c6370; }
-.log-badge { font-weight: 800; min-width: 140px; }
-.log-user { color: var(--primary-color); min-width: 100px; }
-.log-ip { color: #61afef; min-width: 120px; }
-.log-message { color: var(--text-secondary); flex: 1; }
+.log-time {
+  color: #5c6370;
+}
+.log-badge {
+  font-weight: 800;
+  min-width: 140px;
+}
+.log-user {
+  color: var(--primary-color);
+  min-width: 100px;
+}
+.log-ip {
+  color: #61afef;
+  min-width: 120px;
+}
+.log-message {
+  color: var(--text-secondary);
+  flex: 1;
+}
 
 /* Severities */
-.critical { color: #e06c75; border-color: #e06c75; }
-.warning { color: #d19a66; border-color: #d19a66; }
-.info { color: #98c379; border-color: #98c379; }
-
-.json-box { 
-  background: #1e1e1e; padding: 16px; border-radius: 12px; 
-  font-family: monospace; font-size: 0.9rem; color: #dcdcdc;
-  max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);
+.critical {
+  color: #e06c75;
+  border-color: #e06c75;
+}
+.warning {
+  color: #d19a66;
+  border-color: #d19a66;
+}
+.info {
+  color: #98c379;
+  border-color: #98c379;
 }
 
-.detail-row { margin-bottom: 12px; font-size: 1rem; }
-.detail-row strong { color: var(--text-secondary); margin-right: 8px; }
-
-.loading-state, .empty-state { 
-  height: 100%; display: flex; flex-direction: column; 
-  align-items: center; justify-content: center; color: var(--text-secondary);
+.json-box {
+  background: #1e1e1e;
+  padding: 16px;
+  border-radius: 12px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #dcdcdc;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.spinner { 
-  width: 40px; height: 40px; border: 4px solid rgba(255,215,0,0.1); 
-  border-top-color: var(--primary-color); border-radius: 50%; 
-  animation: spin 1s linear infinite; margin-bottom: 16px;
+.detail-row {
+  margin-bottom: 12px;
+  font-size: 1rem;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+.detail-row strong {
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.loading-state,
+.empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 215, 0, 0.1);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>
