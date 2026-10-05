@@ -35,7 +35,6 @@ test-backend: ## Тесты backend-сервисов
 	cd backend/auth && TESTING=1 pytest -q
 	cd backend/schedule && TESTING=1 pytest -q
 	cd backend/techcard && TESTING=1 pytest -q
-
 lint: ## Линтеры backend и frontend
 	ruff check backend
 	cd frontend && npm run lint

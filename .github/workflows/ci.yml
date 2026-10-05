@@ -40,7 +40,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [auth, schedule, techcard]
+        include:
+          - service: auth
+            coverage: 75
+          - service: schedule
+            coverage: 50
+          - service: techcard
+            coverage: 60
     defaults:
       run:
         working-directory: backend/${{ matrix.service }}
@@ -60,11 +66,7 @@ jobs:
       - name: Tests
         env:
           TESTING: "1"
-        run: pytest -q
-        # Временно НЕ блокирует CI: тесты сервисов приводятся к единому API
-        # в рамках реструктуризации (см. AGENTS.md). Убрать continue-on-error,
-        # когда auth, schedule и techcard стабильно проходят pytest.
-        continue-on-error: true
+        run: pytest -q --cov=. --cov-report=term --cov-fail-under=${{ matrix.coverage }}
 
   security:
     name: Security

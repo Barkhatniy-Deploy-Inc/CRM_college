@@ -119,7 +119,7 @@ npm run test
 - CI прогоняет `npm run lint`, `npm run format:check`, `npm run test`, `npm run build`. Перед коммитом форматируйте через `npm run format`.
 - E2E-тесты Playwright лежат в `frontend/e2e/` и исключены из Vitest через `vite.config.js`. Перед первым запуском нужен `npx playwright install`.
 - `pre-commit` конфиг — `.pre-commit-config.yaml`: установка `pip install pre-commit && pre-commit install`.
-- CI — `.github/workflows/ci.yml`. Backend-тесты в CI пока с `continue-on-error` до выравнивания API; ruff и frontend-проверки блокирующие.
+- CI — `.github/workflows/ci.yml`. Backend-тесты запускаются с покрытием и порогом `--cov-fail-under` (auth 75, schedule 50, techcard 60) и блокируют CI. Ruff и frontend-проверки блокирующие.
 
 ## Проверка изменений
 

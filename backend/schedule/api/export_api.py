@@ -2,29 +2,43 @@
 API endpoints для экспорта расписания в XLSX и PDF форматы.
 """
 
-from fastapi import HTTPException, Query
+from fastapi import HTTPException
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from services.schedule_exporter import ScheduleExporter
 from fastapi.responses import StreamingResponse
 import logging
 from datetime import datetime
+from urllib.parse import quote
 from core.logging_config import get_logger
 
 logger = get_logger("export_api")
 
 
+def _content_disposition(filename: str) -> str:
+    """Формирует безопасный заголовок Content-Disposition.
+
+    HTTP-заголовки кодируются в latin-1, поэтому кириллицу в filename
+    передаём через RFC 5987 (filename*), оставляя ASCII-fallback.
+    """
+    ext = ""
+    if "." in filename:
+        ext = "." + filename.rsplit(".", 1)[1]
+    ascii_fallback = f"schedule_export{ext}"
+    return f"attachment; filename={ascii_fallback}; filename*=UTF-8''{quote(filename)}"
+
+
 async def export_schedule_xlsx(
     db: Session,
-    date_from: Optional[str] = Query(None, description="Дата начала (ДД.MM.YYYY)"),
-    date_to: Optional[str] = Query(None, description="Дата конца (ДД.MM.YYYY)"),
-    single_date: Optional[str] = Query(None, description="Конкретная дата (ДД.MM.YYYY)"),
-    group_ids: Optional[List[int]] = Query(None, description="ID групп"),
-    separate_courses: bool = Query(False, description="Разделить курсы по листам"),
-    include_stats: bool = Query(True, description="Включить лист со статистикой"),
-    instructor: Optional[str] = Query(None, description="Фильтр по преподавателю"),
-    auditorium_ids: Optional[List[int]] = Query(None, description="ID аудиторий"),
-    title_search: Optional[str] = Query(None, description="Поиск по названию предмета")
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    single_date: Optional[str] = None,
+    group_ids: Optional[List[int]] = None,
+    separate_courses: bool = False,
+    include_stats: bool = True,
+    instructor: Optional[str] = None,
+    auditorium_ids: Optional[List[int]] = None,
+    title_search: Optional[str] = None
 ):
     """
     Экспорт расписания в XLSX формат с поддержкой расширенной фильтрации.
@@ -89,7 +103,7 @@ async def export_schedule_xlsx(
         return StreamingResponse(
             iter([excel_file.getvalue()]),
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": _content_disposition(filename)}
         )
 
     except HTTPException:
@@ -102,13 +116,13 @@ async def export_schedule_xlsx(
 
 async def export_schedule_pdf(
     db: Session,
-    date_from: Optional[str] = Query(None, description="Дата начала (ДД.MM.YYYY)"),
-    date_to: Optional[str] = Query(None, description="Дата конца (ДД.MM.YYYY)"),
-    single_date: Optional[str] = Query(None, description="Конкретная дата (ДД.MM.YYYY)"),
-    group_id: Optional[int] = Query(None, description="ID группы для экспорта (None = все курсы)"),
-    instructor: Optional[str] = Query(None, description="Фильтр по преподавателю"),
-    auditorium_ids: Optional[List[int]] = Query(None, description="ID аудиторий"),
-    title_search: Optional[str] = Query(None, description="Поиск по названию предмета")
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    single_date: Optional[str] = None,
+    group_id: Optional[int] = None,
+    instructor: Optional[str] = None,
+    auditorium_ids: Optional[List[int]] = None,
+    title_search: Optional[str] = None
 ):
     """
     Экспорт расписания в PDF формат (оптимизирован для печати) с поддержкой расширенной фильтрации.
@@ -172,7 +186,7 @@ async def export_schedule_pdf(
         return StreamingResponse(
             iter([pdf_file.getvalue()]),
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": _content_disposition(filename)}
         )
 
     except HTTPException:

@@ -8,7 +8,7 @@ import uvicorn
 
 from core.config import settings
 from middleware.rate_limit import RateLimitMiddleware
-from routers import auth, users
+from routers import auth, users, sessions
 from database.database import engine, Base
 
 # Настройка логирования
@@ -48,6 +48,7 @@ async def health_check():
 # Подключение роутеров БЕЗ дополнительных префиксов
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(sessions.router)
 
 @app.get("/")
 async def root():

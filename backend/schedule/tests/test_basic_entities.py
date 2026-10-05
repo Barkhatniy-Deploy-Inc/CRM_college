@@ -16,9 +16,12 @@ async def test_create_group(client, mock_auth):
 
 @pytest.mark.asyncio
 async def test_participants_api(client, mock_auth):
-    """Тест API участников"""
-    response = await client.get("/api/schedule/participants/1/participants")
+    """Тест API участников: список участников существующей группы"""
+    create = await client.post("/api/schedule/groups/", json={"name": "УЧ-1"})
+    group_id = create.json()["id"]
+    response = await client.get(f"/api/schedule/participants/{group_id}/participants")
     assert response.status_code == 200
+    assert response.json() == []
 
 @pytest.mark.asyncio
 async def test_export_api_endpoints(client, mock_auth):
