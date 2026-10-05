@@ -1,0 +1,32 @@
+# Конфигурация сканирования секретов gitleaks.
+# Запуск: gitleaks detect --config .gitleaks.toml --source . --redact
+
+title = "CRM College gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Известные безопасные значения и примеры конфигурации"
+paths = [
+    '''\.env\.example$''',
+    '''(^|/)docs/''',
+    '''(^|/)conductor/''',
+    '''(^|/)backend/[^/]+/tests/''',
+    '''(^|/)scripts/''',
+    '''EXAMPLES\.md$''',
+]
+
+# Значения-заглушки из .env.example и тестов не являются утечками.
+regexes = [
+    '''your_super_secret_key_here''',
+    '''your_secure_password''',
+    '''changeme''',
+    '''password123''',
+    '''testpassword123''',
+    '''adminpass''',
+    '''userpass''',
+    '''strongpassword123''',
+    '''YOUR_ACCESS_TOKEN''',
+    '''YOUR_REFRESH_TOKEN''',
+]

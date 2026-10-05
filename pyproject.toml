@@ -1,0 +1,48 @@
+# Единая конфигурация инструментов качества для backend-сервисов.
+# Инструменты запускаются из каталога конкретного сервиса или через `make`.
+# Здесь нет [project]/[build-system]: это не пакет, а только настройки инструментов.
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = [
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+# Стартовый набор: реальные ошибки (неопределённые имена, синтаксис, bare except).
+# Правила ниже намеренно отключены на время рефакторинга MVP и будут
+# включаться по мере чистки кода.
+select = ["E4", "E7", "E9", "F"]
+ignore = [
+    "E402", # импорт после load_dotenv/sys.path — сделано намеренно
+    "E501", # длина строки контролируется форматтером
+    "E712", # сравнение с True/False — косметика
+    "F401", # неиспользуемые импорты — чистка в рамках рефакторинга
+    "F541", # f-string без подстановок
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["F401", "F811", "F841"]
+"**/scripts/**" = ["F401", "F841"]
+"**/examples/**" = ["F401", "F841"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+no_implicit_optional = true
+check_untyped_defs = false
+warn_unused_ignores = false
+warn_redundant_casts = false
+exclude = "(^|/)(tests|scripts|examples)/"
+
+[tool.bandit]
+exclude_dirs = ["/tests/", "/scripts/", "/examples/", "/.venv/"]

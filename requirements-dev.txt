@@ -1,0 +1,17 @@
+# Общие инструменты разработки для backend-сервисов.
+# Устанавливаются вместе с requirements.txt конкретного сервиса, например:
+#   cd backend/auth
+#   pip install -r requirements.txt -r ../../requirements-dev.txt
+# Здесь намеренно не фиксируются точные версии: это dev-инструменты,
+# а не runtime-зависимости сервисов.
+
+ruff>=0.6
+mypy>=1.11
+bandit>=1.7
+pip-audit>=2.7
+pytest>=8.3
+pytest-asyncio>=0.24
+pytest-cov>=6.0
+httpx>=0.27
+pre-commit>=3.8
+alembic>=1.13

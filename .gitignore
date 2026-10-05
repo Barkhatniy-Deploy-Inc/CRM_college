@@ -85,3 +85,4 @@ yarn-error.log*
 /.serena/
 /.serena/
 gemini-conversation-1771319822951.json
+.aider*
