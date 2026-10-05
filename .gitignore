@@ -39,6 +39,12 @@ venv.bak/
 *.sqlite
 *.sqlite3
 
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
 # IDE
 .idea/
 .vscode/
