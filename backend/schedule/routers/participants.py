@@ -8,7 +8,7 @@ from dependencies import get_current_user
 import json
 from services.websocket_manager import manager
 
-router = APIRouter(prefix="/participants", tags=["👥 Участники"])
+router = APIRouter(prefix="/api/schedule/participants", tags=["👥 Участники"])
 
 @router.get("/{group_id}/participants", response_model=List[UserResponse])
 async def get_group_participants_ep(group_id: int, db: Session = Depends(get_db)):

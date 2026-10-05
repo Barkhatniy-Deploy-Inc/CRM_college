@@ -12,6 +12,7 @@ from services.session_service import (
     revoke_session, revoke_all_other_sessions
 )
 from services.token_service import revoke_refresh_token
+from services.security import decode_token
 from services.audit_service import log_action, AuditAction
 
 router = APIRouter(prefix="/api/auth/sessions", tags=["🔐 Сессии"])
@@ -34,7 +35,7 @@ def get_current_token_id(request: Optional[Request], db: Session) -> Optional[in
         ).first()
         
         return session.id if session else None
-    except:
+    except Exception:
         return None
 
 

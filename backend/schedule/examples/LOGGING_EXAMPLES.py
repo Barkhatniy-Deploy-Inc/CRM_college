@@ -22,6 +22,7 @@ def my_function():
 # === ПРИМЕР 2: Логирование параметров запроса ===
 
 from fastapi import Query
+from typing import List
 
 async def export_data(
     instructor: str = Query(None),

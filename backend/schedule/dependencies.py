@@ -25,6 +25,8 @@ async def get_current_user(
     return user
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_active:
+    # В legacy-модели schedule нет поля is_active; не считаем такого пользователя
+    # деактивированным, чтобы не падать с AttributeError.
+    if getattr(current_user, "is_active", True) is False:
         raise HTTPException(status_code=400, detail="Пользователь деактивирован")
     return current_user

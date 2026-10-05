@@ -12,7 +12,7 @@ from services.user_service import get_user_by_id, update_user, get_login_history
 from services.security import hash_password
 from services.search_service import search_users
 from services.audit_service import get_audit_logs, get_user_audit_logs, log_action, AuditAction
-from dependencies import get_current_active_user, require_role
+from dependencies import get_current_active_user, require_role, require_internal_token
 
 router = APIRouter(prefix="/api/users", tags=["👥 Пользователи"])
 
@@ -107,24 +107,6 @@ async def update_user_admin(
     return UserResponse.model_validate(updated_user)
 
 
-@router.get("/{user_id}", response_model=UserResponse)
-async def get_user_details(
-    user_id: int,
-    current_user: User = Depends(require_role(UserRole.ADMIN)),
-    db: Session = Depends(get_db)
-):
-    """
-    Получение детальной информации о пользователе (только для админов)
-    """
-    user = get_detailed_user(user_id, db)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден"
-        )
-    return UserResponse.model_validate(user)
-
-
 # ============ Поиск пользователей ============
 
 @router.get("", response_model=UserListResponse)
@@ -184,18 +166,6 @@ async def reset_user_password(
     )
     
     return UserResponse.model_validate(user)
-    """
-    Получение истории действий пользователя (только для админов и модераторов)
-    """
-    # Проверка существования пользователя
-    user = get_user_by_id(user_id, db)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден"
-        )
-    
-    return get_user_audit_logs(user_id, limit, db)
 
 
 @router.get("/audit-log/all", response_model=AuditLogListResponse)
@@ -229,10 +199,12 @@ async def get_all_audit_logs(
 @router.post("/audit-log/internal", status_code=status.HTTP_201_CREATED)
 async def create_internal_audit_log(
     data: dict,
+    _: None = Depends(require_internal_token),
     db: Session = Depends(get_db)
 ):
     """
     Внутренний эндпоинт для создания логов из других сервисов.
+    Требует заголовок X-Internal-Token.
     """
     from services.audit_service import log_action
     from database.models import AuditAction

@@ -226,7 +226,7 @@ class ScheduleExporter:
             parts = group_name.split("/")
             if len(parts) >= 2:
                 return int(parts[1][0])
-        except:
+        except Exception:
             pass
         return 1
 

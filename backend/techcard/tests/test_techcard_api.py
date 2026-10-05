@@ -1,6 +1,7 @@
 import pytest
 from fastapi import status
 
+
 @pytest.mark.asyncio
 async def test_techcard_root(client):
     """Тест корневого эндпоинта"""
@@ -8,28 +9,30 @@ async def test_techcard_root(client):
     assert response.status_code == 200
     assert "генератора технологических карт" in response.json()["message"]
 
+
 @pytest.mark.asyncio
 async def test_techcard_health(client):
     """Тест эндпоинта здоровья"""
-    response = await client.get("/health")
+    response = await client.get("/api/techcard/health")
     assert response.status_code == 200
     assert response.json()["status"] == "healthy"
 
-@pytest.mark.asyncio
-async def test_techcard_crud_endpoints(client):
-    """Тест эндпоинтов списков с пагинацией"""
-    for endpoint in ["groups", "lessons", "teachers", "lesson-types"]:
-        # Добавляем параметры пагинации если они обязательны
-        response = await client.get(f"/api/techcards/{endpoint}?page=1&limit=10")
-        if response.status_code == 422:
-             response = await client.get(f"/api/techcards/{endpoint}")
-        assert response.status_code == 200
 
 @pytest.mark.asyncio
-async def test_create_techcard_any_method(client):
-    """Тест эндпоинта генерации (проверка существования)"""
-    # Пробуем POST и GET для покрытия роута
-    resp_post = await client.post("/api/techcards/generate", json={})
-    resp_get = await client.get("/api/techcards/generate")
-    assert resp_post.status_code in [422, 405, 200]
-    assert resp_get.status_code in [422, 405, 200]
+async def test_techcard_list_requires_auth(client):
+    """Список техкарт недоступен без токена (401 или 503 без SECRET_KEY)."""
+    response = await client.get("/api/techcards")
+    assert response.status_code in [
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+    ]
+
+
+@pytest.mark.asyncio
+async def test_techcard_download_requires_auth(client):
+    """Скачивание техкарты недоступно без токена."""
+    response = await client.get("/api/techcards/download/1")
+    assert response.status_code in [
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+    ]

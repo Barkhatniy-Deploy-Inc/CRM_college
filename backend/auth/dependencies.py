@@ -2,11 +2,13 @@ from fastapi import Depends, HTTPException, status, Header, Cookie
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import Optional
+import hmac
 
 from database.database import get_db
 from database.models import User, UserRole, Permission
 from services.security import verify_token
 from services.user_service import get_user_by_id, get_user_permissions
+from core.config import settings
 
 
 security = HTTPBearer(auto_error=False)  # Не выбрасываем ошибку автоматически
@@ -97,6 +99,29 @@ def require_role(*allowed_roles: UserRole):
             )
         return current_user
     return role_checker
+
+
+async def require_internal_token(
+    x_internal_token: Optional[str] = Header(None, alias="X-Internal-Token"),
+) -> None:
+    """
+    Проверка внутреннего токена для межсервисных вызовов.
+
+    Если токен не сконфигурирован, endpoint недоступен (503), чтобы
+    не оставлять внутренний API открытым по умолчанию.
+    """
+    if not settings.INTERNAL_API_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Internal API token is not configured",
+        )
+    if not x_internal_token or not hmac.compare_digest(
+        x_internal_token, settings.INTERNAL_API_TOKEN
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid internal token",
+        )
 
 
 def require_permission(resource: str, action: str):

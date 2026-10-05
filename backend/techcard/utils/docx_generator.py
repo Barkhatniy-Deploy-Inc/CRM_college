@@ -3,13 +3,19 @@ from docxtpl import DocxTemplate
 from io import BytesIO
 from datetime import datetime
 
+# Каталог сервиса techcard (backend/techcard) и шаблон документа.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_TEMPLATE_PATH = os.path.join(
+    BASE_DIR, "templates", "Tekhnologicheskaia-karta-zaniatiia.docx"
+)
+
 def generate_techcard_docx(card_data: dict) -> BytesIO:
     """
     Генерирует .docx файл на основе данных техкарты.
     card_data - это словарь с данными из БД и вложенными этапами.
     """
-    # Путь к шаблону
-    template_path = os.path.join(os.path.dirname(__file__), "templates", "techcard_template.docx")
+    # Путь к шаблону (можно переопределить через TECHCARD_TEMPLATE_PATH)
+    template_path = os.getenv("TECHCARD_TEMPLATE_PATH", DEFAULT_TEMPLATE_PATH)
     
     # Если шаблона нет, мы могли бы создать его программно, 
     # но docxtpl требует файл. Для начала создадим базовый контекст.

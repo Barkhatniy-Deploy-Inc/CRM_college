@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
     RATE_LIMIT_REQUESTS: int = int(os.getenv("RATE_LIMIT_REQUESTS", "100"))
     RATE_LIMIT_WINDOW_SECONDS: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
+
+    # Внутренний токен для межсервисных вызовов (аудит и т.п.)
+    INTERNAL_API_TOKEN: str = os.getenv("INTERNAL_API_TOKEN", "")
     
     # База данных
     # DB_TYPE: "sqlite" для локальной разработки, "postgresql" для production

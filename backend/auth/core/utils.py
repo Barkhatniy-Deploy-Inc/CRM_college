@@ -14,7 +14,7 @@ def mask_email(email: str) -> str:
         if len(name) <= 2:
             return f"{name[0]}***@{domain}"
         return f"{name[0]}***{name[-1]}@{domain}"
-    except:
+    except Exception:
         return "***@***"
 
 def mask_ip(ip: Optional[str]) -> str:

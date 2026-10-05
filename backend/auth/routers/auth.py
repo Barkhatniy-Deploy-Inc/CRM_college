@@ -35,17 +35,17 @@ async def register(
     """
     # Создание пользователя
     user = create_user(data, db)
-    
+
     # Получение IP и User-Agent
     ip_address = get_client_ip(request)
     user_agent = get_user_agent(request)
-    
+
     # Создание токенов
     access_token, refresh_token = create_token_pair(user, db, ip_address, user_agent)
-    
+
     # Установка cookies
     set_auth_cookies(response, access_token, refresh_token)
-    
+
     # Логирование в аудит
     log_action(AuditAction.USER_CREATED, user.id, db, {"email": mask_email(user.email), "role": user.role.value}, request)
     
@@ -93,9 +93,9 @@ async def login(
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
+    response: Response,
     data: Optional[RefreshTokenRequest] = None,
     refresh_token_cookie: Optional[str] = Cookie(None, alias="refresh_token"),
-    request: Request = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -115,6 +115,9 @@ async def refresh_token(
     # Обновление токена (внутри функции уже получается пользователь)
     access_token, refresh_token, user = refresh_access_token(refresh_token_str, db)
     
+    # Обновляем httpOnly cookies, иначе сессия распадётся после истечения access-токена
+    set_auth_cookies(response, access_token, refresh_token)
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -125,10 +128,10 @@ async def refresh_token(
 
 @router.post("/logout")
 async def logout(
+    response: Response,
+    request: Request,
     refresh_token_cookie: Optional[str] = Cookie(None, alias="refresh_token"),
     current_user: User = Depends(get_current_active_user),
-    response: Response = Response(),
-    request: Request = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -188,4 +191,3 @@ async def change_password(
     log_action(AuditAction.PASSWORD_CHANGE, current_user.id, db, {}, request)
     
     return {"message": "Пароль успешно изменен. Пожалуйста, войдите заново."}
-
