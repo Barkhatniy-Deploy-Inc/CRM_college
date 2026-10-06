@@ -17,6 +17,7 @@ test_service() {
     local name=$1
     local url=$2
     local port=$3
+    local health_path=$4
     
     echo -e "\n🔍 Тестирование $name ($url:$port)"
     
@@ -27,7 +28,7 @@ test_service() {
     fi
     
     # Проверяем health endpoint
-    response=$(curl -s -w "%{http_code}" -o /tmp/health_response "$url:$port/api/health" 2>/dev/null)
+    response=$(curl -s -w "%{http_code}" -o /tmp/health_response "$url:$port$health_path" 2>/dev/null)
     http_code="${response: -3}"
     
     if [ "$http_code" = "200" ]; then
@@ -67,15 +68,15 @@ test_api_endpoints() {
         echo -e "  ❌ Регистрация: ${RED}FAIL${NC} (HTTP $http_code)"
     fi
     
-    # Тест Schedule сервиса - получение курсов
-    echo -e "\n📅 Schedule Service - Курсы:"
-    response=$(curl -s -w "%{http_code}" -o /tmp/courses_response "http://localhost:8000/api/courses" 2>/dev/null)
+    # Тест Schedule сервиса - получение групп
+    echo -e "\n📅 Schedule Service - Группы:"
+    response=$(curl -s -w "%{http_code}" -o /tmp/groups_response "http://localhost:8000/api/schedule/groups/" 2>/dev/null)
     http_code="${response: -3}"
     
     if [ "$http_code" = "200" ]; then
-        echo -e "  ✅ Получение курсов: ${GREEN}OK${NC} (HTTP $http_code)"
+        echo -e "  ✅ Получение групп: ${GREEN}OK${NC} (HTTP $http_code)"
     else
-        echo -e "  ❌ Получение курсов: ${RED}FAIL${NC} (HTTP $http_code)"
+        echo -e "  ❌ Получение групп: ${RED}FAIL${NC} (HTTP $http_code)"
     fi
     
     # Тест Techcard сервиса
@@ -149,15 +150,15 @@ main() {
     services_ok=0
     total_services=3
     
-    if test_service "Auth Service" "http://localhost" 8002; then
+    if test_service "Auth Service" "http://localhost" 8002 "/api/auth/health"; then
         ((services_ok++))
     fi
     
-    if test_service "Schedule Service" "http://localhost" 8000; then
+    if test_service "Schedule Service" "http://localhost" 8000 "/api/schedule/health"; then
         ((services_ok++))
     fi
     
-    if test_service "Techcard Service" "http://localhost" 8001; then
+    if test_service "Techcard Service" "http://localhost" 8001 "/api/techcard/health"; then
         ((services_ok++))
     fi
     
@@ -188,7 +189,7 @@ main() {
 
 # Очистка временных файлов при выходе
 cleanup() {
-    rm -f /tmp/health_response /tmp/register_response /tmp/courses_response /tmp/techcard_response
+    rm -f /tmp/health_response /tmp/register_response /tmp/groups_response /tmp/techcard_response
 }
 trap cleanup EXIT
 
