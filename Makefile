@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 COMPOSE := docker compose
 
-.PHONY: help up down build logs ps restart test test-frontend test-backend lint format typecheck security smoke migrate revision
+.PHONY: help up down build logs ps restart dev-local test test-frontend test-backend lint format typecheck security smoke migrate revision
 
 help: ## Показать список команд
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -25,6 +25,9 @@ ps: ## Статус контейнеров
 	$(COMPOSE) ps
 
 restart: down up ## Перезапустить стек
+
+dev-local: ## Локальный запуск без Docker (SQLite + Vite dev)
+	./scripts/dev_local.sh
 
 test: test-frontend test-backend ## Все тесты
 
