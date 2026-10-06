@@ -1,6 +1,6 @@
 import logging
 import os
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import uvicorn
@@ -79,14 +79,6 @@ app.include_router(export.router)
 app.include_router(notifications.router)
 app.include_router(calendar.router)
 app.include_router(relations.router)
-
-@app.middleware("http")
-async def strip_internal_header(request: Request, call_next):
-    # Не позволяем внешним клиентам присылать внутренний токен через шлюз.
-    request.scope["headers"] = [
-        (k, v) for (k, v) in request.scope["headers"] if k.lower() != b"x-internal-token"
-    ]
-    return await call_next(request)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

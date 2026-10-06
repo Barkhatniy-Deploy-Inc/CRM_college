@@ -25,7 +25,7 @@ def _decode(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный тип токена",
         )
-    if not payload.get("user_id"):
+    if not all(payload.get(claim) for claim in ("user_id", "email", "role")):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Невалидные данные токена",

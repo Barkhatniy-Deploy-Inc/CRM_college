@@ -46,5 +46,10 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный тип токена",
         )
+    if not all(payload.get(claim) for claim in ("user_id", "email", "role")):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Невалидные данные токена",
+        )
 
     return payload

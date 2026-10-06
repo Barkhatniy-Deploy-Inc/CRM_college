@@ -263,3 +263,7 @@ class SubjectAuditoriumResponse(SubjectAuditoriumLink):
     id: int
     class Config:
         from_attributes = True
+
+
+class TelegramSubscriptionRequest(BaseModel):
+    telegram_id: str

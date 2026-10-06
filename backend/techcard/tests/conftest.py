@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from auth import get_current_user
 from database.dependencies import get_techcard_db, engine_techcard
 from database.models_techcard import BaseTechCard
 from main import app
@@ -30,14 +31,44 @@ async def client(db) -> Generator:
             yield db
         finally:
             pass
-    
+
     app.dependency_overrides[get_techcard_db] = override_get_db
-    
+
     async with AsyncClient(
-        transport=ASGITransport(app=app), 
+        transport=ASGITransport(app=app),
         base_url="http://test",
-        follow_redirects=True
+        follow_redirects=True,
     ) as ac:
         yield ac
-    
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope="function")
+async def authorized_client(db) -> Generator:
+    """Клиент с подменённым валидным principal auth-сервиса."""
+    def override_get_db():
+        try:
+            yield db
+        finally:
+            pass
+
+    async def override_current_user():
+        return {
+            "user_id": 1,
+            "email": "teacher@example.test",
+            "role": "teacher",
+            "type": "access",
+        }
+
+    app.dependency_overrides[get_techcard_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_current_user
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        follow_redirects=True,
+    ) as ac:
+        yield ac
+
     app.dependency_overrides.clear()

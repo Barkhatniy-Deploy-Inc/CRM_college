@@ -1,5 +1,6 @@
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
+from database.models import User
 from services.notifications import send_telegram_message_async, format_slot_telegram_message
 
 @pytest.mark.asyncio
@@ -26,3 +27,25 @@ def test_format_slot_telegram_message():
     assert "Python" in message
     assert "10:00" in message
     assert "Room 101" in message
+
+
+@pytest.mark.asyncio
+async def test_subscribe_telegram_accepts_json_body(client, mock_auth, db):
+    """Telegram ID передаётся явно в JSON body, не query parameter."""
+    user = User(
+        full_name="Тестовый пользователь",
+        email="telegram@example.test",
+        password_hash="hash",
+    )
+    db.add(user)
+    db.commit()
+
+    response = await client.post(
+        "/api/schedule/notifications/subscribe-telegram",
+        json={"telegram_id": "123456"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["telegram_id"] == "123456"
+    db.refresh(user)
+    assert user.telegram_id == "123456"

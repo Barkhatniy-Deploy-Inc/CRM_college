@@ -48,6 +48,15 @@ describe('Auth Store', () => {
     expect(store.isAuthenticated).toBe(false)
   })
 
+  it('should discard malformed stored user data', () => {
+    localStorageMock.setItem('user', '{invalid-json')
+
+    const store = useAuthStore()
+
+    expect(store.user).toBeNull()
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('user')
+  })
+
   it('should login successfully', async () => {
     const store = useAuthStore()
     const mockUser = { id: 1, full_name: 'Test' }
@@ -105,11 +114,15 @@ describe('Auth Store', () => {
     expect(api.get).toHaveBeenCalledWith('/auth/me')
   })
 
-  it('should skip bootstrap without session', async () => {
+  it('should bootstrap from cookie-backed auth endpoint', async () => {
     const store = useAuthStore()
+    const mockUser = { id: 7, full_name: 'Cookie User' }
+    api.get.mockResolvedValueOnce({ data: mockUser })
 
     await store.bootstrap()
 
-    expect(api.get).not.toHaveBeenCalled()
+    expect(api.get).toHaveBeenCalledWith('/auth/me')
+    expect(store.user).toEqual(mockUser)
+    expect(store.isAuthenticated).toBe(true)
   })
 })

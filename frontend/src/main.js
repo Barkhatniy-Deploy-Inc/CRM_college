@@ -7,10 +7,14 @@ import { useAuthStore } from './store/auth'
 
 const app = createApp(App)
 app.use(pinia)
-app.use(router)
 
-// Восстанавливаем сессию до монтирования, чтобы гарды маршрутизатора
-// видели актуального пользователя.
-useAuthStore(pinia).bootstrap()
+async function bootstrap() {
+  // Восстанавливаем cookie-сессию до установки router: навигационные гарды
+  // получают актуального пользователя и не редиректят валидную сессию на '/'.
+  await useAuthStore(pinia).bootstrap()
+  app.use(router)
+  await router.isReady()
+  app.mount('#app')
+}
 
-app.mount('#app')
+bootstrap()

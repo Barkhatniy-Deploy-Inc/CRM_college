@@ -1,16 +1,28 @@
 import { defineStore } from 'pinia'
 import api from '../core/utils/api'
 
+const getStoredUser = () => {
+  try {
+    const rawUser = localStorage.getItem('user')
+    return rawUser ? JSON.parse(rawUser) : null
+  } catch {
+    localStorage.removeItem('user')
+    return null
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user')) || null,
+    user: getStoredUser(),
     accessToken: localStorage.getItem('access_token') || null,
     isLoading: false,
     error: null
   }),
 
   getters: {
-    isAuthenticated: state => !!state.accessToken,
+    // Источник истины — профиль, подтверждённый /auth/me и httpOnly cookie.
+    // accessToken остаётся временно для совместимости с Bearer endpoint'ами.
+    isAuthenticated: state => !!state.user,
     userRole: state => state.user?.role || 'guest'
   },
 
@@ -45,8 +57,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async bootstrap() {
-      // Восстанавливаем профиль, если есть признаки активной сессии.
-      if (!this.accessToken && !this.user) return
+      // Всегда проверяем cookie-сессию: localStorage может быть очищен,
+      // тогда /auth/me + refresh-интерцептор восстановят профиль.
       try {
         await this.fetchMe()
       } catch {
