@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Header, Cookie, status
+from fastapi import Depends, HTTPException, Header, Cookie, WebSocket, status
 from typing import Optional
 
 from services.tokens import SECRET_KEY, ALGORITHM, role_allowed
@@ -30,6 +30,11 @@ def _decode(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Невалидные данные токена",
         )
+    if payload.get("exp") is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Токен без срока действия",
+        )
     return payload
 
 
@@ -41,6 +46,19 @@ async def get_current_user(
     token = access_token
     if not token and authorization and " " in authorization:
         token = authorization.split()[1]
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Не аутентифицирован")
+    return _decode(token)
+
+
+async def authenticate_websocket(websocket: WebSocket) -> dict:
+    """Authenticate a browser WebSocket using its auth cookie or Bearer token."""
+    token = websocket.cookies.get("access_token")
+    authorization = websocket.headers.get("authorization")
+    if not token and authorization and " " in authorization:
+        token = authorization.split(" ", 1)[1]
+    if not token:
+        token = websocket.query_params.get("access_token")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Не аутентифицирован")
     return _decode(token)

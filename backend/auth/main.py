@@ -10,6 +10,8 @@ from core.config import settings
 from middleware.rate_limit import RateLimitMiddleware
 from routers import auth, users, sessions
 from database.database import engine, Base
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -42,7 +44,12 @@ if settings.RATE_LIMIT_ENABLED:
 
 # Health check (ГЛОБАЛЬНЫЙ)
 @app.get("/api/auth/health", tags=["⚙️ Система"])
-async def health_check():
+def health_check():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except SQLAlchemyError:
+        return JSONResponse(status_code=503, content={"status": "unhealthy", "service": "Auth Service"})
     return {"status": "healthy", "service": "Auth Service"}
 
 # Подключение роутеров БЕЗ дополнительных префиксов

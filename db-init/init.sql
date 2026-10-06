@@ -1,3 +1,0 @@
-CREATE DATABASE auth_db;
-CREATE DATABASE schedule_db;
-CREATE DATABASE techcard_db;

@@ -17,17 +17,13 @@
 
 ## Запуск
 
-- Перед первым запуском скопируйте `.env.example` в `.env` и замените `SECRET_KEY` и `INTERNAL_API_TOKEN`: Compose останавливается с ошибкой, если они не заданы.
+- Перед первым запуском выполните `make init` / `./scripts/local.sh init`: команда создаёт `.env` со случайными `DB_PASSWORD`, `SECRET_KEY` и `INTERNAL_API_TOKEN`. Существующие настройки сохраняются; отсутствующий внутренний токен добавляется.
 - Для запуска всего стека из корня используйте:
   ```bash
-  docker compose up --build
+  make up
   ```
-- Внешние порты:
-  - `3000` — фронтенд;
-  - `8000` — schedule;
-  - `8001` — techcard;
-  - `8002` — auth;
-  - `80` — Nginx-шлюз.
+- По умолчанию на хосте доступен только Nginx: `127.0.0.1:8080` (`APP_PORT`). Прямые порты frontend/backend/БД не нужны для работы приложения.
+- Для отладки используйте `docker-compose.debug.yml`: auth 8002, schedule 8000, techcard 8001 и БД 5432 публикуются на loopback. Для ngrok предусмотрен профиль `tunnel`, `make tunnel` и `make tunnel-url`; нужен `NGROK_AUTHTOKEN` в `.env`, инспектор доступен на loopback 4040.
 - Внутри Docker-сети сервисы слушают порт `8000`; для межсервисных запросов используйте имена сервисов (`auth`, `schedule`, `techcard`), а не внешние порты.
 - Переменные окружения берите из `.env.example`. Секреты и рабочие `.env` не добавляйте в Git.
 
@@ -47,7 +43,7 @@ npm run test
   ```bash
   npx vitest run src/store/__tests__/auth.spec.js
   ```
-- В режиме разработки Vite слушает порт `3000` и проксирует `/api` на `http://localhost:80`.
+- В режиме разработки Vite слушает порт `3000` и проксирует `/api` на `http://localhost:8080`; upstream переопределяется через `VITE_DEV_PROXY_TARGET`. Playwright по умолчанию обращается к gateway 8080.
 - Axios по умолчанию использует `/api`; изменение API-маршрутов требует проверки Vite-конфига и корневого `nginx/nginx.conf`.
 
 ## Бэкенд
@@ -97,17 +93,18 @@ npm run test
 
 ## База данных
 
-- PostgreSQL создаёт три базы из `db-init/init.sql`:
+- PostgreSQL создаёт три базы из `db-init/01-create-databases.sh` с именами из окружения (по умолчанию):
   - `auth_db`;
   - `schedule_db`;
   - `techcard_db`.
-- `db-init/init.sql` выполняется только при первоначальном создании PostgreSQL volume. Изменение этого файла не применяет изменения к уже существующему volume.
+- Инициализация выполняется только при первоначальном создании PostgreSQL volume; изменения имён/пароля не применяются к существующим базам.
 - Схема БД управляется Alembic: у каждого сервиса свой `alembic/` и baseline-миграция. Применяйте изменения через:
   ```bash
-  make migrate    # alembic upgrade head во всех сервисах
+  make migrate    # Alembic в Docker-контейнерах против PostgreSQL
   cd backend/auth && alembic revision --autogenerate -m "message"
   ```
 - `create_all` в `lifespan` пока остаётся как временный fallback и будет удалён после полного перехода на миграции.
+- Для баз, созданных через `create_all`, baseline нужно регистрировать отдельно только после backup и сравнения схемы. Подробности — `docs/LOCAL_DEVELOPMENT.md`.
 - Не удаляйте PostgreSQL volume без явного намерения потерять локальные данные.
 
 ## Инструменты качества
@@ -125,7 +122,7 @@ npm run test
 - CI прогоняет `npm run lint`, `npm run format:check`, `npm run test`, `npm run build`. Перед коммитом форматируйте через `npm run format`.
 - E2E-тесты Playwright лежат в `frontend/e2e/` и исключены из Vitest через `vite.config.js`. Перед первым запуском нужен `npx playwright install`.
 - `pre-commit` конфиг — `.pre-commit-config.yaml`: установка `pip install pre-commit && pre-commit install`.
-- CI — `.github/workflows/ci.yml`. Backend-тесты запускаются с покрытием и порогом `--cov-fail-under` (auth 75, schedule 50, techcard 60) и блокируют CI. Ruff и frontend-проверки блокирующие.
+- CI — `.github/workflows/ci.yml`. Backend-тесты запускаются с покрытием и порогом `--cov-fail-under` (auth 75, schedule 50, techcard 60) и блокируют CI. Ruff и frontend-проверки блокирующие. Отдельный Compose job проверяет сборку, миграции на пустой PostgreSQL, HTTP через gateway и WebSocket.
 
 ## Проверка изменений
 
@@ -149,9 +146,7 @@ pytest
 Перед проверкой межсервисных изменений запускайте стек через Docker Compose и проверяйте health endpoints:
 
 ```bash
-curl http://localhost:8002/api/auth/health
-curl http://localhost:8000/api/schedule/health
-curl http://localhost:8001/api/techcard/health
+make smoke
 ```
 
 Общие команды запускайте из корня через `make` (см. `make help`).

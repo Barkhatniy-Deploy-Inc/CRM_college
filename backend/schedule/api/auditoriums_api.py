@@ -21,12 +21,12 @@ async def create_auditorium(auditorium: AuditoriumCreate, db: Session) -> Audito
         )
 
 
-async def get_auditoriums(db: Session, search: Optional[str] = None, limit: int = 100) -> List[AuditoriumResponse]:
+async def get_auditoriums(db: Session, search: Optional[str] = None, limit: int = 100, offset: int = 0) -> List[AuditoriumResponse]:
     """Получение списка аудиторий с поиском."""
     query = db.query(Auditorium)
     if search:
         query = query.filter(Auditorium.name.ilike(f"%{search}%"))
-    auditoriums = query.limit(limit).all()
+    auditoriums = query.offset(offset).limit(limit).all()
     return auditoriums
 
 

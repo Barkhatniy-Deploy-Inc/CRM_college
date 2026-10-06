@@ -89,6 +89,18 @@ async def get_current_active_user(
     return current_user
 
 
+async def get_optional_current_user(
+    access_token: Optional[str] = Cookie(None, alias="access_token"),
+    authorization: Optional[str] = Header(None),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Return the authenticated user when credentials are present, otherwise None."""
+    if not access_token and not authorization and not credentials:
+        return None
+    return await get_current_user(access_token, authorization, credentials, db)
+
+
 def require_role(*allowed_roles: UserRole):
     """Зависимость для проверки роли пользователя"""
     def role_checker(current_user: User = Depends(get_current_active_user)) -> User:
@@ -145,4 +157,3 @@ def require_permission(resource: str, action: str):
             detail=f"Недостаточно прав для выполнения действия {action} на ресурсе {resource}"
         )
     return permission_checker
-

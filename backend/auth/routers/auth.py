@@ -14,7 +14,8 @@ from services.token_service import create_token_pair, refresh_access_token, revo
 from services.security import hash_password, verify_password
 from services.cookie_service import set_auth_cookies, clear_auth_cookies
 from services.audit_service import log_action, AuditAction
-from dependencies import get_current_active_user
+from dependencies import get_current_active_user, get_optional_current_user
+from database.models import UserRole
 from middleware.rate_limit import get_client_ip, get_user_agent
 from core.utils import mask_email
 from core.config import settings
@@ -28,11 +29,23 @@ async def register(
     data: RegisterRequest,
     request: Request,
     response: Response,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ):
     """
     Регистрация нового пользователя
     """
+    # Public registration can only create a student. Elevated roles require
+    # an already authenticated administrator (the admin UI uses this path).
+    requested_role = data.role or UserRole.STUDENT
+    if requested_role != UserRole.STUDENT and (
+        current_user is None or current_user.role != UserRole.ADMIN
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Только администратор может назначать привилегированную роль",
+        )
+
     # Создание пользователя
     user = create_user(data, db)
 

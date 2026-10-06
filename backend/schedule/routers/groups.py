@@ -13,11 +13,13 @@ from services.websocket_manager import manager
 router = APIRouter(prefix="/api/schedule/groups", tags=["👥 Группы"])
 
 @router.get("/", response_model=List[GroupResponse])
+@router.get("", response_model=List[GroupResponse], include_in_schema=False)
 @cache(expire=60)
 async def get_groups_ep(name: Optional[str] = None, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)):
     return await get_groups(db, name, limit, offset)
 
 @router.post("/", response_model=GroupResponse)
+@router.post("", response_model=GroupResponse, include_in_schema=False)
 async def create_group_ep(data: GroupCreate, u: dict = Depends(require_roles("admin", "moderator")), db: Session = Depends(get_db)):
     group = await create_group(data, db)
     await manager.broadcast(json.dumps({"type": "group_created", "data": json.loads(GroupResponse.from_orm(group).model_dump_json())}))

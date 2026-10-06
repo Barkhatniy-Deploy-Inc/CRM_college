@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -29,12 +30,15 @@ elif is_local:
     DATABASE_URL = f"sqlite:///{db_path.absolute()}"
     print(f"🏠 Запуск в ЛОКАЛЬНОМ режиме (SQLite: {db_path.name})")
 else:
-    DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    DATABASE_URL = URL.create(
+        "postgresql+psycopg", username=DB_USER, password=DB_PASSWORD,
+        host=DB_HOST, port=int(DB_PORT), database=DB_NAME,
+    )
     print(f"🌐 Запуск в РЕЖИМЕ СЕРВЕРА (PostgreSQL: {DB_HOST})")
 
 # Параметры подключения
-engine_args = {"echo": True}
-if DATABASE_URL.startswith("sqlite"):
+engine_args = {"echo": os.getenv("DEBUG", "false").lower() == "true", "pool_pre_ping": True}
+if isinstance(DATABASE_URL, str) and DATABASE_URL.startswith("sqlite"):
     engine_args["connect_args"] = {"check_same_thread": False}
 
 engine = create_engine(DATABASE_URL, **engine_args)

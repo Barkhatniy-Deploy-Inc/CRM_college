@@ -4,16 +4,19 @@
 SHELL := /bin/bash
 COMPOSE := docker compose
 
-.PHONY: help up down build logs ps restart test test-frontend test-backend lint format typecheck security smoke migrate revision
+.PHONY: help init up down build logs ps restart tunnel tunnel-url test test-frontend test-backend lint format typecheck security smoke migrate revision
 
 help: ## Показать список команд
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-up: ## Поднять весь стек
-	$(COMPOSE) up --build -d
+init: ## Создать .env со случайными секретами
+	./scripts/local.sh init
 
-down: ## Остановить стек
-	$(COMPOSE) down
+up: ## Поднять весь стек и дождаться healthcheck
+	./scripts/local.sh up
+
+down: ## Остановить стек и ngrok, сохранить данные
+	./scripts/local.sh down
 
 build: ## Пересобрать образы
 	$(COMPOSE) build
@@ -25,6 +28,12 @@ ps: ## Статус контейнеров
 	$(COMPOSE) ps
 
 restart: down up ## Перезапустить стек
+
+tunnel: ## Запустить ngrok (нужен NGROK_AUTHTOKEN)
+	./scripts/local.sh tunnel
+
+tunnel-url: ## Показать HTTPS URL ngrok
+	./scripts/local.sh url
 
 test: test-frontend test-backend ## Все тесты
 
@@ -52,15 +61,11 @@ security: ## Сканирование секретов и уязвимостей
 		echo "== pip-audit $$req =="; pip-audit -r "$$req"; \
 	done
 
-smoke: ## Проверка health endpoints запущенного стека
-	curl -fsS http://localhost:8002/api/auth/health
-	curl -fsS http://localhost:8000/api/schedule/health
-	curl -fsS http://localhost:8001/api/techcard/health
+smoke: ## Проверка frontend и API через gateway (BASE_URL=...)
+	./scripts/local.sh check $(if $(BASE_URL),"$(BASE_URL)",)
 
-migrate: ## Применить миграции Alembic во всех сервисах
-	cd backend/auth && alembic upgrade head
-	cd backend/schedule && alembic upgrade head
-	cd backend/techcard && alembic upgrade head
+migrate: ## Применить миграции к PostgreSQL в Compose
+	./scripts/local.sh migrate
 
 revision: ## Создать миграцию: make revision SERVICE=auth M="message"
 	cd backend/$(SERVICE) && alembic revision --autogenerate -m "$(M)"

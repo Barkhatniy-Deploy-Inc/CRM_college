@@ -32,9 +32,6 @@ RUN useradd --create-home appuser
 COPY --from=builder /app/wheels /wheels
 RUN pip install --no-cache /wheels/* && rm -rf /wheels
 
-# Гарантируем наличие setuptools (нужен для docxtpl/docxcompose)
-RUN pip install setuptools
-
 # Копируем код сервиса
 COPY . .
 
@@ -45,4 +42,5 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Compose exposes the application through Nginx; trust its forwarded scheme/IP.
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

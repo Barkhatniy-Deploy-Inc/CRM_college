@@ -10,6 +10,7 @@ class TechCard(BaseTechCard):
     __tablename__ = "tech_cards"
 
     id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, nullable=True, index=True)
 
     # Основные данные из справочников (ID из databaseforbros.db)
     group_id = Column(Integer, nullable=True)  # ID группы

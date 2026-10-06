@@ -20,3 +20,17 @@ async def test_create_techcard_uses_schedule_instructor_id(authorized_client, mo
     assert response.status_code == 201
     assert response.json()["tema"] == "Алгебра"
     assert response.json()["teacher_id"] == 42
+
+
+@pytest.mark.asyncio
+async def test_owner_can_read_only_owned_cards(authorized_client, db):
+    from database.models_techcard import TechCard
+
+    db.add(TechCard(tema="Owned", owner_id=1))
+    db.add(TechCard(tema="Private", owner_id=2))
+    db.commit()
+
+    response = await authorized_client.get("/api/techcards")
+
+    assert response.status_code == 200
+    assert [card["tema"] for card in response.json()] == ["Owned"]
