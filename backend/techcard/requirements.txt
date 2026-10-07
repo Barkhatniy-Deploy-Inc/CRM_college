@@ -4,7 +4,7 @@ sqlalchemy==2.0.35
 alembic==1.13.3
 python-multipart==0.0.10
 python-dotenv==1.0.1
-docxtpl==0.16.8
+docxtpl==0.20.2
 python-docx==1.1.2
 psycopg[binary]>=3.3.2
 email-validator==2.2.0
