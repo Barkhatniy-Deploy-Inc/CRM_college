@@ -19,6 +19,13 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     port: 3000,
+    // ngrok-free.app/ngrok.app нужны при демонстрации локального dev-сервера.
+    // Для собственного домена можно задать VITE_ALLOWED_HOST.
+    allowedHosts: [
+      '.ngrok-free.app',
+      '.ngrok.app',
+      ...(process.env.VITE_ALLOWED_HOST ? [process.env.VITE_ALLOWED_HOST] : [])
+    ],
     proxy
   },
   test: {
