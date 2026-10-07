@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -11,7 +12,10 @@ load_dotenv()
 # Определяем тип БД и строку подключения
 if settings.DB_TYPE.lower() == "postgresql":
     # PostgreSQL подключение
-    DATABASE_URL = f"postgresql+psycopg://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    DATABASE_URL = URL.create(
+        "postgresql+psycopg", username=settings.DB_USER, password=settings.DB_PASSWORD,
+        host=settings.DB_HOST, port=int(settings.DB_PORT), database=settings.DB_NAME,
+    )
     engine_kwargs = {
         "echo": settings.DEBUG,  # SQL логи только в dev
         "pool_pre_ping": True,  # Проверка соединений перед использованием

@@ -137,4 +137,6 @@ def downgrade() -> None:
     op.drop_table('groups')
     op.drop_index(op.f('ix_auditoriums_id'), table_name='auditoriums')
     op.drop_table('auditoriums')
+    op.execute("DROP TYPE IF EXISTS participantstatus")
+    op.execute("DROP TYPE IF EXISTS slotstatus")
     # ### end Alembic commands ###

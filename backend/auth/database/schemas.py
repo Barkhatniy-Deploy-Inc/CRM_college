@@ -66,7 +66,8 @@ class LoginRequest(BaseModel):
 
 
 class RegisterRequest(UserCreate):
-    pass
+    """Registration payload; role is accepted for the protected admin UI."""
+    role: Optional[UserRole] = UserRole.STUDENT
 
 
 class TokenResponse(BaseModel):
@@ -93,6 +94,10 @@ class TokenData(BaseModel):
 
 class PasswordChangeRequest(BaseModel):
     current_password: str
+    new_password: str = Field(..., min_length=8)
+
+
+class AdminPasswordResetRequest(BaseModel):
     new_password: str = Field(..., min_length=8)
 
 
@@ -233,4 +238,3 @@ class HealthResponse(BaseModel):
     status: str
     database: str
     version: str
-

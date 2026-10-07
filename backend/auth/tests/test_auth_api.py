@@ -31,6 +31,21 @@ async def test_register_duplicate_email(client):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "уже существует" in response.json()["detail"]
 
+
+@pytest.mark.asyncio
+async def test_public_registration_cannot_assign_admin_role(client):
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": "self_admin@example.com",
+            "password": "password123",
+            "full_name": "Self Admin",
+            "role": "admin",
+        },
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
 @pytest.mark.asyncio
 async def test_login_success(client):
     """Тест успешного входа"""

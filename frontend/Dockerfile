@@ -1,13 +1,13 @@
 # Этап сборки (build stage)
-FROM node:20-alpine as build-stage
+FROM node:22-alpine AS build-stage
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
 
 # Этап продакшена (production stage)
-FROM nginx:stable-alpine as production-stage
+FROM nginx:1.28-alpine AS production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
 # Копируем наш кастомный конфиг Nginx

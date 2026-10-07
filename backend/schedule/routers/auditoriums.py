@@ -13,11 +13,13 @@ from services.websocket_manager import manager
 router = APIRouter(prefix="/api/schedule/auditoriums", tags=["🏫 Аудитории"])
 
 @router.get("/", response_model=List[AuditoriumResponse])
+@router.get("", response_model=List[AuditoriumResponse], include_in_schema=False)
 @cache(expire=60)
 async def get_auditoriums_ep(name: Optional[str] = None, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)):
     return await get_auditoriums(db, name, limit, offset)
 
 @router.post("/", response_model=AuditoriumResponse)
+@router.post("", response_model=AuditoriumResponse, include_in_schema=False)
 async def create_auditorium_ep(data: AuditoriumCreate, u: dict = Depends(require_roles("admin", "moderator")), db: Session = Depends(get_db)):
     auditorium = await create_auditorium(data, db)
     await manager.broadcast(json.dumps({"type": "auditorium_created", "data": json.loads(AuditoriumResponse.from_orm(auditorium).model_dump_json())}))

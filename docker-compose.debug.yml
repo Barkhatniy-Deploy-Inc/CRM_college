@@ -1,0 +1,15 @@
+# Optional direct access for database/API debugging, bound to loopback only.
+# docker compose -f docker-compose.yml -f docker-compose.debug.yml up -d --build --wait
+services:
+  db:
+    ports:
+      - "127.0.0.1:${DB_PUBLISHED_PORT:-5432}:5432"
+  auth:
+    ports:
+      - "127.0.0.1:8002:8000"
+  schedule:
+    ports:
+      - "127.0.0.1:8000:8000"
+  techcard:
+    ports:
+      - "127.0.0.1:8001:8000"

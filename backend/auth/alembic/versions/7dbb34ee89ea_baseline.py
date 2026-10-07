@@ -118,4 +118,7 @@ def downgrade() -> None:
     op.drop_table('users')
     op.drop_index(op.f('ix_permissions_id'), table_name='permissions')
     op.drop_table('permissions')
+    op.execute("DROP TYPE IF EXISTS auditaction")
+    op.execute("DROP TYPE IF EXISTS loginstatus")
+    op.execute("DROP TYPE IF EXISTS userrole")
     # ### end Alembic commands ###

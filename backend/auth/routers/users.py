@@ -6,7 +6,8 @@ from database.database import get_db
 from database.models import User, UserRole
 from database.schemas import (
     UserResponse, UserUpdate, UserPublic, UserSearchParams, UserListResponse,
-    LoginHistoryResponse, AuditLogResponse, AuditLogFilter, AuditLogListResponse
+    LoginHistoryResponse, AuditLogResponse, AuditLogFilter, AuditLogListResponse,
+    AdminPasswordResetRequest,
 )
 from services.user_service import get_user_by_id, update_user, get_login_history, get_detailed_user
 from services.security import hash_password
@@ -144,7 +145,7 @@ async def search_users_endpoint(
 @router.put("/{user_id}/password", response_model=UserResponse)
 async def reset_user_password(
     user_id: int,
-    new_password: str = Query(..., min_length=8),
+    data: AdminPasswordResetRequest,
     current_user: User = Depends(require_role(UserRole.ADMIN)),
     request: Request = None,
     db: Session = Depends(get_db)
@@ -154,7 +155,7 @@ async def reset_user_password(
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     
-    user.password_hash = hash_password(new_password)
+    user.password_hash = hash_password(data.new_password)
     db.commit()
     
     log_action(
@@ -225,4 +226,3 @@ async def create_internal_audit_log(
         return {"status": "logged"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-

@@ -1,6 +1,6 @@
 # backend/routers/techcard_router.py
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from typing import List
 from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
@@ -73,6 +73,22 @@ def _replace_stages(db: Session, techcard_id: int, stages) -> None:
         ))
 
 
+def _is_manager(user: dict) -> bool:
+    return user.get("role") in {"admin", "moderator"}
+
+
+def _can_access(card: TechCard, user: dict) -> bool:
+    return _is_manager(user) or card.owner_id == user.get("user_id")
+
+
+def _require_access(card: TechCard, user: dict) -> None:
+    if not _can_access(card, user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Недостаточно прав для доступа к этой технологической карте",
+        )
+
+
 @router.get("", response_model=List[TechCardResponse])
 def list_techcards(
     skip: int = Query(0, ge=0),
@@ -81,7 +97,10 @@ def list_techcards(
     db: Session = Depends(get_techcard_db)
 ):
     """Список технологических карт с пагинацией."""
-    return db.query(TechCard).order_by(TechCard.id.desc()).offset(skip).limit(limit).all()
+    query = db.query(TechCard).order_by(TechCard.id.desc())
+    if not _is_manager(current_user):
+        query = query.filter(TechCard.owner_id == current_user.get("user_id"))
+    return query.offset(skip).limit(limit).all()
 
 
 @router.post("", response_model=TechCardResponse, status_code=201)
@@ -93,6 +112,7 @@ async def create_techcard(
     """Создание технологической карты. ID назначает сервер."""
     db_card = TechCard()
     _apply_techcard_data(db_card, techcard_data)
+    db_card.owner_id = current_user["user_id"]
 
     # Автозаполнение из расписания, если указан lesson_id
     if techcard_data.lesson_id:
@@ -123,9 +143,11 @@ async def update_techcard(
         db_card = db.query(TechCard).filter(TechCard.id == techcard_id).first()
 
         if not db_card:
-            db_card = TechCard(id=techcard_id)
-            db.add(db_card)
-            db.flush()
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Технологическая карта не найдена",
+            )
+        _require_access(db_card, current_user)
 
         _apply_techcard_data(db_card, techcard_data)
 
@@ -162,6 +184,7 @@ async def download_techcard(
     db_card = db.query(TechCard).filter(TechCard.id == techcard_id).first()
     if not db_card:
         raise HTTPException(status_code=404, detail="Технологическая карта не найдена")
+    _require_access(db_card, current_user)
 
     # Преобразуем модель в словарь для генератора
     card_data = {
@@ -211,4 +234,5 @@ def get_techcard(
     db_card = db.query(TechCard).filter(TechCard.id == techcard_id).first()
     if not db_card:
         raise HTTPException(status_code=404, detail="Технологическая карта не найдена")
+    _require_access(db_card, current_user)
     return db_card

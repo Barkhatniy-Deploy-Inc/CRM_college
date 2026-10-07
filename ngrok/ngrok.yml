@@ -1,0 +1,4 @@
+version: "3"
+agent:
+  # The Compose port is bound to loopback on the host.
+  web_addr: 0.0.0.0:4040

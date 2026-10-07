@@ -107,9 +107,7 @@ export const useAdminStore = defineStore('admin', {
 
     async resetUserPassword(userId, newPassword) {
       try {
-        await api.put(`/users/${userId}/password`, null, {
-          params: { new_password: newPassword }
-        })
+        await api.put(`/users/${userId}/password`, { new_password: newPassword })
         return true
       } catch (err) {
         console.error('Failed to reset password', err)
