@@ -1,0 +1,22 @@
+# Исключения из контекста сборки backend-образов.
+# Контекст сборки — ./backend (см. docker-compose.yml).
+
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.pytest_cache/
+**/.coverage
+**/.coverage.*
+**/htmlcov/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# Локальные БД и данные
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/data/
+
+# Тестовые артефакты
+**/test-results/
+**/playwright-report/
