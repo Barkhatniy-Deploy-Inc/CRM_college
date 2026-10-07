@@ -1,17 +1,22 @@
 """Проверка JWT, выпущенных auth-сервисом.
 
-Временная реализация до перехода на единый модуль авторизации
-(см. docs/EPIC_RESTRUCTURE.md, CRM-10).
+Единый контракт вынесен в пакет backend/common (crm_auth).
 """
 
 import os
 from typing import Optional
 
-import jwt
 from fastapi import Cookie, Header, HTTPException, status
 
+from crm_common import (
+    TokenError,
+    TokenExpiredError,
+    TokenTypeError,
+    verify_access_token,
+)
+
 SECRET_KEY = os.getenv("SECRET_KEY", "")
-ALGORITHM = "HS256"
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 
 async def get_current_user(
@@ -35,21 +40,16 @@ async def get_current_user(
         )
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except jwt.ExpiredSignatureError:
+        return verify_access_token(token, SECRET_KEY, ALGORITHM)
+    except TokenExpiredError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен истёк")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Невалидный токен")
-
-    if payload.get("type") != "access":
+    except TokenTypeError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный тип токена",
         )
-    if not all(payload.get(claim) for claim in ("user_id", "email", "role")):
+    except TokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Невалидные данные токена",
+            detail="Невалидный токен",
         )
-
-    return payload

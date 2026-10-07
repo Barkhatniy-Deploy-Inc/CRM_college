@@ -42,8 +42,8 @@ services:
   # Auth микросервис (внешний порт 8002 -> внутренний 8000)
   auth:
     build:
-      context: ./backend/auth
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: auth/Dockerfile
     container_name: crm_auth
     restart: unless-stopped
     environment:
@@ -78,8 +78,8 @@ services:
   # Schedule микросервис (внешний порт 8000 -> внутренний 8000)
   schedule:
     build:
-      context: ./backend/schedule
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: schedule/Dockerfile
     container_name: crm_schedule
     restart: unless-stopped
     environment:
@@ -114,8 +114,8 @@ services:
   # TechCard микросервис (внешний порт 8001 -> внутренний 8000)
   techcard:
     build:
-      context: ./backend/techcard
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: techcard/Dockerfile
     container_name: crm_techcard
     restart: unless-stopped
     environment:

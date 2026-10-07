@@ -2,8 +2,12 @@ from fastapi import Depends, HTTPException, Header, Cookie, status
 from typing import Optional
 
 from services.tokens import SECRET_KEY, ALGORITHM, role_allowed
-
-import jwt
+from services.crm_common import (
+    TokenError,
+    TokenExpiredError,
+    TokenTypeError,
+    verify_access_token,
+)
 
 
 def _decode(token: str) -> dict:
@@ -13,24 +17,19 @@ def _decode(token: str) -> dict:
             detail="SECRET_KEY не сконфигурирован",
         )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except jwt.ExpiredSignatureError:
+        return verify_access_token(token, SECRET_KEY, ALGORITHM)
+    except TokenExpiredError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен истёк")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Невалидный токен")
-
-    # Принимаем только access-токены auth-сервиса, не refresh.
-    if payload.get("type") != "access":
+    except TokenTypeError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный тип токена",
         )
-    if not all(payload.get(claim) for claim in ("user_id", "email", "role")):
+    except TokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Невалидные данные токена",
+            detail="Невалидный токен",
         )
-    return payload
 
 
 async def get_current_user(

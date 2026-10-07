@@ -35,11 +35,13 @@ test-frontend: ## Тесты фронтенда
 	cd frontend && npm run test
 
 test-backend: ## Тесты backend-сервисов
+	cd backend/common && pytest -q
 	cd backend/auth && TESTING=1 pytest -q
 	cd backend/schedule && TESTING=1 pytest -q
 	cd backend/techcard && TESTING=1 pytest -q
 lint: ## Линтеры backend и frontend
 	ruff check backend
+	(cd backend/common && ruff check .)
 	cd frontend && npm run lint
 
 format: ## Форматирование backend и frontend

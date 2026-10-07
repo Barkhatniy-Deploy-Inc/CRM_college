@@ -8,6 +8,12 @@ from sqlalchemy.orm import Session
 from core.config import settings
 from database.models import User, RefreshToken, UserRole
 from database.schemas import TokenData
+from core.crm_common import (
+    TokenError,
+    TokenExpiredError,
+    TokenTypeError,
+    verify_access_token,
+)
 import secrets
 
 
@@ -59,10 +65,9 @@ def create_refresh_token(user_id: int) -> str:
 
 
 def decode_token(token: str) -> Optional[Dict]:
-    """Декодирование JWT токена"""
+    """Декодирование JWT токена (без проверки типа)."""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        return payload
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -78,32 +83,36 @@ def decode_token(token: str) -> Optional[Dict]:
 
 
 def verify_token(token: str) -> TokenData:
-    """Верификация токена и возврат данных"""
-    payload = decode_token(token)
-    
-    if payload.get("type") != "access":
+    """Верификация access-токена и возврат данных.
+
+    Использует единый контракт из backend/common (crm_auth).
+    """
+    try:
+        payload = verify_access_token(token, settings.SECRET_KEY, settings.ALGORITHM)
+    except TokenExpiredError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Токен истек",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except TokenTypeError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный тип токена",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    user_id = payload.get("user_id")
-    email = payload.get("email")
-    role = payload.get("role")
-    
-    if not user_id or not email or not role:
+    except TokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Невалидные данные токена",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     return TokenData(
-        user_id=user_id,
-        email=email,
-        role=UserRole(role),
-        exp=datetime.fromtimestamp(payload.get("exp"), tz=timezone.utc)
+        user_id=payload["user_id"],
+        email=payload["email"],
+        role=UserRole(payload["role"]),
+        exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
     )
 
 

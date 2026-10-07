@@ -1,4 +1,5 @@
 # Techcard Service Dockerfile
+# Контекст сборки: ./backend
 # ========================================
 # Этап 1: Сборка зависимостей
 # ========================================
@@ -10,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY techcard/requirements.txt .
 RUN pip wheel --no-cache-dir --wheel-dir /app/wheels -r requirements.txt
 
 # ========================================
@@ -36,10 +37,13 @@ RUN pip install --no-cache /wheels/* && rm -rf /wheels
 RUN pip install setuptools
 
 # Копируем код сервиса
-COPY . .
+COPY techcard/ .
+
+# Копируем общий пакет crm_auth (backend/common) на уровень выше /app
+COPY common /common
 
 # Создаём папку для данных с правами для appuser
-RUN mkdir -p /app/data && chown -R appuser:appuser /app
+RUN mkdir -p /app/data && chown -R appuser:appuser /app /common
 
 USER appuser
 

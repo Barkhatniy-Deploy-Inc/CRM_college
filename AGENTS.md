@@ -3,6 +3,7 @@
 ## Структура проекта
 
 - Это приложение из четырёх сервисов: Vue-фронтенд и три FastAPI-сервиса.
+- Общий пакет `backend/common/crm_auth` содержит единый контракт аутентификации (claims, проверка JWT, роли). Все три backend-сервиса используют его через bootstrap-модули (`crm_common.py`).
 - Основной запуск выполняется через `docker-compose.yml`: Nginx, PostgreSQL, `auth`, `schedule`, `techcard` и `frontend`.
 - Точки входа бэкенда:
   - `backend/auth/main.py`
