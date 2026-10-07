@@ -25,6 +25,8 @@
 - По умолчанию на хосте доступен только Nginx: `127.0.0.1:8080` (`APP_PORT`). Прямые порты frontend/backend/БД не нужны для работы приложения.
 - Для отладки используйте `docker-compose.debug.yml`: auth 8002, schedule 8000, techcard 8001 и БД 5432 публикуются на loopback. Для ngrok предусмотрен профиль `tunnel`, `make tunnel` и `make tunnel-url`; нужен `NGROK_AUTHTOKEN` в `.env`, инспектор доступен на loopback 4040.
 - Внутри Docker-сети сервисы слушают порт `8000`; для межсервисных запросов используйте имена сервисов (`auth`, `schedule`, `techcard`), а не внешние порты.
+- Dockerfile'ы не фиксируют `linux/amd64`; на Apple Silicon Docker использует нативный `linux/arm64`, а на Intel — `linux/amd64`. Не добавляйте `platform: linux/amd64` без отдельной причины.
+- Если сборка падает на `apt-get update`, сначала проверьте доступ Docker-контейнера к `deb.debian.org`; backend Dockerfile'ы используют HTTPS-зеркала и повторные попытки apt.
 - Переменные окружения берите из `.env.example`. Секреты и рабочие `.env` не добавляйте в Git.
 
 ## Фронтенд
