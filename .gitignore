@@ -38,6 +38,8 @@ venv.bak/
 *.db
 *.sqlite
 *.sqlite3
+*.dump
+/backups/
 
 # Coverage
 .coverage

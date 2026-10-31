@@ -4,13 +4,16 @@
 SHELL := /bin/bash
 COMPOSE := docker compose
 
-.PHONY: help up down build logs ps restart dev-local test test-frontend test-backend lint format typecheck security smoke migrate revision
+.PHONY: help init up down build logs ps restart dev-local test test-frontend test-backend lint format typecheck security smoke migrate revision
 
 help: ## Показать список команд
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
+init: ## Создать локальные секреты
+	./scripts/local.sh init
+
 up: ## Поднять весь стек
-	$(COMPOSE) up --build -d
+	./scripts/local.sh up
 
 down: ## Остановить стек
 	$(COMPOSE) down
@@ -58,14 +61,10 @@ security: ## Сканирование секретов и уязвимостей
 	done
 
 smoke: ## Проверка health endpoints запущенного стека
-	curl -fsS http://localhost:8002/api/auth/health
-	curl -fsS http://localhost:8000/api/schedule/health
-	curl -fsS http://localhost:8001/api/techcard/health
+	./scripts/local.sh check
 
 migrate: ## Применить миграции Alembic во всех сервисах
-	cd backend/auth && alembic upgrade head
-	cd backend/schedule && alembic upgrade head
-	cd backend/techcard && alembic upgrade head
+	./scripts/local.sh migrate
 
 revision: ## Создать миграцию: make revision SERVICE=auth M="message"
 	cd backend/$(SERVICE) && alembic revision --autogenerate -m "$(M)"

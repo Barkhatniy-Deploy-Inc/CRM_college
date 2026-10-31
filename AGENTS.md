@@ -18,7 +18,7 @@
 
 ## Запуск
 
-- Перед первым запуском скопируйте `.env.example` в `.env` и замените `SECRET_KEY` и `INTERNAL_API_TOKEN`: Compose останавливается с ошибкой, если они не заданы.
+- Перед первым запуском выполните `./scripts/local.sh init`, чтобы создать `.env` с секретами; Compose требует `DB_PASSWORD`, `SECRET_KEY` и `INTERNAL_API_TOKEN`.
 - Для запуска всего стека из корня используйте:
   ```bash
   docker compose up --build
@@ -28,12 +28,7 @@
   make dev-local
   ```
   Скрипт поднимает три FastAPI-сервиса (порты 8000/8001/8002) и фронтенд Vite (порт 3000) с общими dev-секретами.
-- Внешние порты:
-  - `3000` — фронтенд;
-  - `8000` — schedule;
-  - `8001` — techcard;
-  - `8002` — auth;
-  - `80` — Nginx-шлюз.
+- В основном Compose на хосте доступен Nginx-шлюз `127.0.0.1:8080` (порт настраивается через `APP_PORT`). Дополнительные порты БД и API доступны только с `docker-compose.debug.yml` и привязаны к loopback. При локальном запуске без Docker используются порты `3000`, `8000`, `8001`, `8002`.
 - Внутри Docker-сети сервисы слушают порт `8000`; для межсервисных запросов используйте имена сервисов (`auth`, `schedule`, `techcard`), а не внешние порты.
 - Переменные окружения берите из `.env.example`. Секреты и рабочие `.env` не добавляйте в Git.
 
@@ -53,7 +48,7 @@ npm run test
   ```bash
   npx vitest run src/store/__tests__/auth.spec.js
   ```
-- В режиме разработки Vite слушает порт `3000` и проксирует `/api` на `http://localhost:80`.
+- В режиме разработки Vite слушает порт `3000` и проксирует `/api` на `http://localhost:8080`; адрес можно изменить через `VITE_DEV_PROXY_TARGET`.
 - Axios по умолчанию использует `/api`; изменение API-маршрутов требует проверки Vite-конфига и корневого `nginx/nginx.conf`.
 
 ## Бэкенд
@@ -103,11 +98,11 @@ npm run test
 
 ## База данных
 
-- PostgreSQL создаёт три базы из `db-init/init.sql`:
+- PostgreSQL создаёт три базы скриптом `db-init/01-create-databases.sh`:
   - `auth_db`;
   - `schedule_db`;
   - `techcard_db`.
-- `db-init/init.sql` выполняется только при первоначальном создании PostgreSQL volume. Изменение этого файла не применяет изменения к уже существующему volume.
+- Скрипт инициализации выполняется только при первоначальном создании PostgreSQL volume. Изменения не применяются к уже существующему volume.
 - Схема БД управляется Alembic: у каждого сервиса свой `alembic/` и baseline-миграция. Применяйте изменения через:
   ```bash
   make migrate    # alembic upgrade head во всех сервисах
@@ -144,6 +139,12 @@ npm run test
 npm run build
 ```
 
+Для Compose-конфигурации (Docker Engine для этого теста не нужен):
+
+```bash
+python3 -m unittest discover -s scripts/tests -v
+```
+
 Для изменений в одном бэкенд-сервисе:
 
 ```bash
@@ -155,9 +156,7 @@ pytest
 Перед проверкой межсервисных изменений запускайте стек через Docker Compose и проверяйте health endpoints:
 
 ```bash
-curl http://localhost:8002/api/auth/health
-curl http://localhost:8000/api/schedule/health
-curl http://localhost:8001/api/techcard/health
+./scripts/local.sh check
 ```
 
 Общие команды запускайте из корня через `make` (см. `make help`).

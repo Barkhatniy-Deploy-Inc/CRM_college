@@ -10,6 +10,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  compose:
+    name: Compose and PostgreSQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      COMPOSE_PROJECT_NAME: crmtest_ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Compose configuration
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Initialize local secrets
+        run: ./scripts/local.sh init
+      - name: Build images
+        run: docker compose build
+      - name: Apply migrations to empty PostgreSQL
+        run: ./scripts/local.sh migrate
+      - name: Verify PostgreSQL backup and restore
+        env:
+          PG_BACKUP_TEST_ALLOW: "1"
+        run: ./scripts/test_postgres_backup.sh
+      - name: Start services and check gateway
+        run: |
+          docker compose up -d --wait --wait-timeout 180
+          ./scripts/local.sh check
+      - name: Save service logs
+        if: failure()
+        run: docker compose logs --no-color > compose.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: compose-logs
+          path: compose.log
+      - name: Stop services
+        if: always()
+        run: docker compose --profile tunnel down
+
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
