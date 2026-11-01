@@ -104,6 +104,43 @@ def open_sqlite_readonly(path: Path) -> sqlite3.Connection:
     return connection
 
 
+def postgres_target(docker: str, root: Path) -> tuple[str, str]:
+    result = subprocess.run(
+        [docker, "compose", "config", "--format", "json"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    if result.returncode:
+        raise RuntimeError(
+            result.stderr.strip() or "Unable to resolve the Docker Compose configuration."
+        )
+
+    try:
+        services = json.loads(result.stdout)["services"]
+        database_environment = services["db"]["environment"]
+        techcard_environment = services["techcard"]["environment"]
+        postgres_user = database_environment["POSTGRES_USER"]
+        database_name = techcard_environment["TECHCARD_DB_NAME"]
+        initialized_database_name = database_environment["TECHCARD_DB_NAME"]
+    except (KeyError, TypeError, json.JSONDecodeError) as error:
+        raise ValueError(
+            "Docker Compose must define POSTGRES_USER and TECHCARD_DB_NAME "
+            "for both db and techcard services."
+        ) from error
+
+    if not all(
+        isinstance(value, str) and value.strip()
+        for value in (postgres_user, database_name, initialized_database_name)
+    ):
+        raise ValueError("Docker Compose PostgreSQL user and database name must be non-empty.")
+    if database_name != initialized_database_name:
+        raise ValueError("TECHCARD_DB_NAME differs between the db and techcard Compose services.")
+    return postgres_user, database_name
+
+
 def validate_source_file(path: Path, expected_sha: str, expected_size: int) -> None:
     data = path.read_bytes()
     git_blob_sha = hashlib.sha1(
@@ -136,7 +173,12 @@ def read_table(
 
 
 def postgres_rows(
-    docker: str, root: Path, table: str, columns: tuple[str, ...]
+    docker: str,
+    root: Path,
+    postgres_user: str,
+    database_name: str,
+    table: str,
+    columns: tuple[str, ...],
 ) -> list[tuple[Any, ...]]:
     identifier = quote_identifier(table)
     selected = ", ".join(quote_identifier(column) for column in columns)
@@ -160,9 +202,9 @@ def postgres_rows(
             "-v",
             "ON_ERROR_STOP=1",
             "-U",
-            "postgres",
+            postgres_user,
             "-d",
-            "techcard_db",
+            database_name,
             "-c",
             query,
         ],
@@ -361,8 +403,20 @@ def main() -> int:
     if not docker:
         raise RuntimeError("Docker CLI not found; set DOCKER_CLI or add docker to PATH.")
 
+    postgres_user, database_name = postgres_target(docker, root)
     root_docker = subprocess.run(
-        [docker, "compose", "exec", "-T", "db", "pg_isready", "-U", "postgres"],
+        [
+            docker,
+            "compose",
+            "exec",
+            "-T",
+            "db",
+            "pg_isready",
+            "-U",
+            postgres_user,
+            "-d",
+            database_name,
+        ],
         cwd=root,
         capture_output=True,
         text=True,
@@ -389,9 +443,9 @@ def main() -> int:
             "-v",
             "ON_ERROR_STOP=1",
             "-U",
-            "postgres",
+            postgres_user,
             "-d",
-            "techcard_db",
+            database_name,
         ],
         cwd=root,
         input=import_sql,
@@ -407,7 +461,9 @@ def main() -> int:
 
     for table in (*REFERENCE_TABLES, *TECHCARD_TABLES):
         expected = reference_rows[table] if table in reference_rows else techcard_rows[table]
-        actual = postgres_rows(docker, root, table, EXPECTED_COLUMNS[table])
+        actual = postgres_rows(
+            docker, root, postgres_user, database_name, table, EXPECTED_COLUMNS[table]
+        )
         if actual != expected:
             raise RuntimeError(
                 f"Post-import verification failed for {table}: "
@@ -421,7 +477,7 @@ def main() -> int:
     manifest.update(
         {
             "imported_at_utc": datetime.now(timezone.utc).isoformat(),
-            "target_database": "techcard_db",
+            "target_database": database_name,
             "schema_revision": "71ac4e8d2f60",
             "reference_table_rows": {
                 table: len(reference_rows[table]) for table in REFERENCE_TABLES
