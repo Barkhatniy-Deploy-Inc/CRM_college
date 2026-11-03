@@ -81,6 +81,9 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      - name: Dependency audit
+        run: npm run test:dependency-audit
+
       - name: Test
         run: npm run test
 
@@ -191,7 +194,8 @@ jobs:
           for req in \
             backend/auth/requirements.txt \
             backend/schedule/requirements.txt \
-            backend/techcard/requirements.txt; do
+            backend/techcard/requirements.txt \
+            backend/common/requirements-dev.txt; do
             echo "== pip-audit $req =="
             pip-audit -r "$req"
           done

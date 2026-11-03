@@ -54,11 +54,16 @@ format: ## Форматирование backend и frontend
 typecheck: ## Проверка типов backend
 	mypy backend
 
-security: ## Сканирование секретов и уязвимостей
+security: ## Сканирование секретов, Python- и npm-зависимостей
 	gitleaks detect --config .gitleaks.toml --source . --redact --no-banner
-	for req in backend/auth/requirements.txt backend/schedule/requirements.txt backend/techcard/requirements.txt; do \
-		echo "== pip-audit $$req =="; pip-audit -r "$$req"; \
-	done
+	@set -e; \
+	status=0; \
+	for req in backend/auth/requirements.txt backend/schedule/requirements.txt backend/techcard/requirements.txt backend/common/requirements-dev.txt; do \
+		echo "== pip-audit $$req =="; \
+		if ! pip-audit -r "$$req"; then status=1; fi; \
+	done; \
+	if ! (cd frontend && npm run test:dependency-audit); then status=1; fi; \
+	exit $$status
 
 smoke: ## Проверка health endpoints запущенного стека
 	./scripts/local.sh check
