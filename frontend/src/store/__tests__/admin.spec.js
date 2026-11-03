@@ -6,7 +6,8 @@ import api from '../../core/utils/api'
 vi.mock('../../core/utils/api', () => ({
   default: {
     get: vi.fn(),
-    put: vi.fn()
+    put: vi.fn(),
+    post: vi.fn()
   }
 }))
 
@@ -48,5 +49,13 @@ describe('Admin Store', () => {
 
     expect(result).toBe(true)
     expect(api.put).toHaveBeenCalledWith('/users/1', { role: 'admin' })
+  })
+
+  it('creates a user through the admin endpoint', async () => {
+    const store = useAdminStore()
+    api.post.mockResolvedValueOnce({})
+    const user = { email: 'teacher@example.com', password: 'password123', role: 'teacher' }
+    await store.createUser(user)
+    expect(api.post).toHaveBeenCalledWith('/users', user)
   })
 })

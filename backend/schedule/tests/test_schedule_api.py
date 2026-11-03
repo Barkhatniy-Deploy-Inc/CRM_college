@@ -2,6 +2,28 @@ import pytest
 from database.models import ClassSlot, Group, Auditorium
 from datetime import datetime, timezone
 
+
+@pytest.mark.asyncio
+async def test_schedule_filters_group_and_includes_end_date(client, db):
+    first = Group(name="First")
+    second = Group(name="Second")
+    db.add_all([first, second])
+    db.flush()
+    db.add_all([
+        ClassSlot(group_id=first.id, title="Included", instructor="Teacher",
+                  start_time=datetime(2026, 2, 14, 15, 0), end_time=datetime(2026, 2, 14, 16, 30)),
+        ClassSlot(group_id=second.id, title="Other group",
+                  start_time=datetime(2026, 2, 14, 15, 0), end_time=datetime(2026, 2, 14, 16, 30)),
+    ])
+    db.commit()
+    response = await client.get("/api/schedule/list", params={
+        "date_from": "2026-02-14", "date_to": "2026-02-14", "group_id": first.id,
+    })
+    assert response.status_code == 200
+    assert [row["title"] for row in response.json()] == ["Included"]
+    assert response.json()[0]["group_id"] == first.id
+    assert response.json()[0]["instructor"] == "Teacher"
+
 @pytest.mark.asyncio
 async def test_get_schedule_list(client, mock_auth, db):
     """Тест получения списка занятий"""

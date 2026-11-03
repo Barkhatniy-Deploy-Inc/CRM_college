@@ -7,9 +7,9 @@ from database.models import User, UserRole
 from database.schemas import (
     UserResponse, UserUpdate, UserPublic, UserSearchParams, UserListResponse,
     LoginHistoryResponse, AuditLogResponse, AuditLogFilter, AuditLogListResponse,
-    AdminPasswordResetRequest,
+    AdminPasswordResetRequest, UserCreate,
 )
-from services.user_service import get_user_by_id, update_user, get_login_history, get_detailed_user
+from services.user_service import create_user, get_user_by_id, update_user, get_login_history, get_detailed_user
 from services.security import hash_password
 from services.search_service import search_users
 from services.audit_service import get_audit_logs, get_user_audit_logs, log_action, AuditAction
@@ -19,6 +19,19 @@ router = APIRouter(prefix="/api/users", tags=["👥 Пользователи"])
 
 
 # Удален дублирующий эндпоинт /me - используйте /api/auth/me
+
+
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user_admin(
+    data: UserCreate,
+    request: Request,
+    current_user: User = Depends(require_role(UserRole.ADMIN)),
+    db: Session = Depends(get_db),
+):
+    """Создать пользователя без изменения сессии администратора."""
+    user = create_user(data, db)
+    log_action(AuditAction.USER_CREATED, user.id, db, {"created_by": current_user.id}, request)
+    return UserResponse.model_validate(user)
 
 
 @router.get("/me/history", response_model=List[LoginHistoryResponse])

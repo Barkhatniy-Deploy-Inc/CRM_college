@@ -1,7 +1,15 @@
 import pytest
+from openpyxl import load_workbook
 from services.schedule_exporter import ScheduleExporter
 from database.models import Group, Auditorium, ClassSlot
 from datetime import datetime, timezone
+
+
+def test_default_export_date_range_covers_current_week(db):
+    start, end = ScheduleExporter(db).get_date_range()
+    assert start.weekday() == 0
+    assert end.weekday() == 6
+    assert start <= datetime.now() <= end
 
 def test_exporter_xlsx(db):
     """Тест экспорта в XLSX с реальными данными"""
@@ -23,8 +31,8 @@ def test_exporter_xlsx(db):
         auditorium_id=auditorium.id,
         title="Test Lesson",
         instructor="Test Teacher",
-        start_time=datetime(2026, 2, 14, 10, 0, tzinfo=timezone.utc),
-        end_time=datetime(2026, 2, 14, 11, 30, tzinfo=timezone.utc)
+        start_time=datetime(2026, 2, 14, 14, 0, tzinfo=timezone.utc),
+        end_time=datetime(2026, 2, 14, 15, 30, tzinfo=timezone.utc)
     )
     db.add(slot)
     db.commit()
@@ -37,6 +45,8 @@ def test_exporter_xlsx(db):
     )
     assert output is not None
     assert len(output.getvalue()) > 0
+    workbook = load_workbook(output)
+    assert any(sheet["C2"].value == "14:00-15:30" for sheet in workbook.worksheets)
 
 def test_exporter_pdf(db):
     """Тест экспорта в PDF с данными"""

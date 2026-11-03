@@ -86,7 +86,7 @@ export const useAdminStore = defineStore('admin', {
 
     async createUser(userData) {
       try {
-        await api.post('/auth/register', userData)
+        await api.post('/users', userData)
         return true
       } catch (err) {
         console.error('Failed to create user', err)

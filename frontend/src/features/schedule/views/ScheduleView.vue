@@ -63,7 +63,11 @@
           <div class="day-header" :class="{ 'is-today': day.isToday }">
             <span class="day-name">{{ day.dayName }}</span>
             <span class="day-date">{{ day.displayDate }}</span>
-            <button v-if="isEditMode" class="add-slot-btn" @click="openAddModal(day.date)">
+            <button
+              v-if="isEditMode && selectedGroupId"
+              class="add-slot-btn"
+              @click="openAddModal(day.date)"
+            >
               <AppIcon name="sparkles" size="14" />
             </button>
           </div>
@@ -197,7 +201,7 @@ const scheduleStore = useScheduleStore()
 const isAdmin = computed(() => authStore.user?.role?.toLowerCase() === 'admin')
 const isEditMode = ref(false)
 const currentBaseDate = ref(new Date())
-const selectedGroupId = ref(1)
+const selectedGroupId = ref(null)
 const showGroupSelect = ref(false)
 const showAddModal = ref(false)
 const showImportModal = ref(false)
@@ -221,7 +225,7 @@ const slotForm = reactive({
 
 const selectedGroupName = computed(() => {
   const g = scheduleStore.groups.find(g => g.id === selectedGroupId.value)
-  return g ? g.name : 'Группа'
+  return g ? g.name : 'Все группы'
 })
 
 const getAuditoriumName = id => {

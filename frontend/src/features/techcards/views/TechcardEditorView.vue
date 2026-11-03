@@ -230,7 +230,7 @@ const form = reactive({
   tema: '',
   nomer_zanyatiya: '1',
   lesson_type_id: 1,
-  group_id: 1,
+  group_id: null,
   ped_tech: '',
   cel_zanyatiya: '',
   zadachi_obuch: '',
@@ -269,7 +269,7 @@ const removeStage = index => {
 }
 
 const handleAutoFill = () => {
-  scheduleStore.fetchUpcoming()
+  scheduleStore.fetchUpcoming().catch(() => alert('Не удалось загрузить расписание'))
   showAutofill.value = true
 }
 
@@ -277,6 +277,7 @@ const applyAutofill = () => {
   if (!selectedLesson.value) return
   form.tema = selectedLesson.value.title
   form.group_id = selectedLesson.value.group_id
+  form.lesson_id = selectedLesson.value.id
   showAutofill.value = false
 }
 

@@ -75,6 +75,7 @@ class ScheduleExporter:
         start = today - timedelta(days=today.weekday())
         end = start + timedelta(days=6)
         logger.debug(f"📅 Используется текущая неделя: {start.strftime('%d.%m')} - {end.strftime('%d.%m')}")
+        return start.replace(hour=0, minute=0, second=0, microsecond=0), end.replace(hour=23, minute=59, second=59, microsecond=999999)
 
     def get_slots_by_group(
         self,
@@ -281,7 +282,7 @@ class ScheduleExporter:
             for slot in slots:
                 ws.cell(row=row, column=1, value=group_name)
                 ws.cell(row=row, column=2, value=f"{slot.start_time.strftime('%d.%m')} ({DAY_NAMES[slot.start_time.weekday()]})")
-                ws.cell(row=row, column=3, value=slot.start_time.strftime('%H:%M-%I:%M'))  # TODO: Исправить формат времени
+                ws.cell(row=row, column=3, value=f"{slot.start_time:%H:%M}-{slot.end_time:%H:%M}")
                 ws.cell(row=row, column=4, value=slot.title)
                 ws.cell(row=row, column=5, value=slot.instructor or "-")
 

@@ -30,16 +30,14 @@
               class="mini-lesson-card glass-panel"
             >
               <div class="time-box">
-                <span class="start">{{
-                  lesson.start_time.split('T')[1]?.slice(0, 5) || '08:30'
-                }}</span>
+                <span class="start">{{ lesson.start_time.split('T')[1]?.slice(0, 5) || '—' }}</span>
                 <AppIcon name="clock" size="14" class="time-icon" />
               </div>
               <div class="lesson-info">
                 <span class="subject">{{ lesson.title }}</span>
                 <div class="meta">
                   <span class="meta-item"
-                    ><AppIcon name="location" size="12" /> {{ lesson.auditorium_id || '201' }}</span
+                    ><AppIcon name="location" size="12" /> {{ lesson.auditorium_name || '—' }}</span
                   >
                   <span class="meta-item"
                     ><AppIcon name="user" size="12" /> {{ lesson.instructor }}</span
@@ -70,10 +68,6 @@
             <span class="value badge">{{ authStore.user?.role }}</span>
           </div>
           <div class="status-item">
-            <span class="label">Группа:</span>
-            <span class="value">{{ authStore.user?.group || 'ИСП-21' }}</span>
-          </div>
-          <div class="status-item">
             <span class="label">ID:</span>
             <span class="value mono"
               >#{{ String(authStore.user?.id || '0').padStart(4, '0') }}</span
@@ -86,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuthStore } from '../../../store/auth'
 import { useScheduleStore } from '../../../store/schedule'
 import BaseCard from '../../../core/components/BaseCard.vue'
