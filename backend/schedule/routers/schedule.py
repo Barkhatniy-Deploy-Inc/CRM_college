@@ -6,7 +6,6 @@ from database.models import ClassSlotResponse, ClassSlotCreate, ClassSlotUpdate
 from api.slots_api import create_class_slot, get_class_slot, update_class_slot, delete_class_slot
 from api.schedule_api import get_schedule_list, upload_schedule
 from dependencies import require_roles
-from fastapi_cache.decorator import cache
 import json
 from services.websocket_manager import manager
 from services.audit_logger import log_schedule_action
@@ -46,9 +45,8 @@ async def upload_schedule_ep(file: UploadFile = File(...), u: dict = Depends(_ed
     return result
 
 @router.get("/list", response_model=List[dict])
-@cache(expire=30)
-async def get_schedule_list_ep(date: Optional[str] = None, date_from: Optional[str] = None, date_to: Optional[str] = None, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)):
-    return await get_schedule_list(db, date, date_from, date_to, limit, offset)
+async def get_schedule_list_ep(date: Optional[str] = None, date_from: Optional[str] = None, date_to: Optional[str] = None, group_id: Optional[int] = None, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)):
+    return await get_schedule_list(db, date, date_from, date_to, group_id, limit, offset)
 
 @router.get("/{lesson_id}", response_model=ClassSlotResponse)
 async def get_lesson_ep(lesson_id: int, db: Session = Depends(get_db)):

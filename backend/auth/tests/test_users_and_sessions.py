@@ -3,6 +3,30 @@ from fastapi import status
 from database.models import UserRole, User
 import time
 
+
+@pytest.mark.asyncio
+async def test_admin_creates_user_without_replacing_session(client, db):
+    from services.security import hash_password
+
+    admin = User(email="admin-create@example.com", password_hash=hash_password("adminpass"),
+                 full_name="Admin", role=UserRole.ADMIN, is_active=True)
+    db.add(admin)
+    db.commit()
+    await client.post("/api/auth/login", json={"email": admin.email, "password": "adminpass"})
+    response = await client.post("/api/users", json={
+        "email": "new-user@example.com", "full_name": "New user",
+        "password": "password123", "role": "teacher",
+    })
+    assert response.status_code == 201
+    assert response.json()["role"] == "teacher"
+    assert "set-cookie" not in response.headers
+    assert (await client.get("/api/auth/me")).json()["email"] == admin.email
+
+    await client.post("/api/auth/logout")
+    assert (await client.post("/api/users", json={
+        "email": "other@example.com", "full_name": "Other", "password": "password123",
+    })).status_code == 401
+
 @pytest.mark.asyncio
 async def test_update_user_profile(client):
     """Тест обновления профиля пользователя"""

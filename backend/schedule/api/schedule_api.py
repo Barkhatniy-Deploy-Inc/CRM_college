@@ -1,6 +1,6 @@
 from fastapi import UploadFile, File, HTTPException
 from typing import List, Optional
-from sqlalchemy import String
+from datetime import date as calendar_date, datetime, time, timedelta
 from sqlalchemy.orm import Session, joinedload
 from database.models import ClassSlot, Auditorium, Group
 from services.schedule_importer import ScheduleImporter
@@ -69,6 +69,7 @@ async def get_schedule_list(
         date: Optional[str] = None,
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
+        group_id: Optional[int] = None,
         limit: int = 100,
         offset: int = 0
 ) -> List[dict]:
@@ -78,20 +79,29 @@ async def get_schedule_list(
     """
     query = db.query(
         ClassSlot.id,
+        ClassSlot.group_id,
         ClassSlot.title,
         ClassSlot.start_time,
         ClassSlot.end_time,
         ClassSlot.auditorium_id,
         ClassSlot.instructor.label("teacher_name"),
+        ClassSlot.instructor,
         ClassSlot.status,
         Auditorium.name.label("auditorium_name"),
         Group.name.label("group_name")
     ).outerjoin(Auditorium, ClassSlot.auditorium_id == Auditorium.id).outerjoin(Group, ClassSlot.group_id == Group.id)
 
-    if date_from and date_to:
-        query = query.filter(ClassSlot.start_time.between(date_from, date_to))
-    elif date:
-        query = query.filter(ClassSlot.start_time.cast(String).like(f"{date}%"))
+    try:
+        start = calendar_date.fromisoformat(date_from or date) if (date_from or date) else None
+        end = calendar_date.fromisoformat(date_to or date) if (date_to or date) else None
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Дата должна быть в формате YYYY-MM-DD")
+    if start:
+        query = query.filter(ClassSlot.start_time >= datetime.combine(start, time.min))
+    if end:
+        query = query.filter(ClassSlot.start_time < datetime.combine(end + timedelta(days=1), time.min))
+    if group_id is not None:
+        query = query.filter(ClassSlot.group_id == group_id)
 
     real_limit = 2000 if (date_from or date_to) else limit
     slots = query.order_by(ClassSlot.start_time.desc()).limit(real_limit).offset(offset).all()
