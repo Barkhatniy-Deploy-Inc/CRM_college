@@ -82,7 +82,7 @@ jobs:
         run: npm run format:check
 
       - name: Production dependency audit
-        run: npm run test:prod-audit
+        run: npm run test:dependency-audit
 
       - name: Test
         run: npm run test
