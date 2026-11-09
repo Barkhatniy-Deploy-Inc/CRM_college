@@ -11,24 +11,23 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        logger.info(f"WebSocket connected: {websocket.client.host}:{websocket.client.port}. Total active connections: {len(self.active_connections)}")
+        logger.info("WebSocket connected. Total active connections: %s", len(self.active_connections))
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-        logger.info(f"WebSocket disconnected: {websocket.client.host}:{websocket.client.port}. Total active connections: {len(self.active_connections)}")
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+            logger.info("WebSocket disconnected. Total active connections: %s", len(self.active_connections))
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
         disconnected_websockets = []
-        for connection in self.active_connections:
+        for connection in tuple(self.active_connections):
             try:
                 await connection.send_text(message)
-            except WebSocketDisconnect:
-                disconnected_websockets.append(connection)
-            except Exception as e:
-                logger.error(f"Error broadcasting message to WebSocket {connection.client.host}:{connection.client.port}: {e}")
+            except Exception:
+                logger.warning("Failed to broadcast to a WebSocket client", exc_info=True)
                 disconnected_websockets.append(connection)
         
         for ws in disconnected_websockets:

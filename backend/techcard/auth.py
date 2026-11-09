@@ -20,8 +20,8 @@ async def get_current_user(
 ) -> dict:
     """Достаёт и проверяет access-токен auth-сервиса (cookie или Bearer)."""
     token = access_token
-    if not token and authorization and " " in authorization:
-        token = authorization.split()[1]
+    if not token and authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1].strip()
 
     if not token:
         raise HTTPException(

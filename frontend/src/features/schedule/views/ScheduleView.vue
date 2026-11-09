@@ -17,6 +17,14 @@
           <span class="week-type badge">{{
             isEvenWeek ? 'Четная неделя' : 'Нечетная неделя'
           }}</span>
+          <span
+            class="connection-status"
+            :class="connectionStatus"
+            role="status"
+            aria-live="polite"
+          >
+            {{ connectionStatus === 'connected' ? 'Онлайн' : 'Нет live-связи' }}
+          </span>
         </div>
       </div>
 
@@ -182,7 +190,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, reactive } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, reactive } from 'vue'
 import { useAuthStore } from '../../../store/auth'
 import { useScheduleStore } from '../../../store/schedule'
 import BaseButton from '../../../core/components/BaseButton.vue'
@@ -204,6 +212,61 @@ const showImportModal = ref(false)
 const isSaving = ref(false)
 const isUploading = ref(false)
 const selectedFile = ref(null)
+const connectionStatus = ref('disconnected')
+let scheduleSocket = null
+let reconnectTimer = null
+let reconnectAttempts = 0
+let isUnmounted = false
+let refreshTimer = null
+const scheduleEventTypes = new Set([
+  'lesson_created',
+  'lesson_updated',
+  'lesson_deleted',
+  'schedule_uploaded',
+  'group_created',
+  'group_updated',
+  'group_deleted',
+  'auditorium_created',
+  'auditorium_updated',
+  'auditorium_deleted',
+  'participant_added',
+  'participant_removed'
+])
+
+const connectScheduleSocket = () => {
+  if (isUnmounted || scheduleSocket?.readyState === WebSocket.OPEN) return
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  scheduleSocket = new WebSocket(`${protocol}//${window.location.host}/ws`)
+
+  scheduleSocket.addEventListener('open', () => {
+    connectionStatus.value = 'connected'
+    void fetchWeekData()
+  })
+  scheduleSocket.addEventListener('message', event => {
+    try {
+      const notification = JSON.parse(event.data)
+      if (scheduleEventTypes.has(notification?.type)) {
+        reconnectAttempts = 0
+        window.clearTimeout(refreshTimer)
+        refreshTimer = window.setTimeout(() => void fetchWeekData(), 100)
+      }
+    } catch {
+      // Ignore malformed or non-JSON heartbeat frames.
+    }
+  })
+  scheduleSocket.addEventListener('close', event => {
+    connectionStatus.value = event.code === 1008 ? 'error' : 'disconnected'
+    if (event.code === 1008) return
+    if (isUnmounted) return
+    const delay = Math.min(1000 * 2 ** reconnectAttempts, 30000)
+    reconnectAttempts = Math.min(reconnectAttempts + 1, 5)
+    reconnectTimer = window.setTimeout(connectScheduleSocket, delay)
+  })
+  scheduleSocket.addEventListener('error', () => {
+    connectionStatus.value = 'error'
+    scheduleSocket?.close()
+  })
+}
 
 const selectGroup = group => {
   selectedGroupId.value = group.id
@@ -344,6 +407,14 @@ onMounted(async () => {
   await scheduleStore.fetchGroups()
   await scheduleStore.fetchAuditoriums()
   await fetchWeekData()
+  connectScheduleSocket()
+})
+
+onUnmounted(() => {
+  isUnmounted = true
+  window.clearTimeout(reconnectTimer)
+  window.clearTimeout(refreshTimer)
+  scheduleSocket?.close(1000, 'Schedule view closed')
 })
 </script>
 
@@ -422,6 +493,16 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 16px;
+  color: var(--text-secondary);
+}
+.connection-status {
+  font-size: 0.75rem;
+}
+.connection-status.connected {
+  color: #69d49a;
+}
+.connection-status.disconnected,
+.connection-status.error {
   color: var(--text-secondary);
 }
 .badge {

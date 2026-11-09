@@ -11,7 +11,22 @@ const proxy = {
   '/api/schedule': 'http://localhost:8000',
   '/api/relations': 'http://localhost:8000',
   '/api/techcards': 'http://localhost:8001',
-  '/api/techcard': 'http://localhost:8001'
+  '/api/techcard': 'http://localhost:8001',
+  '/ws': {
+    target: 'ws://localhost:8000',
+    ws: true,
+    configure: proxy => {
+      proxy.on('proxyReqWs', (proxyRequest, request) => {
+        try {
+          const origin = new URL(request.headers.origin)
+          proxyRequest.setHeader('X-Forwarded-Proto', origin.protocol.slice(0, -1))
+          proxyRequest.setHeader('X-Forwarded-Host', request.headers.host)
+        } catch {
+          // The backend rejects missing/invalid Origin headers.
+        }
+      })
+    }
+  }
 }
 
 // https://vite.dev/config/

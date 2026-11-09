@@ -44,7 +44,6 @@ describe('Auth Store', () => {
   it('should have initial state', () => {
     const store = useAuthStore()
     expect(store.user).toBeNull()
-    expect(store.accessToken).toBeNull()
     expect(store.isAuthenticated).toBe(false)
   })
 
@@ -70,9 +69,8 @@ describe('Auth Store', () => {
 
     expect(result).toBe(true)
     expect(store.user).toEqual(mockUser)
-    expect(store.accessToken).toBe(mockToken)
     expect(store.isAuthenticated).toBe(true)
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('access_token', mockToken)
+    expect(localStorageMock.setItem).not.toHaveBeenCalledWith('access_token', mockToken)
   })
 
   it('should handle login error', async () => {
@@ -90,14 +88,11 @@ describe('Auth Store', () => {
   it('should logout and clear data', async () => {
     const store = useAuthStore()
     store.user = { id: 1 }
-    store.accessToken = 'token'
-
     api.post.mockResolvedValueOnce({})
 
     await store.logout()
 
     expect(store.user).toBeNull()
-    expect(store.accessToken).toBeNull()
     expect(store.isAuthenticated).toBe(false)
     expect(localStorageMock.removeItem).toHaveBeenCalledWith('user')
   })

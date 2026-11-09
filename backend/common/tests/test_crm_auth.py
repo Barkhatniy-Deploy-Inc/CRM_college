@@ -64,6 +64,15 @@ def test_expired_token_raises():
         verify_access_token(expired, SECRET)
 
 
+def test_access_token_without_expiration_is_rejected():
+    token = _token(
+        {"user_id": 1, "email": "user@example.test", "role": "admin", "type": "access"}
+    )
+
+    with pytest.raises(TokenError, match="без срока действия"):
+        verify_access_token(token, SECRET)
+
+
 def test_verify_refresh_token_ok():
     refresh = _token(
         {
@@ -74,6 +83,13 @@ def test_verify_refresh_token_ok():
     )
     payload = verify_refresh_token(refresh, SECRET)
     assert payload["user_id"] == 7
+
+
+def test_refresh_token_without_expiration_is_rejected():
+    token = _token({"user_id": 1, "type": "refresh"})
+
+    with pytest.raises(TokenError, match="без срока действия"):
+        verify_refresh_token(token, SECRET)
 
 
 def test_role_allowed_case_insensitive():
