@@ -57,7 +57,6 @@ async def test_admin_get_user_by_id(client, db):
     
     login_resp = await client.post("/api/auth/login", json={"email": unique_admin, "password": "adminpass"})
     token = login_resp.json()["access_token"]
-    
     headers = {"Authorization": f"Bearer {token}"}
     response = await client.get(f"/api/users/{user.id}", headers=headers)
     assert response.status_code == 200
@@ -102,6 +101,10 @@ async def test_deactivate_user(client, db):
     db.commit()
     db.refresh(user)
     
+    user_login = await client.post(
+        "/api/auth/login", json={"email": unique_user, "password": "userpass"}
+    )
+    assert user_login.status_code == 200
     login_resp = await client.post("/api/auth/login", json={"email": unique_admin, "password": "adminpass"})
     token = login_resp.json()["access_token"]
     
@@ -111,3 +114,53 @@ async def test_deactivate_user(client, db):
     
     db.refresh(user)
     assert user.is_active is False
+
+    from database.models import RefreshToken
+    sessions = db.query(RefreshToken).filter(RefreshToken.user_id == user.id).all()
+    assert sessions
+    assert all(session.is_revoked for session in sessions)
+
+
+@pytest.mark.asyncio
+async def test_admin_password_reset_revokes_target_sessions(client, db):
+    from database.models import RefreshToken
+    from services.security import hash_password
+
+    admin = User(
+        email=f"admin_reset_{time.time()}@college.ru",
+        password_hash=hash_password("adminpass"),
+        full_name="Admin",
+        role=UserRole.ADMIN,
+        is_active=True,
+    )
+    target = User(
+        email=f"target_reset_{time.time()}@college.ru",
+        password_hash=hash_password("targetpass"),
+        full_name="Target",
+        role=UserRole.STUDENT,
+        is_active=True,
+    )
+    db.add_all([admin, target])
+    db.commit()
+    db.refresh(admin)
+    db.refresh(target)
+
+    target_login = await client.post(
+        "/api/auth/login", json={"email": target.email, "password": "targetpass"}
+    )
+    assert target_login.status_code == 200
+    assert db.query(RefreshToken).filter(RefreshToken.user_id == target.id).count() == 1
+
+    admin_login = await client.post(
+        "/api/auth/login", json={"email": admin.email, "password": "adminpass"}
+    )
+    response = await client.put(
+        f"/api/users/{target.id}/password",
+        json={"new_password": "replacement-password"},
+        headers={"Authorization": f"Bearer {admin_login.json()['access_token']}"},
+    )
+
+    assert response.status_code == 200
+    sessions = db.query(RefreshToken).filter(RefreshToken.user_id == target.id).all()
+    assert sessions
+    assert all(session.is_revoked for session in sessions)

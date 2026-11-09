@@ -1,10 +1,8 @@
 from fastapi import Request, HTTPException, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
-from typing import Dict, Tuple
-from datetime import datetime, timedelta
 import time
-from collections import defaultdict
+from collections import defaultdict, deque
 
 from core.config import settings
 
@@ -16,24 +14,37 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.requests_per_window = requests_per_window or settings.RATE_LIMIT_REQUESTS
         self.window_seconds = window_seconds or settings.RATE_LIMIT_WINDOW_SECONDS
-        self.requests: Dict[str, list] = defaultdict(list)
+        self.requests: dict[str, deque[float]] = defaultdict(deque)
+        self._request_count = 0
     
     async def dispatch(self, request: Request, call_next):
         if not settings.RATE_LIMIT_ENABLED:
             return await call_next(request)
         
         # Получаем IP адрес клиента
-        client_ip = request.client.host if request.client else "unknown"
+        client_ip = get_client_ip(request)
         
         # Очистка старых записей
         current_time = time.time()
-        self.requests[client_ip] = [
-            req_time for req_time in self.requests[client_ip]
-            if current_time - req_time < self.window_seconds
-        ]
+        client_requests = self.requests[client_ip]
+        while client_requests and current_time - client_requests[0] >= self.window_seconds:
+            client_requests.popleft()
+
+        # Remove idle clients periodically so arbitrary source addresses cannot
+        # grow the in-process rate-limit table forever.
+        self._request_count += 1
+        if self._request_count % 256 == 0:
+            cutoff = current_time - self.window_seconds
+            for ip, timestamps in tuple(self.requests.items()):
+                if ip == client_ip:
+                    continue
+                while timestamps and timestamps[0] < cutoff:
+                    timestamps.popleft()
+                if not timestamps:
+                    self.requests.pop(ip, None)
         
         # Проверка лимита
-        if len(self.requests[client_ip]) >= self.requests_per_window:
+        if len(client_requests) >= self.requests_per_window:
             return Response(
                 content="Превышен лимит запросов. Попробуйте позже.",
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -45,13 +56,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
         
         # Добавляем текущий запрос
-        self.requests[client_ip].append(current_time)
+        client_requests.append(current_time)
         
         # Выполняем запрос
         response = await call_next(request)
         
         # Добавляем заголовки rate limit
-        remaining = self.requests_per_window - len(self.requests[client_ip])
+        remaining = self.requests_per_window - len(client_requests)
         response.headers["X-RateLimit-Limit"] = str(self.requests_per_window)
         response.headers["X-RateLimit-Remaining"] = str(remaining)
         response.headers["X-RateLimit-Reset"] = str(int(current_time + self.window_seconds))
@@ -77,4 +88,3 @@ def get_client_ip(request: Request) -> str:
 def get_user_agent(request: Request) -> str:
     """Получение User-Agent"""
     return request.headers.get("User-Agent", "unknown")
-
