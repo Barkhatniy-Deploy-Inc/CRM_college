@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File, Query
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from database.database import get_db
@@ -47,8 +47,24 @@ async def upload_schedule_ep(file: UploadFile = File(...), u: dict = Depends(_ed
 
 @router.get("/list", response_model=List[dict])
 @cache(expire=30)
-async def get_schedule_list_ep(date: Optional[str] = None, date_from: Optional[str] = None, date_to: Optional[str] = None, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)):
-    return await get_schedule_list(db, date, date_from, date_to, limit, offset)
+async def get_schedule_list_ep(
+    date: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    group_id: Optional[int] = Query(None, ge=1),
+    limit: int = Query(100, ge=1, le=2000),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    return await get_schedule_list(
+        db,
+        date=date,
+        date_from=date_from,
+        date_to=date_to,
+        limit=limit,
+        offset=offset,
+        group_id=group_id,
+    )
 
 @router.get("/{lesson_id}", response_model=ClassSlotResponse)
 async def get_lesson_ep(lesson_id: int, db: Session = Depends(get_db)):
