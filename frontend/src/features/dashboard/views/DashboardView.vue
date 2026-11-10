@@ -337,4 +337,31 @@ h3 {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 520px) {
+  .dashboard-container {
+    padding: 0;
+  }
+
+  .dashboard-header {
+    margin-top: 4px;
+    margin-bottom: 18px;
+  }
+
+  .welcome-section h1 {
+    font-size: 1.55rem;
+  }
+
+  .subtitle {
+    line-height: 1.45;
+  }
+
+  .widget-header {
+    gap: 8px;
+  }
+
+  .view-all {
+    white-space: nowrap;
+  }
+}
 </style>

@@ -766,5 +766,50 @@ input:checked + .slider:before {
   .days-container {
     grid-template-columns: 1fr;
   }
+
+  .schedule-header {
+    margin-bottom: 18px;
+  }
+
+  .header-main,
+  .week-info,
+  .controls-section,
+  .filters {
+    align-items: flex-start;
+  }
+
+  .header-main,
+  .controls-section {
+    flex-direction: column;
+  }
+
+  .header-main {
+    gap: 12px;
+  }
+
+  .week-info {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .controls-section {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .navigation,
+  .filters {
+    width: 100%;
+  }
+
+  .navigation > *,
+  .filters > * {
+    flex: 1;
+  }
+
+  .row,
+  .stage-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

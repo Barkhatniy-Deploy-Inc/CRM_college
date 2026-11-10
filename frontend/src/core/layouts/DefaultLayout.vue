@@ -30,10 +30,16 @@
         <button @click="isCollapsed = !isCollapsed" class="toggle-btn">
           <AppIcon :name="isCollapsed ? 'chevron-right' : 'chevron-left'" />
         </button>
-        <div class="user-profile">
-          <div class="user-info">
-            <span class="name">{{ authStore.user?.full_name }}</span>
-            <span class="role badge">{{ authStore.user?.role }}</span>
+        <div class="top-bar-actions">
+          <button v-if="canInstall" class="install-btn" type="button" @click="installApp">
+            <AppIcon name="smartphone" :size="17" />
+            <span>Установить</span>
+          </button>
+          <div class="user-profile">
+            <div class="user-info">
+              <span class="name">{{ authStore.user?.full_name }}</span>
+              <span class="role badge">{{ authStore.user?.role }}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -42,6 +48,19 @@
         <slot></slot>
       </div>
     </main>
+
+    <nav class="mobile-nav glass-panel" aria-label="Основная навигация">
+      <router-link
+        v-for="item in filteredMenuItems"
+        :key="item.path"
+        :to="item.path"
+        class="mobile-nav-item"
+        active-class="active"
+      >
+        <AppIcon :name="item.icon" :size="21" />
+        <span>{{ item.label }}</span>
+      </router-link>
+    </nav>
 
     <!-- Глобальные настройки -->
     <SettingsToggle />
@@ -53,9 +72,11 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '../../store/auth'
 import SettingsToggle from '../components/SettingsToggle.vue'
 import AppIcon from '../components/AppIcon.vue'
+import { usePwa } from '../../composables/usePwa'
 
 const authStore = useAuthStore()
 const isCollapsed = ref(false)
+const { canInstall, installApp } = usePwa()
 
 const allMenuItems = [
   {
@@ -271,5 +292,147 @@ const handleLogout = () => {
 .content-area::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .app-layout {
+    display: block;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .main-wrapper {
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    box-sizing: border-box;
+  }
+
+  .top-bar {
+    flex: 0 0 56px;
+    height: 56px;
+    margin: calc(env(safe-area-inset-top) + 8px) 0 8px;
+    padding: 0 14px;
+    border-radius: 18px;
+  }
+
+  .toggle-btn {
+    display: none;
+  }
+
+  .user-info {
+    gap: 8px;
+  }
+
+  .name {
+    max-width: min(48vw, 220px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.85rem;
+  }
+
+  .role.badge {
+    padding: 4px 7px;
+    font-size: 0.62rem;
+  }
+
+  .top-bar-actions {
+    gap: 8px;
+  }
+
+  .install-btn {
+    width: 40px;
+    min-width: 40px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .install-btn span {
+    display: none;
+  }
+
+  .content-area {
+    padding: 8px 0 calc(100px + env(safe-area-inset-bottom));
+    overscroll-behavior-y: contain;
+  }
+
+  .mobile-nav {
+    position: fixed;
+    z-index: 1000;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    left: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 4px;
+    padding: 8px;
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--glass-bg) 92%, transparent);
+    box-shadow: 0 12px 38px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    min-width: 0;
+    min-height: 54px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 15px;
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    font-weight: 650;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-nav-item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-nav-item.active {
+    background: var(--primary-color);
+    color: var(--on-primary);
+  }
+
+  :global(.global-settings) {
+    right: 16px;
+    bottom: calc(92px + env(safe-area-inset-bottom));
+  }
 }
 </style>

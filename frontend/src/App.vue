@@ -10,6 +10,9 @@
 
     <!-- Уведомление о неактивности -->
     <IdleTimeoutWarning :show="isIdle" />
+    <div v-if="!isOnline" class="offline-banner" role="status" aria-live="polite">
+      Нет подключения к сети. Данные могут быть устаревшими.
+    </div>
   </div>
 </template>
 
@@ -19,9 +22,11 @@ import { useSettingsStore } from './store/settings'
 import { useAuthStore } from './store/auth'
 import DefaultLayout from './core/layouts/DefaultLayout.vue'
 import IdleTimeoutWarning from './core/components/IdleTimeoutWarning.vue'
+import { usePwa } from './composables/usePwa'
 
 const settingsStore = useSettingsStore()
 const authStore = useAuthStore()
+const { isOnline } = usePwa()
 
 // Логика неактивности
 const isIdle = ref(false)
@@ -84,5 +89,23 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.offline-banner {
+  position: fixed;
+  z-index: 20000;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 12px 16px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(220, 120, 20, 0.32);
+  border-radius: 14px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  font-size: 0.85rem;
+  text-align: center;
 }
 </style>

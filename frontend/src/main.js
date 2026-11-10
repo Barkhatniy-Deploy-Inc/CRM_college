@@ -8,6 +8,18 @@ import { useAuthStore } from './store/auth'
 const app = createApp(App)
 app.use(pinia)
 
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener(
+    'load',
+    () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {
+        // Offline enhancement is optional; the network app remains usable.
+      })
+    },
+    { once: true }
+  )
+}
+
 async function bootstrap() {
   // Восстанавливаем cookie-сессию до установки router: навигационные гарды
   // получают актуального пользователя и не редиректят валидную сессию на '/'.
