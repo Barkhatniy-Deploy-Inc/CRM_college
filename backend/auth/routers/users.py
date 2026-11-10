@@ -11,6 +11,7 @@ from database.schemas import (
 )
 from services.user_service import get_user_by_id, update_user, get_login_history, get_detailed_user
 from services.security import hash_password
+from services.token_service import revoke_all_user_tokens
 from services.search_service import search_users
 from services.audit_service import get_audit_logs, get_user_audit_logs, log_action, AuditAction
 from dependencies import get_current_active_user, require_role, require_internal_token
@@ -95,11 +96,14 @@ async def update_user_admin(
     
     # Логирование изменений
     changes = {}
-    if data.role and data.role != old_user.role:
+    role_changed = data.role is not None and data.role != old_user.role
+    if role_changed:
         changes["role"] = {"old": old_user.role.value, "new": data.role.value}
         log_action(AuditAction.ROLE_CHANGE, user_id, db, changes, request)
-    
+
     updated_user = update_user(user_id, data, db)
+    if data.is_active is False or role_changed:
+        revoke_all_user_tokens(user_id, db)
     
     # Логирование обновления профиля
     if not changes.get("role"):
@@ -157,6 +161,7 @@ async def reset_user_password(
     
     user.password_hash = hash_password(data.new_password)
     db.commit()
+    revoke_all_user_tokens(user_id, db)
     
     log_action(
         AuditAction.PASSWORD_CHANGE, 

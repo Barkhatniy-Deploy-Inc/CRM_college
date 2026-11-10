@@ -14,6 +14,7 @@ from database.database import init_db, engine
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi.responses import JSONResponse
+from urllib.parse import urlsplit
 from services.notifications import NOTIFICATIONS_ENABLED
 from core.config import LogConfig
 from services.websocket_manager import manager
@@ -35,6 +36,29 @@ from routers import (
 # Инициализируем логирование
 setup_logging()
 logger = get_logger("main")
+
+
+def is_allowed_websocket_origin(origin: str | None, host: str | None, forwarded_proto: str | None) -> bool:
+    """Require an explicit allowlisted or exact same-origin browser Origin."""
+    if not origin or not host:
+        return False
+    parsed_origin = urlsplit(origin)
+    if parsed_origin.scheme not in {"http", "https"} or not parsed_origin.netloc:
+        return False
+    normalized_origin = f"{parsed_origin.scheme}://{parsed_origin.netloc}".lower()
+    allowed_origins = set()
+    for value in ALLOWED_ORIGINS:
+        parsed_allowed = urlsplit(value.strip())
+        if parsed_allowed.scheme and parsed_allowed.netloc:
+            allowed_origins.add(f"{parsed_allowed.scheme}://{parsed_allowed.netloc}".lower())
+    if normalized_origin in allowed_origins:
+        return True
+
+    return bool(
+        parsed_origin.netloc.lower() == host.lower()
+        and forwarded_proto in {"http", "https"}
+        and parsed_origin.scheme == forwarded_proto
+    )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -93,10 +117,9 @@ app.include_router(schedule.router)
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     origin = websocket.headers.get("origin")
-    host = websocket.headers.get("host")
-    allowed_origins = {origin.strip().rstrip("/") for origin in ALLOWED_ORIGINS if origin.strip()}
-    same_origin = origin and host and origin.rstrip("/").endswith(f"://{host}")
-    if origin and not same_origin and origin.rstrip("/") not in allowed_origins:
+    host = websocket.headers.get("x-forwarded-host") or websocket.headers.get("host")
+    forwarded_proto = websocket.headers.get("x-forwarded-proto", "").split(",", 1)[0].strip()
+    if not is_allowed_websocket_origin(origin, host, forwarded_proto):
         await websocket.close(code=1008, reason="Origin is not allowed")
         return
     try:
@@ -107,11 +130,12 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            await websocket.receive_text()
+            await websocket.receive()
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-    except Exception as e:
-        logging.error(f"WebSocket error: {e}")
+        pass
+    except Exception:
+        logger.exception("WebSocket connection failed")
+    finally:
         manager.disconnect(websocket)
 
 if __name__ == "__main__":

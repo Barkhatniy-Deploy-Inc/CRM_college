@@ -44,21 +44,16 @@ async def get_current_user(
 ) -> dict:
     """Валидирует access-токен, выпущенный auth-сервисом (cookie или Bearer)."""
     token = access_token
-    if not token and authorization and " " in authorization:
-        token = authorization.split()[1]
+    if not token and authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1].strip()
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Не аутентифицирован")
     return _decode(token)
 
 
 async def authenticate_websocket(websocket: WebSocket) -> dict:
-    """Authenticate a browser WebSocket using its auth cookie or Bearer token."""
+    """Authenticate a browser WebSocket using the HttpOnly access cookie."""
     token = websocket.cookies.get("access_token")
-    authorization = websocket.headers.get("authorization")
-    if not token and authorization and " " in authorization:
-        token = authorization.split(" ", 1)[1]
-    if not token:
-        token = websocket.query_params.get("access_token")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Не аутентифицирован")
     return _decode(token)

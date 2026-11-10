@@ -13,14 +13,6 @@ let refreshPromise = null
 const isAuthEndpoint = url =>
   typeof url === 'string' && (url.includes('/auth/login') || url.includes('/auth/refresh'))
 
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('access_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
 api.interceptors.response.use(
   response => response,
   async error => {
@@ -44,9 +36,6 @@ api.interceptors.response.use(
       const { data } = await refreshPromise
       refreshPromise = null
 
-      if (data?.access_token) {
-        localStorage.setItem('access_token', data.access_token)
-      }
       if (data?.user) {
         localStorage.setItem('user', JSON.stringify(data.user))
       }
@@ -54,7 +43,6 @@ api.interceptors.response.use(
       return api(config)
     } catch {
       refreshPromise = null
-      localStorage.removeItem('access_token')
       localStorage.removeItem('user')
       if (window.location.pathname !== '/') {
         window.location.href = '/'

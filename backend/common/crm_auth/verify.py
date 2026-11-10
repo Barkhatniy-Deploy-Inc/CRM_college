@@ -48,6 +48,8 @@ def verify_access_token(
     payload = decode_token(token, secret_key, algorithm)
     _require_type(payload, TOKEN_TYPE_ACCESS)
 
+    if payload.get("exp") is None:
+        raise TokenError("Токен без срока действия")
     if not all(payload.get(claim) for claim in REQUIRED_ACCESS_CLAIMS):
         raise TokenError("Невалидные данные токена")
 
@@ -61,6 +63,8 @@ def verify_refresh_token(
     payload = decode_token(token, secret_key, algorithm)
     _require_type(payload, TOKEN_TYPE_REFRESH)
 
+    if payload.get("exp") is None:
+        raise TokenError("Токен без срока действия")
     if not payload.get(CLAIM_USER_ID):
         raise TokenError("Невалидные данные токена")
 

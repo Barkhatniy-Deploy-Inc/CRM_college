@@ -3,6 +3,9 @@ import api from '../core/utils/api'
 
 const getStoredUser = () => {
   try {
+    // Remove legacy JWTs that older frontend versions may have persisted.
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
     const rawUser = localStorage.getItem('user')
     return rawUser ? JSON.parse(rawUser) : null
   } catch {
@@ -14,14 +17,13 @@ const getStoredUser = () => {
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: getStoredUser(),
-    accessToken: localStorage.getItem('access_token') || null,
     isLoading: false,
     error: null
   }),
 
   getters: {
     // Источник истины — профиль, подтверждённый /auth/me и httpOnly cookie.
-    // accessToken остаётся временно для совместимости с Bearer endpoint'ами.
+    // JWT хранится только в HttpOnly cookies; localStorage содержит UI-профиль.
     isAuthenticated: state => !!state.user,
     userRole: state => state.user?.role || 'guest'
   },
@@ -32,12 +34,9 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const response = await api.post('/auth/login', { email, password })
-        const { access_token, user } = response.data
-
-        this.accessToken = access_token
+        const { user } = response.data
         this.user = user
 
-        localStorage.setItem('access_token', access_token)
         localStorage.setItem('user', JSON.stringify(user))
 
         return true
@@ -73,7 +72,6 @@ export const useAuthStore = defineStore('auth', {
         console.error('Logout error', e)
       } finally {
         this.user = null
-        this.accessToken = null
         localStorage.removeItem('access_token')
         localStorage.removeItem('user')
         window.location.href = '/'

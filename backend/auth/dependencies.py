@@ -34,8 +34,8 @@ async def get_current_user(
     if access_token:
         token = access_token
         token_source = "cookie"
-    elif authorization and " " in authorization:
-        token = authorization.split()[1]
+    elif authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1].strip()
         token_source = "header"
     elif credentials:
         token = credentials.credentials
