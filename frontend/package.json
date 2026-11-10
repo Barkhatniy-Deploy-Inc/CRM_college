@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:prod-audit": "npm audit --omit=dev --audit-level=moderate",
+    "test:dependency-audit": "npm run test:prod-audit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
