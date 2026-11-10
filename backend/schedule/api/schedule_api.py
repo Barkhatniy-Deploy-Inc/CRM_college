@@ -1,5 +1,6 @@
 from fastapi import UploadFile, File, HTTPException
 from typing import List, Optional
+from datetime import date, datetime, time, timedelta
 from sqlalchemy import String
 from sqlalchemy.orm import Session, joinedload
 from database.models import ClassSlot, Auditorium, Group
@@ -70,7 +71,8 @@ async def get_schedule_list(
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
         limit: int = 100,
-        offset: int = 0
+        offset: int = 0,
+        group_id: Optional[int] = None,
 ) -> List[dict]:
     """
     Получение списка занятий с подробной информацией.
@@ -88,12 +90,32 @@ async def get_schedule_list(
         Group.name.label("group_name")
     ).outerjoin(Auditorium, ClassSlot.auditorium_id == Auditorium.id).outerjoin(Group, ClassSlot.group_id == Group.id)
 
-    if date_from and date_to:
-        query = query.filter(ClassSlot.start_time.between(date_from, date_to))
-    elif date:
-        query = query.filter(ClassSlot.start_time.cast(String).like(f"{date}%"))
+    if date_from:
+        start_date = _parse_schedule_date(date_from, "date_from")
+        query = query.filter(ClassSlot.start_time >= datetime.combine(start_date, time.min))
+    if date_to:
+        end_date = _parse_schedule_date(date_to, "date_to")
+        # date_to is inclusive for callers; use the next midnight as an
+        # exclusive upper bound so all times on the final day are included.
+        query = query.filter(ClassSlot.start_time < datetime.combine(end_date + timedelta(days=1), time.min))
+    if group_id is not None:
+        query = query.filter(ClassSlot.group_id == group_id)
+    if date and not date_from and not date_to:
+        requested_date = _parse_schedule_date(date, "date")
+        query = query.filter(
+            ClassSlot.start_time >= datetime.combine(requested_date, time.min),
+            ClassSlot.start_time < datetime.combine(requested_date + timedelta(days=1), time.min),
+        )
 
     real_limit = 2000 if (date_from or date_to) else limit
     slots = query.order_by(ClassSlot.start_time.desc()).limit(real_limit).offset(offset).all()
     
     return [slot._asdict() for slot in slots]
+
+
+def _parse_schedule_date(value: str, parameter: str) -> date:
+    """Parse an ISO date query parameter and return a client-safe validation error."""
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=f"{parameter} must be an ISO date (YYYY-MM-DD)") from exc
