@@ -71,8 +71,9 @@ const handleLogin = async () => {
 
 <style scoped>
 .home-container {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100dvh;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,5 +153,24 @@ const handleLogin = async () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+@media (max-width: 520px) {
+  .home-container {
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  }
+
+  .login-card {
+    padding: 28px 22px;
+    border-radius: 24px;
+  }
+
+  .floating-logo {
+    margin-bottom: 18px;
+  }
+
+  .main-logo {
+    height: 58px;
+  }
 }
 </style>

@@ -570,5 +570,9 @@ h1 {
   .tasks-grid {
     grid-template-columns: 1fr;
   }
+
+  .stage-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
