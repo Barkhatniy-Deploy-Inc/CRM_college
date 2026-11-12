@@ -12,7 +12,7 @@ Vue frontend, FastAPI services (auth, schedule, techcard), PostgreSQL и Nginx.
 ./scripts/local.sh check
 ```
 
-Приложение: **http://localhost:8080**. `init` создаёт `.env` со случайными секретами; существующие настройки сохраняются, отсутствующий `INTERNAL_API_TOKEN` добавляется. Данные PostgreSQL хранятся в Docker volume. `make init`, `make up` и `make smoke` вызывают те же команды.
+Приложение: **http://localhost:8080**. Документация API: **http://localhost:8080/docs** — ссылки на Swagger UI трёх сервисов (auth, schedule и techcard). `init` создаёт `.env` со случайными секретами; существующие настройки сохраняются, отсутствующий `INTERNAL_API_TOKEN` добавляется. Данные PostgreSQL хранятся в Docker volume. `make init`, `make up` и `make smoke` вызывают те же команды.
 
 Для новой базы примените миграции до запуска приложения: `./scripts/local.sh migrate`. Старые файлы SQLite не переносятся автоматически: сначала сохраните их копии и согласуйте перенос с Глебом. Существующий PostgreSQL volume не удаляйте; перед изменением схемы проверьте резервную копию и процедуру восстановления.
 

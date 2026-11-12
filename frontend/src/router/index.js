@@ -10,6 +10,11 @@ const routes = [
     meta: { guestOnly: true }
   },
   {
+    path: '/docs',
+    name: 'api-docs',
+    component: () => import('../core/views/ApiDocsView.vue')
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('../features/dashboard/views/DashboardView.vue'),

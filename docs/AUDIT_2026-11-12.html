@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Досье CRM College — аудит от 12 ноября 2026</title>
+  <style>
+    :root {
+      --paper: #f3eee5;
+      --paper-light: #fbf8f1;
+      --ink: #25211e;
+      --muted: #6e665d;
+      --line: #d9cfc0;
+      --wine: #33252b;
+      --wine-deep: #241b20;
+      --gold: #bd9252;
+      --gold-dark: #775729;
+      --danger: #ad443b;
+      --danger-soft: #f4e2dc;
+      --amber-soft: #f5ebd7;
+      --green: #426e59;
+      --green-soft: #e4eee5;
+      --shadow: 0 16px 42px rgba(53, 41, 32, .075);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 28px; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.68 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    ::selection { background: #ddc398; color: #241b20; }
+    a { color: var(--gold-dark); text-underline-offset: 3px; }
+    a:hover { color: var(--danger); }
+    a:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
+    h1, h2, h3, blockquote, .serif { font-family: Georgia, "Times New Roman", serif; font-weight: normal; }
+    h1, h2, h3, p { margin-top: 0; }
+    h2 { font-size: clamp(2rem, 3vw, 3rem); line-height: 1.13; letter-spacing: -.035em; margin-bottom: 16px; }
+    h3 { font-size: 1.57rem; line-height: 1.22; letter-spacing: -.015em; margin-bottom: 10px; }
+    p { margin-bottom: 14px; }
+    code { font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+    .skip-link { position: absolute; top: -80px; left: 20px; background: white; padding: 10px 18px; z-index: 10; }
+    .skip-link:focus { top: 12px; }
+    .topline { background: var(--wine-deep); color: #decdb5; padding: 10px max(24px, calc((100vw - 1460px)/2)); display: flex; justify-content: space-between; gap: 16px; align-items: center; font-size: 11px; text-transform: uppercase; letter-spacing: .18em; }
+    .topline strong { color: #f0e0c4; font-weight: 600; }
+    .crest { display: inline-flex; align-items: center; gap: 11px; }
+    .crest-mark { display: inline-grid; place-items: center; width: 29px; height: 29px; border: 1px solid var(--gold); border-radius: 50%; color: #e8c995; font: 16px Georgia, serif; letter-spacing: 0; }
+    .hero { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(circle at 75% 25%, #624348 0, transparent 32%), linear-gradient(118deg, #281c22 0%, #38262c 63%, #4d3336 100%); color: #f8f0e5; padding: 78px max(24px, calc((100vw - 1460px)/2)) 92px; }
+    .hero::after { content: "✧"; position: absolute; z-index: -1; right: max(4%, calc((100vw - 1460px)/2)); top: -145px; font: 540px/1 Georgia, serif; color: rgba(223, 183, 127, .085); transform: rotate(-18deg); pointer-events: none; }
+    .hero .inner { max-width: 950px; }
+    .eyebrow { display: flex; align-items: center; gap: 13px; margin: 0 0 25px; color: var(--gold); font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: .22em; }
+    .eyebrow::before { content: ""; width: 31px; height: 1px; background: currentColor; flex: none; }
+    .hero h1 { font-size: clamp(3.3rem, 7vw, 7.1rem); letter-spacing: -.065em; line-height: .96; margin-bottom: 26px; max-width: 1100px; }
+    .hero h1 em { color: #ddbd8f; font-style: italic; }
+    .hero-lead { font-family: Georgia, serif; font-size: clamp(1.15rem, 2vw, 1.55rem); line-height: 1.47; max-width: 770px; color: #e3d8cf; margin-bottom: 38px; }
+    .hero-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; color: #cbbfba; font-size: 12px; letter-spacing: .04em; }
+    .hero-foot span + span::before { content: "·"; margin-right: 24px; color: var(--gold); }
+    .folio { position: absolute; right: max(24px, calc((100vw - 1460px)/2)); bottom: 33px; color: #c3a689; font: italic 14px Georgia, serif; }
+    .layout { max-width: 1460px; margin: 0 auto; padding: 0 30px 100px; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: clamp(38px, 5vw, 82px); align-items: start; }
+    .sidebar { position: sticky; top: 28px; padding-top: 48px; }
+    .sidebar-title { display: block; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .sidebar nav { display: grid; padding: 12px 0 23px; border-bottom: 1px solid var(--line); }
+    .sidebar nav a { text-decoration: none; color: #635a51; font-size: 13px; padding: 8px 0; display: flex; justify-content: space-between; gap: 12px; }
+    .sidebar nav a:hover { color: var(--danger); }
+    .sidebar nav span { color: #a69b8c; font: italic 13px Georgia, serif; }
+    .sidebar-note { font-family: Georgia, serif; color: #847668; font-style: italic; font-size: 15px; line-height: 1.45; padding-top: 22px; }
+    main { min-width: 0; }
+    .section { padding: 76px 0 15px; border-bottom: 1px solid var(--line); }
+    .section:last-child { border: 0; }
+    .section-index { color: var(--gold-dark); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .19em; margin-bottom: 17px; }
+    .section-intro { max-width: 780px; color: var(--muted); font-size: 16px; margin-bottom: 29px; }
+    .verdict { padding: clamp(26px, 4vw, 42px); background: var(--paper-light); border: 1px solid var(--line); border-left: 4px solid var(--danger); box-shadow: var(--shadow); margin-bottom: 28px; }
+    .verdict .label { color: var(--danger); font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; text-transform: uppercase; letter-spacing: .18em; }
+    .verdict blockquote { font-size: clamp(1.35rem, 2.3vw, 2rem); line-height: 1.38; margin: 16px 0 13px; }
+    .verdict p { color: var(--muted); margin-bottom: 0; max-width: 800px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .metric { background: #ebe2d5; padding: 20px 18px; min-height: 133px; border: 1px solid #dfd3c4; }
+    .metric b { font: 46px/.95 Georgia, serif; letter-spacing: -.07em; display: block; margin-bottom: 11px; }
+    .metric b.red { color: var(--danger); }
+    .metric b.green { color: var(--green); }
+    .metric span { display: block; font-size: 12px; color: #675f56; line-height: 1.35; }
+    .findings { display: grid; gap: 16px; }
+    .finding { background: var(--paper-light); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
+    .finding-head { padding: 25px 29px 0; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+    .finding-number { font: italic 18px Georgia, serif; color: #a09280; }
+    .badge { display: inline-flex; align-items: center; gap: 7px; border-radius: 2px; padding: 6px 9px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 750; white-space: nowrap; }
+    .badge.danger { background: var(--danger-soft); color: #922f2a; }
+    .badge.priority { background: var(--amber-soft); color: #745224; }
+    .badge.confirmed { background: var(--green-soft); color: #315f47; }
+    .finding-body { padding: 10px 29px 28px; }
+    .finding-body p { max-width: 790px; color: #4e4842; }
+    .finding-body strong { color: var(--ink); }
+    .finding-body .aside { color: var(--gold-dark); font: italic 16px/1.5 Georgia, serif; margin: 0 0 17px; }
+    .finding-bottom { display: grid; grid-template-columns: 1fr 1fr; background: #f3ede3; border-top: 1px solid var(--line); }
+    .finding-bottom > div { padding: 17px 29px 19px; min-width: 0; }
+    .finding-bottom > div + div { border-left: 1px solid var(--line); }
+    .micro-label { display: block; color: #817362; font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; margin-bottom: 6px; }
+    .finding-bottom p { font-size: 13px; line-height: 1.55; margin: 0; }
+    .finding-bottom code { color: #67514c; }
+    .priority-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .brief { background: var(--paper-light); border: 1px solid var(--line); padding: 24px 25px; }
+    .brief.tall { grid-column: span 2; background: #ede4d8; }
+    .brief h3 { font-size: 1.35rem; margin: 9px 0 9px; }
+    .brief p { color: #554d46; font-size: 14px; line-height: 1.6; margin: 0 0 12px; }
+    .brief .source { display: block; border-top: 1px solid var(--line); padding-top: 10px; color: var(--muted); }
+    .brief .source code { font-size: 11px; }
+    .brief .counter { color: var(--gold-dark); font: italic 16px Georgia, serif; }
+    .detail-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .detail { border-top: 2px solid #aa9272; padding: 17px 10px 8px 0; }
+    .detail h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .detail p { color: #554d46; font-size: 13px; line-height: 1.65; }
+    .detail code { color: var(--gold-dark); }
+    .coverage { display: grid; gap: 12px; margin: 26px 0; }
+    .coverage-row { display: grid; grid-template-columns: 88px minmax(0,1fr) 58px; align-items: center; gap: 13px; font-size: 13px; font-weight: 650; }
+    .track { height: 9px; background: #ded3c4; overflow: hidden; border-radius: 30px; }
+    .fill { display: block; height: 100%; background: var(--green); border-radius: 30px; }
+    .fill.auth { width: 79.34%; }
+    .fill.schedule { width: 60.33%; background: #a27c43; }
+    .fill.techcard { width: 73.72%; background: #7e685b; }
+    .coverage-row .value { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .test-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .test-card { padding: 22px; border: 1px solid var(--line); background: var(--paper-light); }
+    .test-card strong { display: block; font: 30px/1.2 Georgia, serif; margin-bottom: 5px; }
+    .test-card span { color: var(--muted); font-size: 13px; }
+    .warning-box { background: var(--amber-soft); color: #4e402d; border-left: 3px solid var(--gold); padding: 18px 22px; margin-top: 16px; font-size: 13px; }
+    .warning-box p { margin: 0; }
+    .roadmap { display: grid; gap: 0; margin: 25px 0 30px; }
+    .step { display: grid; grid-template-columns: 100px minmax(0,1fr); gap: 21px; border-top: 1px solid var(--line); padding: 21px 0; }
+    .step:last-child { border-bottom: 1px solid var(--line); }
+    .step time { color: var(--gold-dark); font: italic 17px Georgia, serif; }
+    .step h3 { font-size: 1.18rem; margin-bottom: 6px; }
+    .step p { font-size: 14px; color: #554d46; margin: 0; }
+    .closing { background: var(--wine); color: #f3e9db; padding: 29px 32px; }
+    .closing p { font: italic clamp(1.15rem, 2vw, 1.48rem)/1.5 Georgia, serif; margin: 0; }
+    .closing small { color: #c4aa94; display: block; margin-top: 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .14em; }
+    footer { max-width: 1460px; margin: 0 auto; padding: 25px 30px 45px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; padding: 0 24px 70px; gap: 0; }
+      .sidebar { position: static; padding-top: 24px; }
+      .sidebar nav { display: flex; flex-wrap: wrap; column-gap: 20px; row-gap: 0; }
+      .sidebar nav a span, .sidebar-note { display: none; }
+      .sidebar-title { padding-bottom: 6px; }
+      .section { padding-top: 60px; }
+    }
+    @media (max-width: 650px) {
+      .topline { font-size: 9px; letter-spacing: .1em; }
+      .topline > span:last-child { display: none; }
+      .hero { padding-top: 62px; padding-bottom: 74px; }
+      .hero h1 { font-size: clamp(3rem, 13vw, 5rem); }
+      .folio { display: none; }
+      .hero-foot { gap: 4px 16px; }
+      .hero-foot span + span::before { margin-right: 16px; }
+      .metrics, .priority-grid, .detail-list, .test-grid { grid-template-columns: 1fr 1fr; }
+      .brief.tall { grid-column: span 2; }
+      .finding-bottom { grid-template-columns: 1fr; }
+      .finding-bottom > div + div { border-left: 0; border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 480px) {
+      .metrics, .priority-grid, .detail-list, .test-grid { grid-template-columns: 1fr; }
+      .brief.tall { grid-column: span 1; }
+      .metric { min-height: 105px; }
+      .metric b { font-size: 36px; margin-bottom: 5px; }
+      .finding-head, .finding-body, .finding-bottom > div { padding-left: 19px; padding-right: 19px; }
+      .step { grid-template-columns: 1fr; gap: 2px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      :root { --paper: white; --paper-light: white; --ink: black; --muted: #444; --line: #aaa; --shadow: none; }
+      body { font-size: 10.5pt; }
+      .topline, .sidebar { display: none; }
+      .hero { color: white; padding: 28px 35px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .hero h1 { font-size: 37pt; }
+      .hero-lead { font-size: 13pt; }
+      .layout { display: block; padding: 0 25px; }
+      .section { padding: 24px 0 12px; break-inside: avoid-page; }
+      .finding, .brief, .detail, .test-card, .step, .verdict { break-inside: avoid; box-shadow: none; }
+      .finding { margin-bottom: 10px; }
+      .closing { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      a { color: black; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">Перейти к докладу</a>
+  <div class="topline"><div class="crest"><span class="crest-mark" aria-hidden="true">✦</span><strong>Частное досье · CRM College</strong></div><span>От дворецкого по части неприятных новостей</span></div>
+
+  <header class="hero">
+    <div class="inner">
+      <p class="eyebrow">Технический аудит / 12 ноября 2026</p>
+      <h1>Милорд, у нас<br><em>есть вопросы.</em></h1>
+      <p class="hero-lead">Фронтенд выглядит вполне парадно. Бэкенд же местами оставил ключи в дверях, а надпись «личное» повесил на общий календарь. Позвольте доложить без сахарной пудры.</p>
+      <div class="hero-foot"><span>Vue 3 + Pinia</span><span>3 × FastAPI</span><span>PostgreSQL / Nginx</span><span>Ветка arena/fa96b676-crm-college</span></div>
+    </div>
+    <div class="folio">Досье № 01 / 2026</div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Навигация по досье">
+      <span class="sidebar-title">Содержание досье</span>
+      <nav>
+        <a href="#verdict">Вердикт <span>01</span></a>
+        <a href="#critical">Критические дыры <span>02</span></a>
+        <a href="#priority">Что ещё горит <span>03</span></a>
+        <a href="#frontend">Фронтенд <span>04</span></a>
+        <a href="#checks">Проверки <span>05</span></a>
+        <a href="#plan">План работ <span>06</span></a>
+      </nav>
+      <div class="sidebar-note">«Хорошая новость: всё поправимо. Дурная: некоторые вещи следовало поправить до приглашения гостей.»</div>
+    </aside>
+
+    <main id="content">
+      <section class="section" id="verdict" aria-labelledby="verdict-title">
+        <div class="section-index">01 / Главный вывод</div>
+        <h2 id="verdict-title">Состояние поместья</h2>
+        <div class="verdict">
+          <span class="label">Вердикт дворецкого</span>
+          <blockquote>Проект работает. Но «работает» и «можно доверить ему персональные данные» — разные титулы, милорд.</blockquote>
+          <p>Три проблемы уровня P0: анонимная выдача контактов участников, чужие занятия в «личном» календаре и API техкарт без согласованной проверки роли. Четыре сценария были воспроизведены локально, включая подмену админской сессии при создании пользователя.</p>
+        </div>
+        <div class="metrics" aria-label="Ключевые показатели аудита">
+          <div class="metric"><b class="red">03</b><span>проблемы P0 до публикации реальных данных</span></div>
+          <div class="metric"><b>07</b><span>пунктов P1: безопасность и корректность</span></div>
+          <div class="metric"><b>04</b><span>сценария подтверждены локально запросами</span></div>
+          <div class="metric"><b class="green">0</b><span>уязвимостей в npm audit на момент проверки</span></div>
+        </div>
+      </section>
+
+      <section class="section" id="critical" aria-labelledby="critical-title">
+        <div class="section-index">02 / P0 · Перед публикацией</div>
+        <h2 id="critical-title">Три двери без замка</h2>
+        <p class="section-intro">Это не прогноз погоды и не фантазия ревизора. Для каждого пункта есть конкретный маршрут и локальное подтверждение.</p>
+        <div class="findings">
+          <article class="finding">
+            <div class="finding-head"><span class="finding-number">Дело 01</span><span class="badge danger">P0 · Подтверждено</span></div>
+            <div class="finding-body"><h3>Список участников открыт всем</h3><p class="aside">Гостей даже не спросили, есть ли у них приглашение.</p><p><strong>Косяк:</strong> GET списка участников группы не требует авторизации и отдаёт ФИО, email и Telegram ID. Анонимный запрос к тестовой группе вернул <strong>200</strong> и все эти поля. Если в БД реальные записи, это прямая выдача персональных данных.</p></div>
+            <div class="finding-bottom"><div><span class="micro-label">Где смотреть</span><p><code>backend/schedule/routers/participants.py:15–17</code><br><code>backend/schedule/database/models.py:125–135</code></p></div><div><span class="micro-label">Что сделать</span><p>Закрыть endpoint авторизацией и доступом по группе; для публичного списка создать отдельный ответ без контактов. Тесты: аноним 401, чужой пользователь 403.</p></div></div>
+          </article>
+          <article class="finding">
+            <div class="finding-head"><span class="finding-number">Дело 02</span><span class="badge danger">P0 · Подтверждено</span></div>
+            <div class="finding-body"><h3>Личный календарь оказался общим</h3><p class="aside">«Моё расписание» — смелое название для расписания всех подряд.</p><p><strong>Косяк:</strong> `/api/schedule/calendar/me.ics` принимает пользователя, но функция генерации игнорирует его ID и забирает до 1000 занятий без фильтра. JWT постороннего тестового пользователя получил <strong>200</strong> и чужое событие.</p></div>
+            <div class="finding-bottom"><div><span class="micro-label">Где смотреть</span><p><code>backend/schedule/routers/calendar.py:9–12</code><br><code>backend/schedule/services/calendar_service.py:7–12</code></p></div><div><span class="micro-label">Что сделать</span><p>Определить «моё» через группу, участие или преподавателя; фильтровать запрос по пользователю. Закрепить тестом отсутствие чужих событий.</p></div></div>
+          </article>
+          <article class="finding">
+            <div class="finding-head"><span class="finding-number">Дело 03</span><span class="badge danger">P0 · Подтверждено</span></div>
+            <div class="finding-body"><h3>Студенту не показывают дверь — но она открыта</h3><p class="aside">Скрыть кнопку — не то же самое, что поставить охрану.</p><p><strong>Косяк:</strong> UI скрывает раздел техкарт от студента, а POST `/api/techcards` требует лишь валидный JWT. Запрос с ролью <code>student</code> создал карту: <strong>201</strong>. Если техкарты положены только преподавателям и администраторам, права обходятся прямым API-запросом.</p></div>
+            <div class="finding-bottom"><div><span class="micro-label">Где смотреть</span><p><code>backend/techcard/routers/techcard_router.py:106–128</code><br><code>frontend/src/core/layouts/DefaultLayout.vue:73</code></p></div><div><span class="micro-label">Что сделать</span><p>Согласовать матрицу ролей и проверять её на сервере для create/list/get/update/download. Если студентам карты разрешены — честно отразить это в UI и требованиях.</p></div></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="priority" aria-labelledby="priority-title">
+        <div class="section-index">03 / P1 · Следом за пожарными</div>
+        <h2 id="priority-title">Не горит? Нет, просто тлеет</h2>
+        <p class="section-intro">Семь пунктов, из которых первый уже проверен на живом API приложения с тестовой БД. Остальные вытекают из потока кода и требуют регрессионных сценариев.</p>
+        <div class="priority-grid">
+          <article class="brief tall"><span class="badge confirmed">04 / P1 · Подтверждено</span><h3>Админ создаёт студента — и сам становится студентом</h3><p><strong>Без фокусов:</strong> админ-панель вызывает `/auth/register`; endpoint выдаёт новому аккаунту токены и заменяет cookie текущего браузера. В тесте после создания студента `/auth/me` вернул уже студента, а не администратора. Развести публичную регистрацию и отдельный защищённый admin-create без <code>Set-Cookie</code>.</p><span class="source"><code>frontend/src/store/admin.js:86–90 · backend/auth/routers/auth.py:27–70</code></span></article>
+          <article class="brief"><span class="counter">05 / P1</span><h3>Отозвали доступ, забыли про access JWT</h3><p>Смена роли, пароль и выход отзывают refresh-токены; ранее выданный access-токен остаётся пригодным до истечения срока — по умолчанию до 15 минут. Для немедленного отзыва нужна проверка сессии/версии токена.</p><span class="source"><code>backend/auth/services/token_service.py:100–106 · backend/schedule/dependencies.py:9–38</code></span></article>
+          <article class="brief"><span class="counter">06 / P1</span><h3>HttpOnly есть, а токены всё равно в JSON</h3><p>Login, register и refresh возвращают access и refresh токены в теле ответа. Любой JS с доступом к ответу видит их: хорошую идею с HttpOnly здесь сопровождают открытым окном.</p><span class="source"><code>backend/auth/database/schemas.py:73–78 · backend/auth/routers/auth.py:65–69</code></span></article>
+          <article class="brief"><span class="counter">07 / P1</span><h3>Расписание терпит двойную бронь</h3><p>Проверка свободной аудитории и запись разделены; конкурентные запросы могут пройти одновременно. Импорт обходит эту проверку совсем, а счётчики созданных групп считают после присвоения ID. Нужны инварианты, транзакционная стратегия и тесты импорта.</p><span class="source"><code>backend/schedule/api/slots_api.py:11–39 · backend/schedule/services/schedule_importer.py:65–129</code></span></article>
+          <article class="brief"><span class="counter">08 / P1</span><h3>Три базы, три представления о человеке</h3><p>Auth хранит роль и статус, schedule — другую таблицу пользователей, techcard — числовые ссылки без межсервисной целостности. Подписка Telegram ищет ID из auth в schedule: если записи нет, будет 404. Требуется один источник истины и договорённость о синхронизации.</p><span class="source"><code>backend/schedule/routers/notifications.py:15–20 · backend/techcard/database/models_techcard.py:12–19</code></span></article>
+          <article class="brief"><span class="counter">09 / P1</span><h3>WebSocket зовёт за свежими данными — к старому кэшу</h3><p>Списки расписания и групп кэшируются 30/60 секунд без явной инвалидации при записи. Клиент после WS-события может снова увидеть старое. Кэш и список WS-соединений — в памяти одного процесса, что не переживёт масштабирование.</p><span class="source"><code>backend/schedule/routers/schedule.py:48–67 · backend/schedule/main.py:63–70</code></span></article>
+          <article class="brief"><span class="counter">10 / P1</span><h3>Вычислительный банкет за чужой счёт</h3><p>Экспорт XLSX/PDF не требует входа и не ограничен частотой и диапазоном; при запросе списка с датами параметр <code>limit</code> фактически игнорируется в пользу 2000 строк. Excel целиком читается и парсится в async-обработчике. Поставить лимиты и вынести тяжёлую работу.</p><span class="source"><code>backend/schedule/routers/export.py:9–45 · backend/schedule/api/schedule_api.py:24–38,110–113</code></span></article>
+        </div>
+      </section>
+
+      <section class="section" id="frontend" aria-labelledby="frontend-title">
+        <div class="section-index">04 / Vue · Облицовка и механика</div>
+        <h2 id="frontend-title">Лоск есть. Под ним — проводка.</h2>
+        <p class="section-intro">Ниже не придирки к цвету кнопок: эти мелочи меняют данные, которые видит человек, и иногда сообщают ему откровенную неправду.</p>
+        <div class="detail-list">
+          <div class="detail"><h3>Сеанс по слухам, не по фактам</h3><p><code>store/auth.js:25–28,58–65</code> считает локально сохранённого пользователя признаком входа и тихо глотает сбой <code>/auth/me</code>. При ошибках сети UI может показывать старую роль. Нужны явные состояния проверки/оффлайна, а не молчание.</p></div>
+          <div class="detail"><h3>Группа № 1 — по указу судьбы</h3><p><code>ScheduleView.vue:208</code> жёстко выбирает <code>group_id=1</code>, даже если такой группы нет. В редакторе техкарты автозаполнение берёт <code>group_id</code> из списка, который это поле вообще не отдаёт (<code>schedule_api.py:81–91</code>).</p></div>
+          <div class="detail"><h3>Сегодня иногда вчера</h3><p><code>store/schedule.js:54–60</code> и <code>ScheduleView.vue:299–330</code> берут календарную дату из UTC через <code>toISOString()</code>. Ночью в UTC+5 местный день может стать предыдущим. Нужен единый контракт часового пояса и тест границы суток.</p></div>
+          <div class="detail"><h3>Ближайшие — не значит предстоящие</h3><p>API сортирует занятия по убыванию времени (<code>schedule_api.py:111</code>); dashboard берёт первые три и не отсекает прошедшие (<code>DashboardView.vue:98–100</code>). Параллельные запросы разных недель могут перезаписывать ответы друг друга.</p></div>
+          <div class="detail"><h3>Пусто — даже когда сервер упал</h3><p><code>store/techcard.js:17–27</code> подавляет ошибку загрузки, а <code>TechcardsListView.vue:59–66</code> выдаёт её за «нет карт». Пагинации для API-лимита 50 нет. Нужны разные состояния loading/error/empty и загрузка следующих страниц.</p></div>
+          <div class="detail"><h3>На клавиатуру гостей не рассчитывали</h3><p><code>BaseModal.vue:4–28</code> не управляет фокусом, Escape и атрибутами диалога. Кнопки-иконки местами без доступных названий. Демонстрационные «ИСП-21» и «201» в <code>DashboardView.vue:48–78</code> подменяют отсутствующие данные.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="checks" aria-labelledby="checks-title">
+        <div class="section-index">05 / Что проверено</div>
+        <h2 id="checks-title">Цифры, не благословения</h2>
+        <p class="section-intro">Тесты проходят, но число зелёных галочек не означает, что защита работает. Три P0 прекрасно сосуществуют с ними — в этом, милорд, и мораль.</p>
+        <div class="test-grid">
+          <div class="test-card"><strong>17 / 17</strong><span>frontend Vitest · 4 файла, только store</span></div>
+          <div class="test-card"><strong>17 / 17</strong><span>auth pytest · порог покрытия пройден</span></div>
+          <div class="test-card"><strong>37 + 1</strong><span>schedule pytest · пройдено + пропущено</span></div>
+          <div class="test-card"><strong>6 / 6</strong><span>techcard pytest · порог покрытия пройден</span></div>
+        </div>
+        <div class="coverage" aria-label="Заявленное покрытие тестами, включая файлы тестов">
+          <div class="coverage-row"><span>Auth</span><div class="track"><span class="fill auth"></span></div><span class="value">79,34%</span></div>
+          <div class="coverage-row"><span>Schedule</span><div class="track"><span class="fill schedule"></span></div><span class="value">60,33%</span></div>
+          <div class="coverage-row"><span>Techcard</span><div class="track"><span class="fill techcard"></span></div><span class="value">73,72%</span></div>
+        </div>
+        <div class="warning-box"><p><strong>Оговорки:</strong> coverage включает файлы тестов; импорт расписания покрыт на 20%, генератор DOCX — на 25%. Frontend lint завершился с <strong>103 предупреждениями</strong>, сборка и форматирование прошли, npm audit показал 0 уязвимостей. Compose-проверка: 9 тестов прошли, 5 упали из-за отсутствия команды <code>docker</code> в среде; это не доказательство ошибки Compose. Production, PostgreSQL, браузерный E2E, нагрузку и pip-audit здесь не проверяли.</p></div>
+      </section>
+
+      <section class="section" id="plan" aria-labelledby="plan-title">
+        <div class="section-index">06 / Порядок наведения приличий</div>
+        <h2 id="plan-title">Что делать, в каком порядке</h2>
+        <div class="roadmap">
+          <div class="step"><time>Первым делом</time><div><h3>Запереть персональные данные</h3><p>Авторизация и политика доступа для участников; настоящий фильтр «моего» календаря; серверная матрица ролей техкарт. Тесты на анонима и чужую группу/карту/событие.</p></div></div>
+          <div class="step"><time>Сразу после</time><div><h3>Вернуть админу его кресло</h3><p>Отдельный admin-create без выдачи cookie нового пользователя; убрать токены из browser JSON; определить политику немедленного отзыва access JWT. Прогнать сценарий login → create user → me.</p></div></div>
+          <div class="step"><time>Следующий этап</time><div><h3>Согласовать данные и защитить расписание</h3><p>Источник истины для пользователей, инварианты слотов и импорт, транзакции, кэш-инвалидация, лимиты экспорта и загрузки. Добавить интеграционные и конкурентные тесты.</p></div></div>
+          <div class="step"><time>Перед запуском</time><div><h3>Проверить поместье целиком</h3><p>Исправить даты, пагинацию, загрузочные и ошибочные состояния, доступность. Затем E2E через gateway + PostgreSQL, проверка TLS/CSRF в реальном домене, восстановление из бэкапа и нагрузочный прогон.</p></div></div>
+        </div>
+        <div class="closing"><p>«Доклад окончен, милорд. Я бы не приглашал настоящие персональные данные на бал, пока дверь списка участников открывается без стука.»</p><small>С уважением, ваш технически не слишком деликатный дворецкий</small></div>
+      </section>
+    </main>
+  </div>
+
+  <footer><span>CRM College · Аудит кода на коммите 1ce78ef · 12.11.2026</span><span>Полный технический протокол: <a href="AUDIT_2026-11-12.md">AUDIT_2026-11-12.md</a></span></footer>
+</body>
+</html>
