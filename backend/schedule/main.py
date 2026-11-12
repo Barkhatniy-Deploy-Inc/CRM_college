@@ -76,7 +76,10 @@ app = FastAPI(
     title="Умное расписание",
     version="3.2.2",
     lifespan=lifespan,
-    description="API для управления учебным расписанием, аудиториями и группами."
+    description="API для управления учебным расписанием, аудиториями и группами.",
+    docs_url="/api/schedule/docs",
+    redoc_url="/api/schedule/redoc",
+    openapi_url="/api/schedule/openapi.json",
 )
 
 # CORS settings

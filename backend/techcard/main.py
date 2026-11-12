@@ -15,7 +15,13 @@ async def lifespan(app: FastAPI):
     BaseTechCard.metadata.create_all(bind=engine_techcard)
     yield
 
-app = FastAPI(title="Techcard Service", lifespan=lifespan)
+app = FastAPI(
+    title="Techcard Service",
+    lifespan=lifespan,
+    docs_url="/api/techcard/docs",
+    redoc_url="/api/techcard/redoc",
+    openapi_url="/api/techcard/openapi.json",
+)
 
 app.add_middleware(
     CORSMiddleware,

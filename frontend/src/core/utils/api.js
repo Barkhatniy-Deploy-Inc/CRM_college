@@ -44,7 +44,9 @@ api.interceptors.response.use(
     } catch {
       refreshPromise = null
       localStorage.removeItem('user')
-      if (window.location.pathname !== '/') {
+      // During bootstrap the router decides whether a page is public. In
+      // particular /docs must remain reachable without a cookie session.
+      if (!config._skipAuthRedirect && window.location.pathname !== '/') {
         window.location.href = '/'
       }
       return Promise.reject(error)

@@ -106,7 +106,7 @@ describe('Auth Store', () => {
 
     expect(result).toEqual(mockUser)
     expect(store.user).toEqual(mockUser)
-    expect(api.get).toHaveBeenCalledWith('/auth/me')
+    expect(api.get).toHaveBeenCalledWith('/auth/me', {})
   })
 
   it('should bootstrap from cookie-backed auth endpoint', async () => {
@@ -116,8 +116,21 @@ describe('Auth Store', () => {
 
     await store.bootstrap()
 
-    expect(api.get).toHaveBeenCalledWith('/auth/me')
+    expect(api.get).toHaveBeenCalledWith('/auth/me', { _skipAuthRedirect: true })
     expect(store.user).toEqual(mockUser)
     expect(store.isAuthenticated).toBe(true)
+  })
+
+  it('keeps public pages available without an auth session', async () => {
+    const store = useAuthStore()
+    store.user = { id: 5, role: 'admin' }
+    localStorageMock.setItem('user', JSON.stringify(store.user))
+    api.get.mockRejectedValueOnce(new Error('No session'))
+
+    await store.bootstrap()
+
+    expect(store.user).toBeNull()
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('user')
+    expect(api.get).toHaveBeenCalledWith('/auth/me', { _skipAuthRedirect: true })
   })
 })

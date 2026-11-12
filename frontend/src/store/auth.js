@@ -48,20 +48,21 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async fetchMe() {
-      const response = await api.get('/auth/me')
+    async fetchMe(options = {}) {
+      const response = await api.get('/auth/me', options)
       this.user = response.data
       localStorage.setItem('user', JSON.stringify(this.user))
       return this.user
     },
 
     async bootstrap() {
-      // Всегда проверяем cookie-сессию: localStorage может быть очищен,
-      // тогда /auth/me + refresh-интерцептор восстановят профиль.
+      // The router decides which pages are public. Do not hard-redirect from
+      // the interceptor when loading /docs without a session.
       try {
-        await this.fetchMe()
+        await this.fetchMe({ _skipAuthRedirect: true })
       } catch {
-        // 401 обрабатывается интерцептором (refresh или разлогин).
+        this.user = null
+        localStorage.removeItem('user')
       }
     },
 

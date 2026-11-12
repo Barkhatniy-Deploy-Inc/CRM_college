@@ -45,11 +45,17 @@ docker compose ps
 | Адрес | Назначение |
 | --- | --- |
 | `/` | Vue SPA |
+| `/docs` | Страница со ссылками на документацию трёх сервисов |
+| `/api/auth/docs` | Swagger UI auth; схема: `/api/auth/openapi.json` |
+| `/api/schedule/docs` | Swagger UI schedule; схема: `/api/schedule/openapi.json` |
+| `/api/techcard/docs` | Swagger UI techcard; схема: `/api/techcard/openapi.json` |
 | `/healthz` | Проверка Nginx |
 | `/api/auth/health` | Auth и доступность его БД |
 | `/api/schedule/health` | Schedule и доступность его БД |
 | `/api/techcard/health` | Techcard и доступность его БД |
 | `/ws` | WebSocket расписания |
+
+Раньше стандартные FastAPI `/docs` и `/openapi.json` были доступны только внутри отдельных контейнеров: gateway отправлял их во frontend вместо API. Теперь `/docs` — страница-указатель Vue, а Swagger и схема каждого сервиса находятся под его `/api/...`-префиксом, который проксируется и через Vite, и через Nginx. ReDoc доступен на `/api/{auth|schedule|techcard}/redoc`. Swagger UI загружает JS/CSS с внешнего CDN; если он заблокирован, сама схема OpenAPI JSON остаётся доступной.
 
 Healthcheck backend возвращает `503`, если проверка `SELECT 1` не проходит. `healthy` подтверждает доступность БД, но не корректность всех пользовательских сценариев. Найденные ошибки приложения перечислены в [плане](DEVOPS_PLAN.md).
 
